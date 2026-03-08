@@ -31,9 +31,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Each user is assigned a role (Admin, Manufacturer, or Retailer) and role-based access control prevents unauthorized access to protected routes
   4. Companies exist as independent entities with name, contact, phone, type, and margin percentage (default 10%); users belong to a company via foreign key
   5. The monorepo builds, the Express API starts, the PostgreSQL database accepts connections, and seed data populates test accounts for all three roles
-**Plans**: 4 plans
+**Plans**: 5 plans
 
 Plans:
+- [ ] 01-00-PLAN.md — Wave 0 test infrastructure (vitest install, config, stub test files)
 - [ ] 01-01-PLAN.md — Monorepo scaffolding, Turborepo config, and @ais/shared package with types, schemas, and constants
 - [ ] 01-02-PLAN.md — PostgreSQL schema with Drizzle ORM (companies + users tables, relations, API routes)
 - [ ] 01-03-PLAN.md — Frontend auth experience (Clerk login page, app shell, sidebar, role dashboards)
@@ -131,7 +132,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation and Auth | 0/4 | Not started | - |
+| 1. Foundation and Auth | 0/5 | Not started | - |
 | 2. Admin Catalog Management | 0/3 | Not started | - |
 | 3. Storefront and Discovery | 0/4 | Not started | - |
 | 4. Order Builder and Purchase | 0/3 | Not started | - |
