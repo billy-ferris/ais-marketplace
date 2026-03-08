@@ -17,8 +17,8 @@ Retailers can discover and purchase discounted CPG inventory from verified manuf
 ### Active
 
 - [ ] Three-role RBAC system (Admin, Manufacturer, Retailer) with Clerk authentication
-- [ ] Contentful-powered brand and product catalog with editorial content management
-- [ ] PostgreSQL-backed inventory, order, and offer transactional data (hybrid with Contentful)
+- [ ] PostgreSQL-backed data layer for all product catalog, inventory, order, and offer data (Phase 1)
+- [ ] Admin panel for inventory and content management (React-Admin or custom)
 - [ ] Main shop page with brand/category browsing, hero/featured sections
 - [ ] Full-text search across product name, brand, UPC, description
 - [ ] Category and brand filtering with sort (Featured, Newest, Price, Discount %, Units)
@@ -27,7 +27,7 @@ Retailers can discover and purchase discounted CPG inventory from verified manuf
 - [ ] Buy Now flow — immediate purchase at listing price with order confirmation
 - [ ] Best Offer flow — Retailer proposes price, AIS 10% margin auto-added, Manufacturer accepts/counters/declines
 - [ ] Manufacturer portal — view inventory status, receive offers, accept/decline/counter
-- [ ] Admin inventory management — create/edit/delete listings in Contentful, set negotiation potential, restrictions, FOB
+- [ ] Admin inventory management — create/edit/delete listings, set negotiation potential, restrictions, FOB
 - [ ] Admin offer visibility dashboard — read-only view of all offers and statuses
 - [ ] In-app notifications for all transaction events (always on)
 - [ ] Email notifications via Resend for transaction events (toggleable per user preference)
@@ -63,10 +63,9 @@ Retailers can discover and purchase discounted CPG inventory from verified manuf
 5. Loop until accepted or declined
 6. Accepted offer becomes an order → AIS processes and ships
 
-**Data architecture (hybrid):**
-- **Contentful** owns: Brand descriptions, marketing copy, brand/product imagery, category taxonomy, marketing bulletins, retail campaign content
-- **PostgreSQL** owns: Users/roles, inventory SKU transactional data (quantity, price, status), orders, order items, offers, offer items, counteroffers, notifications, notification preferences, audit logs
-- Frontend hydrates pages from both sources. Product catalog fields (name, UPC, size, description, images) live in Contentful; transactional fields (available qty, current price, status) live in PostgreSQL.
+**Data architecture:**
+- **Phase 1 (PostgreSQL only):** All data lives in PostgreSQL — product catalog, inventory, orders, offers, users, notifications. Images stored in cloud storage (S3/R2), URLs in PostgreSQL. Admin manages content via admin panel (React-Admin or custom).
+- **Phase 2+ (add Sanity CMS):** Migrate editorial content (brand descriptions, marketing copy, campaign content, bulletins) to Sanity (free tier, commercial use allowed). PostgreSQL retains all transactional data. Express API hydrates from both sources.
 
 **Phase 1 target:** Demo-ready application with sample data to pitch to manufacturers and retailers. Not yet handling real transactions.
 
@@ -78,10 +77,9 @@ Retailers can discover and purchase discounted CPG inventory from verified manuf
 
 ## Constraints
 
-- **Tech stack**: React + TypeScript (Vite), Node.js + Express REST API, PostgreSQL, Contentful CMS, Clerk Auth, Resend email, Tailwind CSS + shadcn/ui
+- **Tech stack**: React + TypeScript (Vite), Node.js + Express REST API, PostgreSQL, Clerk Auth, Resend email, Tailwind CSS + shadcn/ui. Sanity CMS added in Phase 2 for editorial content.
 - **Hosting**: Vercel (frontend, Pro plan required), Railway (API + PostgreSQL, early stage)
-- **Contentful rate limits**: No high-frequency writes to Contentful — all transactional data in PostgreSQL
-- **Budget**: Minimize infrastructure costs for demo/early stage — Vercel Pro ($20/mo), Railway usage-based, Contentful free tier, Clerk free tier, Resend free tier (3k emails/mo)
+- **Budget**: Minimize infrastructure costs for demo/early stage — Vercel Pro ($20/mo), Railway usage-based, Clerk free tier, Resend free tier (3k emails/mo). No CMS cost in Phase 1.
 - **Auth migration path**: Clerk for MVP; Auth0 if enterprise SSO (SAML/LDAP) needed later
 
 ## Key Decisions
@@ -89,7 +87,7 @@ Retailers can discover and purchase discounted CPG inventory from verified manuf
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Clerk for auth | Native Vite/React + Node/Express SDKs, built-in RBAC, simpler than Auth0 for MVP | — Pending |
-| Hybrid Contentful + PostgreSQL | Contentful for editorial content, PostgreSQL for transactional data — avoids rate limit issues on purchases | — Pending |
+| PostgreSQL only for Phase 1 | Simpler architecture, zero CMS cost, one data source. Contentful free tier prohibits commercial use ($300/mo Lite). Sanity (free, commercial OK) added in Phase 2 for editorial content. | — Pending |
 | No persistent cart | Order Builder scoped per BrandListing simplifies UX and avoids cross-listing complexity | — Pending |
 | Admin manual inventory entry (Phase 1) | Lowest friction to get demo-ready MVP; Manufacturer upload portal deferred to Phase 2 | — Pending |
 | Manufacturer negotiates directly | Manufacturer accepts/declines/counters in their own portal; Admin is read-only observer | — Pending |
@@ -97,5 +95,7 @@ Retailers can discover and purchase discounted CPG inventory from verified manuf
 | Railway for backend hosting | Usage-based pricing minimizes early-stage costs; evaluate Render or AWS as traffic grows | — Pending |
 | Tailwind + shadcn/ui | Utility-first CSS with polished accessible components, strong React/TypeScript ecosystem | — Pending |
 
+- Sanity CMS (Phase 2) | Free tier allows commercial use, $0 through Phase 2. Public datasets only on free (fine for editorial content). $15/seat/month Growth plan if private datasets needed. | — Pending |
+
 ---
-*Last updated: 2026-03-08 after initialization*
+*Last updated: 2026-03-08 after CMS decision*
