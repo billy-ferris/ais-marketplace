@@ -14,7 +14,7 @@ Requirements for demo-ready MVP. Each maps to roadmap phases.
 - [ ] **AUTH-03**: User session persists across browser refresh
 - [ ] **AUTH-04**: Users are assigned one of three roles: Admin, Manufacturer, or Retailer
 - [ ] **AUTH-05**: Role-based access control enforces permission boundaries between roles
-- [ ] **AUTH-06**: Companies are first-class entities with company name, contact name, phone, and type (manufacturer/retailer)
+- [ ] **AUTH-06**: Companies are first-class entities with company name, contact name, phone, type (manufacturer/retailer), and margin percentage (default 10%)
 - [ ] **AUTH-07**: Users belong to a company via foreign key. Phase 1 supports one user per company; schema supports multiple users per company for future expansion.
 
 ### Catalog & Browsing
@@ -48,9 +48,9 @@ Requirements for demo-ready MVP. Each maps to roadmap phases.
 ### Offer & Negotiation
 
 - [ ] **OFFR-01**: Retailer submits offer with quantity and proposed unit price per selected SKU
-- [ ] **OFFR-02**: System automatically adds 10% AIS margin to Retailer's offer before presenting to Manufacturer
+- [ ] **OFFR-02**: System automatically adds the manufacturer's company-specific AIS margin (default 10%) to Retailer's offer before presenting to Manufacturer
 - [ ] **OFFR-03**: Manufacturer can accept, decline, or counter an offer
-- [ ] **OFFR-04**: System strips AIS margin from Manufacturer's counteroffer before presenting to Retailer
+- [ ] **OFFR-04**: System strips the manufacturer's company-specific AIS margin from Manufacturer's counteroffer before presenting to Retailer
 - [ ] **OFFR-05**: Negotiation supports multiple rounds of counter/response until accepted or declined
 - [ ] **OFFR-06**: Accepted offer automatically converts to a confirmed order
 
@@ -65,6 +65,7 @@ Requirements for demo-ready MVP. Each maps to roadmap phases.
 - [ ] **ADMN-02**: Admin can manage brands and categories
 - [ ] **ADMN-03**: Admin can view all offers, counteroffers, and their statuses in a read-only dashboard
 - [ ] **ADMN-04**: Admin can view and manage registered users and their roles
+- [ ] **ADMN-05**: Admin can set a custom AIS margin percentage per company (defaults to 10%)
 
 ### Notifications
 
@@ -109,8 +110,8 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ### Admin Communications
 
-- **ADMN-05**: Marketing bulletins — create and publish announcements visible to all users or filtered by role
-- **ADMN-06**: Email blast tool — compose and send emails to all users or segmented by role
+- **ADMN-06**: Marketing bulletins — create and publish announcements visible to all users or filtered by role
+- **ADMN-07**: Email blast tool — compose and send emails to all users or segmented by role
 
 ### Campaigns
 
@@ -148,51 +149,52 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | — | Pending |
-| AUTH-02 | — | Pending |
-| AUTH-03 | — | Pending |
-| AUTH-04 | — | Pending |
-| AUTH-05 | — | Pending |
-| AUTH-06 | — | Pending |
-| AUTH-07 | — | Pending |
-| CATL-01 | — | Pending |
-| CATL-02 | — | Pending |
-| CATL-03 | — | Pending |
-| CATL-04 | — | Pending |
-| SRCH-01 | — | Pending |
-| SRCH-02 | — | Pending |
-| SRCH-03 | — | Pending |
-| SRCH-04 | — | Pending |
-| LIST-01 | — | Pending |
-| LIST-02 | — | Pending |
-| LIST-03 | — | Pending |
-| ORDR-01 | — | Pending |
-| ORDR-02 | — | Pending |
-| ORDR-03 | — | Pending |
-| ORDR-04 | — | Pending |
-| ORDR-05 | — | Pending |
-| OFFR-01 | — | Pending |
-| OFFR-02 | — | Pending |
-| OFFR-03 | — | Pending |
-| OFFR-04 | — | Pending |
-| OFFR-05 | — | Pending |
-| OFFR-06 | — | Pending |
-| MFPR-01 | — | Pending |
-| MFPR-02 | — | Pending |
-| ADMN-01 | — | Pending |
-| ADMN-02 | — | Pending |
-| ADMN-03 | — | Pending |
-| ADMN-04 | — | Pending |
-| NOTF-01 | — | Pending |
-| NOTF-02 | — | Pending |
-| EXPT-01 | — | Pending |
-| EXPT-02 | — | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Pending |
+| AUTH-05 | Phase 1 | Pending |
+| AUTH-06 | Phase 1 | Pending |
+| AUTH-07 | Phase 1 | Pending |
+| ADMN-01 | Phase 2 | Pending |
+| ADMN-02 | Phase 2 | Pending |
+| CATL-01 | Phase 3 | Pending |
+| CATL-02 | Phase 3 | Pending |
+| CATL-03 | Phase 3 | Pending |
+| CATL-04 | Phase 3 | Pending |
+| SRCH-01 | Phase 3 | Pending |
+| SRCH-02 | Phase 3 | Pending |
+| SRCH-03 | Phase 3 | Pending |
+| SRCH-04 | Phase 3 | Pending |
+| LIST-01 | Phase 3 | Pending |
+| LIST-02 | Phase 3 | Pending |
+| LIST-03 | Phase 3 | Pending |
+| ORDR-01 | Phase 4 | Pending |
+| ORDR-02 | Phase 4 | Pending |
+| ORDR-03 | Phase 4 | Pending |
+| ORDR-04 | Phase 4 | Pending |
+| ORDR-05 | Phase 4 | Pending |
+| OFFR-01 | Phase 5 | Pending |
+| OFFR-02 | Phase 5 | Pending |
+| OFFR-03 | Phase 5 | Pending |
+| OFFR-04 | Phase 5 | Pending |
+| OFFR-05 | Phase 5 | Pending |
+| OFFR-06 | Phase 5 | Pending |
+| NOTF-01 | Phase 5 | Pending |
+| NOTF-02 | Phase 5 | Pending |
+| MFPR-01 | Phase 6 | Pending |
+| MFPR-02 | Phase 6 | Pending |
+| ADMN-03 | Phase 6 | Pending |
+| ADMN-04 | Phase 6 | Pending |
+| ADMN-05 | Phase 6 | Pending |
+| EXPT-01 | Phase 6 | Pending |
+| EXPT-02 | Phase 6 | Pending |
 
 **Coverage:**
-- v1 requirements: 39 total
-- Mapped to phases: 0
-- Unmapped: 39 ⚠️
+- v1 requirements: 40 total
+- Mapped to phases: 40
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-08*
-*Last updated: 2026-03-08 after initial definition*
+*Last updated: 2026-03-08 after roadmap creation*

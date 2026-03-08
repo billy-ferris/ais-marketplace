@@ -53,11 +53,11 @@ Retailers can discover and purchase discounted CPG inventory from verified manuf
 
 **Company:** Alternative Inventory Solutions (AIS), founded October 2023 by Dan LeRose (20+ years CPG) and Brandon Ferris (5+ years excess inventory recovery). Tagline: "Your Inventory Solutions Partner."
 
-**Business model:** AIS is the intermediary — not a two-sided marketplace where buyers and sellers transact directly. AIS adds a 10% margin to all transactions. On Buy Now, the listing price already includes the margin. On offers, AIS adds 10% to the Retailer's proposed price before showing it to the Manufacturer. On counteroffers, AIS strips the margin before showing the Manufacturer's counter to the Retailer. The Manufacturer never sees the Retailer's raw price; the Retailer never sees the Manufacturer's raw price.
+**Business model:** AIS is the intermediary — not a two-sided marketplace where buyers and sellers transact directly. AIS charges a per-company margin (default 10%, negotiated during onboarding) on all transactions. The margin percentage is stored on the company entity. On Buy Now, the listing price already includes the margin. On offers, the system adds the company-specific margin to the Retailer's proposed price before showing it to the Manufacturer. On counteroffers, the system strips the margin before showing the Manufacturer's counter to the Retailer. The Manufacturer never sees the Retailer's raw price; the Retailer never sees the Manufacturer's raw price.
 
 **Offer negotiation flow:**
 1. Retailer submits offer (quantity + proposed unit price per selected SKU)
-2. System adds 10% AIS margin → Manufacturer sees margin-inclusive price
+2. System adds company-specific AIS margin (default 10%) → Manufacturer sees margin-inclusive price
 3. Manufacturer accepts, declines, or counters (at the margin-inclusive number)
 4. If countered → system strips margin → Retailer sees margin-adjusted counter
 5. Loop until accepted or declined
@@ -95,7 +95,8 @@ Retailers can discover and purchase discounted CPG inventory from verified manuf
 | Railway for backend hosting | Usage-based pricing minimizes early-stage costs; evaluate Render or AWS as traffic grows | — Pending |
 | Tailwind + shadcn/ui | Utility-first CSS with polished accessible components, strong React/TypeScript ecosystem | — Pending |
 
-- Sanity CMS (Phase 2) | Free tier allows commercial use, $0 through Phase 2. Public datasets only on free (fine for editorial content). $15/seat/month Growth plan if private datasets needed. | — Pending |
+| Sanity CMS (Phase 2) | Free tier allows commercial use, $0 through Phase 2. Public datasets only on free (fine for editorial content). $15/seat/month Growth plan if private datasets needed. | — Pending |
+| Per-company margin | Margin % negotiated per company during onboarding, stored on company entity, default 10%. More realistic B2B model than flat platform fee. | — Pending |
 
 ---
-*Last updated: 2026-03-08 after CMS decision*
+*Last updated: 2026-03-08 after per-company margin decision*
