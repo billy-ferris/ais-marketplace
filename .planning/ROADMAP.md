@@ -31,13 +31,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Each user is assigned a role (Admin, Manufacturer, or Retailer) and role-based access control prevents unauthorized access to protected routes
   4. Companies exist as independent entities with name, contact, phone, type, and margin percentage (default 10%); users belong to a company via foreign key
   5. The monorepo builds, the Express API starts, the PostgreSQL database accepts connections, and seed data populates test accounts for all three roles
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 01-01: Monorepo scaffolding and shared packages
-- [ ] 01-02: PostgreSQL schema and Drizzle ORM setup
-- [ ] 01-03: Clerk authentication and RBAC middleware
-- [ ] 01-04: Companies entity and user-company relationship
+- [ ] 01-01-PLAN.md — Monorepo scaffolding, Turborepo config, and @ais/shared package with types, schemas, and constants
+- [ ] 01-02-PLAN.md — PostgreSQL schema with Drizzle ORM (companies + users tables, relations, API routes)
+- [ ] 01-03-PLAN.md — Frontend auth experience (Clerk login page, app shell, sidebar, role dashboards)
+- [ ] 01-04-PLAN.md — Clerk backend auth (RBAC middleware, webhook, seed script with demo data)
 
 ### Phase 2: Admin Catalog Management
 **Goal**: Admin can populate and manage the full product catalog through an internal management interface
