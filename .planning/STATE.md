@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in-progress
-stopped_at: Completed 02.2-01 (Zero-mock test stubs)
-last_updated: "2026-03-09T23:52:22Z"
-last_activity: 2026-03-09 -- Completed plan 02.2-01 (Zero-mock test stubs)
+status: completed
+stopped_at: Completed 02.2-03 (Listing & Upload route handler tests)
+last_updated: "2026-03-09T23:55:00Z"
+last_activity: 2026-03-09 -- Completed plan 02.2-03 (Listing & Upload route handler tests)
 progress:
   total_phases: 7
   completed_phases: 2
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 
 ## Current Position
 
-Phase: 2.2 (Populate Phase 2 test stubs with real implementations) -- IN PROGRESS
-Plan: 1 of 3 in Phase 2.2 (02.2-01 complete)
-Status: Plan 02.2-01 complete, ready for 02.2-02
-Last activity: 2026-03-09 -- Completed plan 02.2-01 (Zero-mock test stubs: 28 tests)
+Phase: 2.2 (Populate Phase 2 test stubs with real implementations) -- COMPLETE
+Plan: 3 of 3 in Phase 2.2 (all complete)
+Status: Phase 2.2 complete, all 85 test stubs populated, ready for Phase 2.1
+Last activity: 2026-03-09 -- Completed plan 02.2-03 (Listing & Upload route handler tests: 27 tests)
 
-Progress: [███-------] 33%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -62,6 +62,8 @@ Progress: [███-------] 33%
 | Phase 02 P05 | 12 | 2 tasks | 10 files |
 | Phase 02 P06 | 45 | 2 tasks | 12 files |
 | Phase 02.2 P01 | 2 | 2 tasks | 2 files |
+| Phase 02.2 P02 | 4 | 2 tasks | 2 files |
+| Phase 02.2 P03 | 4 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -104,6 +106,9 @@ Recent decisions affecting current work:
 - [Phase 02-06]: Removed expirationDate from inventory SKU schema -- CPG items tracked by lot/batch externally
 - [Phase 02-06]: Changed Clerk acceptsToken from 'any' to 'session_token' for explicit token type matching
 - [Phase 02.2-01]: Used safeParse() consistently (not parse()) for clean success/error assertions, with parse() only for default-value extraction
+- [Phase 02.2-03]: vi.hoisted() required for mock variables referenced inside vi.mock() factory functions (vitest hoists vi.mock above all declarations)
+- [Phase 02.2-03]: Thenable mock pattern (mockDb.then = vi.fn) controls Promise.all resolution order for complex route handlers
+- [Phase 02.2-03]: Route middleware stack length check for admin role verification (avoids clearAllMocks clearing registration-time spy calls)
 
 ### Pending Todos
 
@@ -121,6 +126,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T23:52:22Z
-Stopped at: Completed 02.2-01-PLAN.md
-Resume file: .planning/phases/02.2-populate-phase-2-test-stubs-with-real-implementations/02.2-02-PLAN.md
+Last session: 2026-03-09T23:55:00Z
+Stopped at: Completed 02.2-03-PLAN.md (Phase 2.2 complete)
+Resume file: .planning/phases/02.1-manufacturer-self-service-approval-workflow/
