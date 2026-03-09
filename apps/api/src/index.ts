@@ -6,6 +6,9 @@ import { API_ROUTES } from '@ais/shared/constants';
 import { webhookRouter } from './routes/webhooks';
 import { companyRouter } from './routes/companies';
 import { userRouter } from './routes/users';
+import { brandRouter } from './routes/brands';
+import { categoryRouter } from './routes/categories';
+import { uploadRouter } from './routes/uploads';
 import { errorHandler } from './middleware/error';
 
 const app: Express = express();
@@ -27,6 +30,9 @@ app.use(clerkMiddleware());
 // API routes
 app.use(API_ROUTES.COMPANIES, companyRouter);
 app.use(API_ROUTES.USERS, userRouter);
+app.use(API_ROUTES.BRANDS, brandRouter);
+app.use(API_ROUTES.CATEGORIES, categoryRouter);
+app.use(API_ROUTES.UPLOADS, uploadRouter);
 
 // Health check
 app.get(API_ROUTES.HEALTH, (_req, res) => {
