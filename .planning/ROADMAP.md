@@ -72,10 +72,12 @@ Plans:
   5. All users have a notification inbox accessible from sidebar with unread count badge
   6. Admin receives notification on new submissions; manufacturer receives notification on approval/rejection (with reason)
   7. Email notifications are sent via Resend for all approval workflow events
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 02.1-01: TBD during planning
+- [ ] 02.1-01-PLAN.md — Schema foundation: Wave 0 test stubs, listing_status enum extension, notifications table, shared types/constants
+- [ ] 02.1-02-PLAN.md — Backend APIs: role-scoped brand/listing routes, approval workflow endpoints, notification service + Resend email
+- [ ] 02.1-03-PLAN.md — Frontend: manufacturer nav/manage pages, approval queue, notification bell + inbox, end-to-end checkpoint
 
 ### Phase 3: Storefront and Discovery
 **Goal**: Retailers can discover and evaluate available CPG inventory through a professional browsing and search experience
@@ -156,7 +158,7 @@ Phases execute in numeric order: 1 -> 2 -> 2.1 -> 3 -> 4 -> 5 -> 6
 |-------|----------------|--------|-----------|
 | 1. Foundation and Auth | 5/5 | Complete   | 2026-03-09 |
 | 2. Admin Catalog Management | 7/7 | Complete   | 2026-03-09 |
-| 2.1. Manufacturer Self-Service & Approval Workflow | 0/? | Not started | - |
+| 2.1. Manufacturer Self-Service & Approval Workflow | 0/3 | Not started | - |
 | 3. Storefront and Discovery | 0/4 | Not started | - |
 | 4. Order Builder and Purchase | 0/3 | Not started | - |
 | 5. Offer Negotiation and Notifications | 0/3 | Not started | - |
