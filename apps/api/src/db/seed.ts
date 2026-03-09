@@ -177,10 +177,11 @@ const seedListings = [
 /** SKUs grouped by listing index */
 const seedSkusByListing: Array<Array<{
   name: string;
-  description: string;
+  sku: string;
   upc: string;
   size: string;
   casePack: number;
+  casesPerPallet: number;
   price: string;
   msrp: string;
   quantity: number;
@@ -189,30 +190,33 @@ const seedSkusByListing: Array<Array<{
   [
     {
       name: 'Hydrating Shampoo 12oz',
-      description: 'Sulfate-free moisturizing shampoo for all hair types.',
+      sku: 'FG-HC-SH12',
       upc: '894501234501',
       size: '12 oz',
       casePack: 12,
+      casesPerPallet: 80,
       price: '18.99',
       msrp: '24.99',
       quantity: 200,
     },
     {
       name: 'Deep Conditioner 8oz',
-      description: 'Intensive deep conditioning treatment with argan oil.',
+      sku: 'FG-HC-DC08',
       upc: '894501234502',
       size: '8 oz',
       casePack: 12,
+      casesPerPallet: 80,
       price: '22.99',
       msrp: '29.99',
       quantity: 150,
     },
     {
       name: 'Leave-In Styling Cream 6oz',
-      description: 'Lightweight styling cream for frizz control and shine.',
+      sku: 'FG-HC-SC06',
       upc: '894501234503',
       size: '6 oz',
       casePack: 24,
+      casesPerPallet: 60,
       price: '14.99',
       msrp: '19.99',
       quantity: 300,
@@ -222,20 +226,22 @@ const seedSkusByListing: Array<Array<{
   [
     {
       name: 'Makeup Brush Set (12pc)',
-      description: 'Professional 12-piece makeup brush set with synthetic bristles.',
+      sku: 'GP-BT-MB12',
       upc: '894502345601',
       size: '12 pack',
       casePack: 6,
+      casesPerPallet: 120,
       price: '34.99',
       msrp: '49.99',
       quantity: 100,
     },
     {
       name: 'Eyelash Curler Pro',
-      description: 'Ergonomic eyelash curler with silicone pads for a perfect curl.',
+      sku: 'GP-BT-ECP1',
       upc: '894502345602',
       size: '1 ct',
       casePack: 24,
+      casesPerPallet: 100,
       price: '12.99',
       msrp: '17.99',
       quantity: 250,
@@ -245,20 +251,22 @@ const seedSkusByListing: Array<Array<{
   [
     {
       name: 'Midnight Bloom Eau de Parfum 3.4oz',
-      description: 'A rich floral fragrance with notes of jasmine and sandalwood.',
+      sku: 'FG-FR-MB34',
       upc: '894503456701',
       size: '3.4 oz',
       casePack: 6,
+      casesPerPallet: 150,
       price: '54.99',
       msrp: '79.99',
       quantity: 75,
     },
     {
       name: 'Citrus Breeze Body Mist 8oz',
-      description: 'Refreshing citrus body mist for everyday wear.',
+      sku: 'FG-FR-CB08',
       upc: '894503456702',
       size: '8 oz',
       casePack: 12,
+      casesPerPallet: 90,
       price: '19.99',
       msrp: '27.99',
       quantity: 180,
@@ -268,30 +276,33 @@ const seedSkusByListing: Array<Array<{
   [
     {
       name: 'Organic Green Tea Blend 100ct',
-      description: 'Premium organic green tea bags for daily wellness.',
+      sku: 'SH-KE-GT100',
       upc: '894504567801',
       size: '100 ct',
       casePack: 12,
+      casesPerPallet: 72,
       price: '24.99',
       msrp: '34.99',
       quantity: 400,
     },
     {
       name: 'Vitamin C Immunity Gummies 60ct',
-      description: 'Daily vitamin C gummies for immune support.',
+      sku: 'SH-KE-VC60',
       upc: '894504567802',
       size: '60 ct',
       casePack: 24,
+      casesPerPallet: 60,
       price: '16.99',
       msrp: '22.99',
       quantity: 500,
     },
     {
       name: 'Stainless Steel Water Bottle 32oz',
-      description: 'Double-wall insulated water bottle, keeps drinks cold 24 hours.',
+      sku: 'SH-KE-WB32',
       upc: '894504567803',
       size: '32 oz',
       casePack: 6,
+      casesPerPallet: 48,
       price: '29.99',
       msrp: '39.99',
       quantity: 120,
@@ -301,30 +312,33 @@ const seedSkusByListing: Array<Array<{
   [
     {
       name: 'Gel Nail Polish Set (8 colors)',
-      description: 'UV/LED gel polish set with trendy seasonal colors.',
+      sku: 'GP-NC-GP08',
       upc: '894505678901',
       size: '8 pack',
       casePack: 12,
+      casesPerPallet: 84,
       price: '28.99',
       msrp: '39.99',
       quantity: 150,
     },
     {
       name: 'Nail Art Stamping Kit',
-      description: 'Complete nail art stamping kit with plates, scraper, and stamper.',
+      sku: 'GP-NC-SK01',
       upc: '894505678902',
       size: '1 kit',
       casePack: 24,
+      casesPerPallet: 96,
       price: '15.99',
       msrp: '21.99',
       quantity: 200,
     },
     {
       name: 'Cuticle Oil Pen 3-Pack',
-      description: 'Nourishing cuticle oil pens with vitamin E and jojoba oil.',
+      sku: 'GP-NC-CO03',
       upc: '894505678903',
       size: '3 pack',
       casePack: 36,
+      casesPerPallet: 108,
       price: '9.99',
       msrp: '14.99',
       quantity: 350,
@@ -517,14 +531,15 @@ async function main(): Promise<void> {
       await db.insert(inventorySkus).values({
         listingId: insertedListings[i].id,
         name: sku.name,
-        description: sku.description,
+        sku: sku.sku,
         upc: sku.upc,
         size: sku.size,
         casePack: sku.casePack,
+        casesPerPallet: sku.casesPerPallet,
         price: sku.price,
         msrp: sku.msrp,
         quantity: sku.quantity,
-        });
+      });
       skuCount++;
     }
   }

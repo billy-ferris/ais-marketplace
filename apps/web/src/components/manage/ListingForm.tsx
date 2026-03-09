@@ -78,11 +78,13 @@ function existingSkusToFormData(
   return skus.map((sku) => ({
     id: sku.id,
     name: sku.name,
+    sku: sku.sku ?? '',
     upc: sku.upc ?? '',
     size: sku.size ?? '',
     casePack: sku.casePack?.toString() ?? '',
+    casesPerPallet: sku.casesPerPallet?.toString() ?? '',
     price: sku.price,
-    msrp: sku.msrp ?? '',
+    msrp: sku.msrp,
     quantity: sku.quantity.toString(),
     imageUrl: sku.imageUrl,
   }));

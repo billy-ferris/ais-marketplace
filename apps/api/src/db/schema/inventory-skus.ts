@@ -4,7 +4,6 @@ import {
   pgTable,
   timestamp,
   varchar,
-  text,
 } from 'drizzle-orm/pg-core';
 import { brandListings } from './brand-listings';
 
@@ -14,12 +13,13 @@ export const inventorySkus = pgTable('inventory_skus', {
     .notNull()
     .references(() => brandListings.id),
   name: varchar({ length: 255 }).notNull(),
-  description: text(),
+  sku: varchar({ length: 100 }),
   upc: varchar({ length: 20 }),
   size: varchar({ length: 100 }),
   casePack: integer('case_pack'),
+  casesPerPallet: integer('cases_per_pallet'),
   price: numeric({ precision: 10, scale: 2 }).notNull(),
-  msrp: numeric({ precision: 10, scale: 2 }),
+  msrp: numeric({ precision: 10, scale: 2 }).notNull(),
   quantity: integer().notNull().default(0),
   imageUrl: varchar('image_url', { length: 1024 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),

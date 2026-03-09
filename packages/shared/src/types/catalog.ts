@@ -41,12 +41,13 @@ export interface InventorySKU {
   id: number;
   listingId: number;
   name: string;
-  description: string | null;
+  sku: string | null;
   upc: string | null;
   size: string | null;
   casePack: number | null;
+  casesPerPallet: number | null;
   price: string;
-  msrp: string | null;
+  msrp: string;
   quantity: number;
   imageUrl: string | null;
   createdAt: Date;

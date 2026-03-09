@@ -9,9 +9,11 @@ export interface SkuFormData {
   /** Present only for existing SKUs (edit mode) */
   id?: number;
   name: string;
+  sku: string;
   upc: string;
   size: string;
   casePack: string;
+  casesPerPallet: string;
   price: string;
   msrp: string;
   quantity: string;
@@ -23,11 +25,13 @@ export interface SkuFormData {
 export interface SkuChangeOutput {
   create: Array<{
     name: string;
+    sku?: string;
     upc?: string;
     size?: string;
     casePack?: number;
+    casesPerPallet?: number;
     price: string;
-    msrp?: string;
+    msrp: string;
     quantity: number;
     imageUrl?: string;
   }>;
@@ -46,9 +50,11 @@ interface SkuInlineEditorProps {
 
 const EMPTY_SKU: SkuFormData = {
   name: '',
+  sku: '',
   upc: '',
   size: '',
   casePack: '',
+  casesPerPallet: '',
   price: '',
   msrp: '',
   quantity: '0',
@@ -185,6 +191,17 @@ export function SkuInlineEditor({
                 />
               </div>
               <div className="space-y-1">
+                <Label className="text-xs">SKU</Label>
+                <Input
+                  placeholder="SKU code"
+                  value={sku.sku}
+                  onChange={(e) =>
+                    handleFieldChange(index, 'sku', e.target.value)
+                  }
+                  disabled={disabled}
+                />
+              </div>
+              <div className="space-y-1">
                 <Label className="text-xs">UPC</Label>
                 <Input
                   placeholder="UPC code"
@@ -219,7 +236,19 @@ export function SkuInlineEditor({
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Price *</Label>
+                <Label className="text-xs">Cases Per Pallet</Label>
+                <Input
+                  type="number"
+                  placeholder="Cases per pallet"
+                  value={sku.casesPerPallet}
+                  onChange={(e) =>
+                    handleFieldChange(index, 'casesPerPallet', e.target.value)
+                  }
+                  disabled={disabled}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Unit Price *</Label>
                 <Input
                   placeholder="12.99"
                   value={sku.price}
@@ -230,7 +259,7 @@ export function SkuInlineEditor({
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">MSRP</Label>
+                <Label className="text-xs">MSRP *</Label>
                 <Input
                   placeholder="24.99"
                   value={sku.msrp}
@@ -339,12 +368,14 @@ export function buildSkuPayload(skus: SkuFormData[]): SkuChangeOutput {
     const data: Record<string, unknown> = {
       name: sku.name,
       price: sku.price,
+      msrp: sku.msrp,
       quantity: Number(sku.quantity) || 0,
     };
+    if (sku.sku) data.sku = sku.sku;
     if (sku.upc) data.upc = sku.upc;
     if (sku.size) data.size = sku.size;
     if (sku.casePack) data.casePack = Number(sku.casePack);
-    if (sku.msrp) data.msrp = sku.msrp;
+    if (sku.casesPerPallet) data.casesPerPallet = Number(sku.casesPerPallet);
     if (sku.imageUrl) data.imageUrl = sku.imageUrl;
 
     if (sku.id) {
