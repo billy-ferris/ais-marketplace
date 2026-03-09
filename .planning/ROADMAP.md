@@ -60,6 +60,18 @@ Plans:
 - [x] 02-05-PLAN.md — Inventory listing CRUD (API routes, data table, create/edit pages, inline SKU editor)
 - [x] 02-06-PLAN.md — Seed data and end-to-end admin verification checkpoint
 
+### Phase 02.2: Populate Phase 2 test stubs with real implementations (INSERTED)
+
+**Goal:** All 85 it.todo() test stubs across 6 test files are populated with real test implementations, achieving full test coverage for Phase 2 API routes, Zod schemas, and seed data
+**Requirements**: TEST-ZOD, TEST-SEED, TEST-BRANDS, TEST-CATEGORIES, TEST-LISTINGS, TEST-UPLOADS
+**Depends on:** Phase 2
+**Plans:** 3 plans
+
+Plans:
+- [ ] 02.2-01-PLAN.md — Zod schema validation tests (21 stubs) + seed data constant/structural tests (7 stubs)
+- [ ] 02.2-02-PLAN.md — Brand route handler tests (17 stubs) + category route handler tests (13 stubs)
+- [ ] 02.2-03-PLAN.md — Listing route handler tests (22 stubs) + upload route handler tests (5 stubs)
+
 ### Phase 2.1: Manufacturer Self-Service & Approval Workflow [INSERTED]
 **Goal**: Manufacturers can create listings and brands scoped to their company, with admin approval workflow and notification inbox for all users
 **Depends on**: Phase 2
@@ -152,12 +164,13 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 2.1 -> 3 -> 4 -> 5 -> 6
+Phases execute in numeric order: 1 -> 2 -> 2.2 -> 2.1 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation and Auth | 5/5 | Complete   | 2026-03-09 |
 | 2. Admin Catalog Management | 7/7 | Complete   | 2026-03-09 |
+| 2.2. Populate Phase 2 test stubs | 0/3 | Not started | - |
 | 2.1. Manufacturer Self-Service & Approval Workflow | 0/3 | Not started | - |
 | 3. Storefront and Discovery | 0/4 | Not started | - |
 | 4. Order Builder and Purchase | 0/3 | Not started | - |
