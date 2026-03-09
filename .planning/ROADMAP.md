@@ -13,7 +13,7 @@ This roadmap delivers a demo-ready B2B marketplace for CPG excess inventory in 7
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation and Auth** - Monorepo scaffolding, PostgreSQL schema, Clerk authentication with three-role RBAC, and companies as first-class entities (completed 2026-03-09)
-- [ ] **Phase 2: Admin Catalog Management** - Admin can create, edit, and manage inventory listings, brands, and categories in PostgreSQL
+- [x] **Phase 2: Admin Catalog Management** - Admin can create, edit, and manage inventory listings, brands, and categories in PostgreSQL (completed 2026-03-09)
 - [ ] **Phase 2.1: Manufacturer Self-Service & Approval Workflow** [INSERTED] - Manufacturers create listings and brands scoped to their company with admin approval workflow; notification inbox with email via Resend
 - [ ] **Phase 3: Storefront and Discovery** - Retailers can browse the catalog by brand and category, search products, filter and sort results, and view listing details
 - [ ] **Phase 4: Order Builder and Purchase** - Retailers can select SKUs from a listing, build an order with quantities, and complete a Buy Now purchase or initiate an offer
@@ -58,7 +58,7 @@ Plans:
 - [x] 02-03-PLAN.md — Brand and category API routes + shared UI components (DataTable, dialogs, image upload)
 - [x] 02-04-PLAN.md — Brand and category frontend (TanStack Query hooks, dialog modals, management pages)
 - [x] 02-05-PLAN.md — Inventory listing CRUD (API routes, data table, create/edit pages, inline SKU editor)
-- [ ] 02-06-PLAN.md — Seed data and end-to-end admin verification checkpoint
+- [x] 02-06-PLAN.md — Seed data and end-to-end admin verification checkpoint
 
 ### Phase 2.1: Manufacturer Self-Service & Approval Workflow [INSERTED]
 **Goal**: Manufacturers can create listings and brands scoped to their company, with admin approval workflow and notification inbox for all users
@@ -155,7 +155,7 @@ Phases execute in numeric order: 1 -> 2 -> 2.1 -> 3 -> 4 -> 5 -> 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation and Auth | 5/5 | Complete   | 2026-03-09 |
-| 2. Admin Catalog Management | 6/7 | In Progress|  |
+| 2. Admin Catalog Management | 7/7 | Complete   | 2026-03-09 |
 | 2.1. Manufacturer Self-Service & Approval Workflow | 0/? | Not started | - |
 | 3. Storefront and Discovery | 0/4 | Not started | - |
 | 4. Order Builder and Purchase | 0/3 | Not started | - |

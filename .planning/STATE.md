@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 02-05-PLAN.md
-last_updated: "2026-03-09T14:10:23Z"
-last_activity: 2026-03-09 -- Completed plan 02-05 (Listing CRUD & management pages)
+status: completed
+stopped_at: Completed 02-06-PLAN.md (Phase 2 complete)
+last_updated: "2026-03-09T22:03:37.048Z"
+last_activity: 2026-03-09 -- Completed plan 02-06 (Seed data & end-to-end admin verification)
 progress:
-  total_phases: 6
-  completed_phases: 1
+  total_phases: 7
+  completed_phases: 2
   total_plans: 12
-  completed_plans: 11
-  percent: 88
+  completed_plans: 12
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-08)
 
 **Core value:** Retailers can discover and purchase discounted CPG inventory from verified manufacturers through a transparent, friction-free marketplace -- with every transaction brokered by AIS.
-**Current focus:** Phase 2: Admin Catalog Management
+**Current focus:** Phase 2.1: Manufacturer Self-Service & Approval Workflow
 
 ## Current Position
 
-Phase: 2 of 6 (Admin Catalog Management)
-Plan: 6 of 7 in current phase
-Status: Executing
-Last activity: 2026-03-09 -- Completed plan 02-05 (Listing CRUD & management pages)
+Phase: 2 of 7 (Admin Catalog Management) -- COMPLETE
+Next: Phase 2.1 (Manufacturer Self-Service & Approval Workflow)
+Plan: 7 of 7 in Phase 2 (all complete)
+Status: Phase 2 complete, ready for Phase 2.1
+Last activity: 2026-03-09 -- Completed plan 02-06 (Seed data & end-to-end admin verification)
 
-Progress: [████████▊░] 88%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -60,6 +61,7 @@ Progress: [████████▊░] 88%
 | Phase 02 P03 | 4 | 2 tasks | 9 files |
 | Phase 02 P04 | 5 | 2 tasks | 10 files |
 | Phase 02 P05 | 12 | 2 tasks | 10 files |
+| Phase 02 P06 | 45 | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -98,6 +100,9 @@ Recent decisions affecting current work:
 - [Phase 02-05]: Checkbox grid for category multi-select (simpler than multi-select dropdown for small lists)
 - [Phase 02-05]: SkuInlineEditor uses _deleted flag for undo capability instead of immediate array splice
 - [Phase 02-05]: Multi-image form with hover-reveal controls for reorder, primary, and remove
+- [Phase 02-06]: Seed script cleans catalog tables in FK order before re-inserting for idempotent runs
+- [Phase 02-06]: Removed expirationDate from inventory SKU schema -- CPG items tracked by lot/batch externally
+- [Phase 02-06]: Changed Clerk acceptsToken from 'any' to 'session_token' for explicit token type matching
 
 ### Pending Todos
 
@@ -110,6 +115,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T14:10:23Z
-Stopped at: Completed 02-05-PLAN.md
+Last session: 2026-03-09T22:03:37.046Z
+Stopped at: Completed 02-06-PLAN.md (Phase 2 complete)
 Resume file: None
