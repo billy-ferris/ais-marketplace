@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-03-09T13:53:22Z"
-last_activity: 2026-03-09 -- Completed plan 02-04 (Brand & category management pages)
+stopped_at: Completed 02-05-PLAN.md
+last_updated: "2026-03-09T14:10:23Z"
+last_activity: 2026-03-09 -- Completed plan 02-05 (Listing CRUD & management pages)
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 12
-  completed_plans: 10
-  percent: 83
+  completed_plans: 11
+  percent: 88
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 ## Current Position
 
 Phase: 2 of 6 (Admin Catalog Management)
-Plan: 5 of 7 in current phase
+Plan: 6 of 7 in current phase
 Status: Executing
-Last activity: 2026-03-09 -- Completed plan 02-04 (Brand & category management pages)
+Last activity: 2026-03-09 -- Completed plan 02-05 (Listing CRUD & management pages)
 
-Progress: [████████▎░] 83%
+Progress: [████████▊░] 88%
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Progress: [████████▎░] 83%
 | Phase 02 P02 | 7 | 2 tasks | 35 files |
 | Phase 02 P03 | 4 | 2 tasks | 9 files |
 | Phase 02 P04 | 5 | 2 tasks | 10 files |
+| Phase 02 P05 | 12 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -93,6 +94,10 @@ Recent decisions affecting current work:
 - [Phase 02-04]: Category icon column shows name as code badge instead of rendering icon (avoids importing entire lucide-react icons map, saves ~1MB)
 - [Phase 02-04]: react-hook-form used directly with register/errors pattern (no shadcn Form wrapper needed)
 - [Phase 02-04]: Company select in BrandDialog filters /api/companies response to type=manufacturer on client
+- [Phase 02-05]: z.input<> type for useForm + z.output<> at submit boundary when schema has .default() fields
+- [Phase 02-05]: Checkbox grid for category multi-select (simpler than multi-select dropdown for small lists)
+- [Phase 02-05]: SkuInlineEditor uses _deleted flag for undo capability instead of immediate array splice
+- [Phase 02-05]: Multi-image form with hover-reveal controls for reorder, primary, and remove
 
 ### Pending Todos
 
@@ -105,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T13:53:22Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-03-09T14:10:23Z
+Stopped at: Completed 02-05-PLAN.md
 Resume file: None
