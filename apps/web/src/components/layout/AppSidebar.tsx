@@ -129,7 +129,7 @@ function CollapsibleNavItem({
     <Collapsible defaultOpen={isOpen} className="group/collapsible">
       <SidebarMenuItem>
         <CollapsibleTrigger className="w-full">
-          <SidebarMenuButton tooltip={item.label} isActive={isOpen}>
+          <SidebarMenuButton tooltip={item.label} isActive={isOpen} className="cursor-pointer">
             <item.icon />
             <span>{item.label}</span>
             <ChevronRight className="ml-auto transition-transform duration-200 group-data-[open]/collapsible:rotate-90" />

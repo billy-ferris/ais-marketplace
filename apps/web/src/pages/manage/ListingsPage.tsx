@@ -117,7 +117,9 @@ export function ListingsPage() {
           }}
         >
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="All Statuses" />
+            <SelectValue>
+              {STATUS_FILTERS.find((sf) => sf.value === statusFilter)?.label ?? 'All Statuses'}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {STATUS_FILTERS.map((sf) => (

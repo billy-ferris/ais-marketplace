@@ -76,11 +76,11 @@ export function ImageUploader({
   // Show current image preview
   if (value && !isUploading) {
     return (
-      <div className={cn('relative inline-block', className)}>
+      <div className={cn('relative inline-block h-32 w-32', className)}>
         <img
           src={value}
           alt="Upload preview"
-          className="h-32 w-32 rounded-md border object-cover"
+          className="size-full rounded-md border object-cover"
         />
         {onRemove && !disabled && (
           <Button
@@ -98,12 +98,12 @@ export function ImageUploader({
   }
 
   return (
-    <div className={className}>
+    <div className={cn('h-32 w-32', className)}>
       <div
         role="button"
         tabIndex={disabled || isUploading ? -1 : 0}
         className={cn(
-          'flex h-32 w-32 cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed transition-colors',
+          'flex size-full cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed transition-colors',
           dragOver
             ? 'border-primary bg-primary/5'
             : 'border-muted-foreground/25 hover:border-muted-foreground/50',

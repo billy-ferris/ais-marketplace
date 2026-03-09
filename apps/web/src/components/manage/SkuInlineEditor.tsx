@@ -1,9 +1,8 @@
-import { useState, useCallback } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { useState, useCallback, useRef } from 'react';
+import { Plus, Trash2, Upload, X, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { ImageUploader } from '@/components/shared/ImageUploader';
 import { useUpload } from '@/hooks/useUpload';
 
 export interface SkuFormData {
@@ -16,7 +15,6 @@ export interface SkuFormData {
   price: string;
   msrp: string;
   quantity: string;
-  expirationDate: string;
   imageUrl: string | null;
   /** Marks an existing SKU for deletion */
   _deleted?: boolean;
@@ -31,7 +29,6 @@ export interface SkuChangeOutput {
     price: string;
     msrp?: string;
     quantity: number;
-    expirationDate?: string;
     imageUrl?: string;
   }>;
   update: Array<{
@@ -55,7 +52,6 @@ const EMPTY_SKU: SkuFormData = {
   price: '',
   msrp: '',
   quantity: '0',
-  expirationDate: '',
   imageUrl: null,
 };
 
@@ -66,6 +62,7 @@ export function SkuInlineEditor({
 }: SkuInlineEditorProps) {
   const { uploadFile, isUploading } = useUpload();
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+  const fileInputRefs = useRef<Map<number, HTMLInputElement>>(new Map());
 
   const handleAdd = useCallback(() => {
     onChange([...skus, { ...EMPTY_SKU }]);
@@ -256,26 +253,51 @@ export function SkuInlineEditor({
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Expiration Date</Label>
-                <Input
-                  type="date"
-                  value={sku.expirationDate}
-                  onChange={(e) =>
-                    handleFieldChange(index, 'expirationDate', e.target.value)
-                  }
-                  disabled={disabled}
-                />
-              </div>
-              <div className="space-y-1">
                 <Label className="text-xs">Image</Label>
-                <ImageUploader
-                  value={sku.imageUrl}
-                  onChange={(file) => handleImageUpload(index, file)}
-                  onRemove={() => handleFieldChange(index, 'imageUrl', null)}
-                  isUploading={isUploading && uploadingIndex === index}
-                  disabled={disabled}
-                  className="h-20 w-20"
+                <input
+                  ref={(el) => {
+                    if (el) fileInputRefs.current.set(index, el);
+                    else fileInputRefs.current.delete(index);
+                  }}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageUpload(index, file);
+                    e.target.value = '';
+                  }}
+                  disabled={disabled || isUploading}
                 />
+                {sku.imageUrl ? (
+                  <div className="flex h-8 items-center gap-1.5 rounded-md border bg-transparent px-2 text-sm">
+                    <span className="flex-1 truncate text-muted-foreground">
+                      {sku.imageUrl.split('/').pop()?.split('?')[0] ?? 'image'}
+                    </span>
+                    <button
+                      type="button"
+                      className="shrink-0 text-muted-foreground hover:text-destructive"
+                      onClick={() => handleFieldChange(index, 'imageUrl', null)}
+                      disabled={disabled}
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="flex h-8 w-full items-center gap-1.5 rounded-md border border-dashed px-2 text-sm text-muted-foreground transition-colors hover:border-muted-foreground/50 disabled:cursor-not-allowed disabled:opacity-50"
+                    onClick={() => fileInputRefs.current.get(index)?.click()}
+                    disabled={disabled || (isUploading && uploadingIndex === index)}
+                  >
+                    {isUploading && uploadingIndex === index ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : (
+                      <Upload className="size-3.5" />
+                    )}
+                    <span>{isUploading && uploadingIndex === index ? 'Uploading...' : 'Choose file'}</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -323,7 +345,6 @@ export function buildSkuPayload(skus: SkuFormData[]): SkuChangeOutput {
     if (sku.size) data.size = sku.size;
     if (sku.casePack) data.casePack = Number(sku.casePack);
     if (sku.msrp) data.msrp = sku.msrp;
-    if (sku.expirationDate) data.expirationDate = sku.expirationDate;
     if (sku.imageUrl) data.imageUrl = sku.imageUrl;
 
     if (sku.id) {
