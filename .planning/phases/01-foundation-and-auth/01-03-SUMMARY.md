@@ -43,7 +43,7 @@ key-files:
     - apps/web/.env.example
     - apps/web/components.json
     - apps/web/src/lib/utils.ts
-    - apps/web/src/hooks/use-mobile.ts
+    - apps/web/src/hooks/useIsMobile.ts
   modified:
     - apps/web/src/main.tsx
     - apps/web/src/App.tsx
@@ -118,7 +118,7 @@ Each task was committed atomically:
 - `apps/web/.env.example` - Environment variable template for Clerk key and API URL
 - `apps/web/components.json` - shadcn/ui configuration for Vite project
 - `apps/web/src/lib/utils.ts` - cn() utility for Tailwind class merging (shadcn/ui)
-- `apps/web/src/hooks/use-mobile.ts` - Mobile breakpoint detection hook (shadcn/ui)
+- `apps/web/src/hooks/useIsMobile.ts` - Mobile breakpoint detection hook (shadcn/ui)
 - `apps/web/src/main.tsx` - ClerkProvider wrapper with publishable key
 - `apps/web/src/App.tsx` - Auth-gated routing with Clerk Show component
 - `apps/web/src/index.css` - Updated with shadcn/ui theme variables
