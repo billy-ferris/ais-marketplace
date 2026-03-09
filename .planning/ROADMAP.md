@@ -65,7 +65,7 @@ Plans:
 **Depends on**: Phase 2
 **Requirements**: MFSS-01, MFSS-02, MFSS-03, MFSS-04, APRV-01, APRV-02, APRV-03, APRV-04, APRV-05, APRV-06, APRV-07, NINB-01, NINB-02, NINB-03, NINB-04, NINB-05
 **Success Criteria** (what must be TRUE):
-  1. Manufacturer can create listings and brands from manage pages, scoped to their own company, and items enter "pending_approval" status automatically
+  1. Manufacturer can create listings and brands from manage pages, scoped to their own company; listings start as draft and enter pending_approval when explicitly submitted for review
   2. Manufacturer manage pages show only their company's data; categories are read-only (assign only, no create/edit/delete)
   3. Admin sees pending submissions in a dedicated review queue and can approve (activate), reject (with reason), or edit before deciding
   4. SKUs inherit listing approval status; admin-created items bypass approval and go directly to active
