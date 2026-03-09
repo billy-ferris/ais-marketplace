@@ -61,8 +61,8 @@ Requirements for demo-ready MVP. Each maps to roadmap phases.
 
 ### Admin Management
 
-- [ ] **ADMN-01**: Admin can create, edit, and delete inventory listings
-- [ ] **ADMN-02**: Admin can manage brands and categories
+- [x] **ADMN-01**: Admin can create, edit, and delete inventory listings
+- [x] **ADMN-02**: Admin can manage brands and categories
 - [ ] **ADMN-03**: Admin can view all offers, counteroffers, and their statuses in a read-only dashboard
 - [ ] **ADMN-04**: Admin can view and manage registered users and their roles
 - [ ] **ADMN-05**: Admin can set a custom AIS margin percentage per company (defaults to 10%)
@@ -156,8 +156,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-05 | Phase 1 | Complete |
 | AUTH-06 | Phase 1 | Complete |
 | AUTH-07 | Phase 1 | Complete |
-| ADMN-01 | Phase 2 | Pending |
-| ADMN-02 | Phase 2 | Pending |
+| ADMN-01 | Phase 2 | Complete |
+| ADMN-02 | Phase 2 | Complete |
 | CATL-01 | Phase 3 | Pending |
 | CATL-02 | Phase 3 | Pending |
 | CATL-03 | Phase 3 | Pending |
