@@ -1,9 +1,19 @@
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { UserRole } from '@ais/shared';
+import { ClerkProvider } from '@clerk/react';
 import App from './App';
 import './index.css';
 
-// Verify @ais/shared wiring works
-console.log('UserRole values:', UserRole);
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
-createRoot(document.getElementById('root')!).render(<App />);
+if (!PUBLISHABLE_KEY) {
+  throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY environment variable');
+}
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+      <App />
+    </ClerkProvider>
+  </StrictMode>,
+);
