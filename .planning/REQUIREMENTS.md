@@ -11,9 +11,9 @@ Requirements for demo-ready MVP. Each maps to roadmap phases.
 
 - [ ] **AUTH-01**: User can create account with email and password via Clerk
 - [ ] **AUTH-02**: User receives email verification after signup
-- [ ] **AUTH-03**: User session persists across browser refresh
+- [x] **AUTH-03**: User session persists across browser refresh
 - [x] **AUTH-04**: Users are assigned one of three roles: Admin, Manufacturer, or Retailer
-- [ ] **AUTH-05**: Role-based access control enforces permission boundaries between roles
+- [x] **AUTH-05**: Role-based access control enforces permission boundaries between roles
 - [x] **AUTH-06**: Companies are first-class entities with company name, contact name, phone, type (manufacturer/retailer), and margin percentage (default 10%)
 - [x] **AUTH-07**: Users belong to a company via foreign key. Phase 1 supports one user per company; schema supports multiple users per company for future expansion.
 
@@ -151,9 +151,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | AUTH-01 | Phase 1 | Pending |
 | AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Complete |
 | AUTH-04 | Phase 1 | Complete |
-| AUTH-05 | Phase 1 | Pending |
+| AUTH-05 | Phase 1 | Complete |
 | AUTH-06 | Phase 1 | Complete |
 | AUTH-07 | Phase 1 | Complete |
 | ADMN-01 | Phase 2 | Pending |

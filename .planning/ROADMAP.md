@@ -37,7 +37,7 @@ Plans:
 - [ ] 01-00-PLAN.md — Wave 0 test infrastructure (vitest install, config, stub test files)
 - [x] 01-01-PLAN.md — Monorepo scaffolding, Turborepo config, and @ais/shared package with types, schemas, and constants
 - [x] 01-02-PLAN.md — PostgreSQL schema with Drizzle ORM (companies + users tables, relations, API routes)
-- [ ] 01-03-PLAN.md — Frontend auth experience (Clerk login page, app shell, sidebar, role dashboards)
+- [x] 01-03-PLAN.md — Frontend auth experience (Clerk login page, app shell, sidebar, role dashboards)
 - [ ] 01-04-PLAN.md — Clerk backend auth (RBAC middleware, webhook, seed script with demo data)
 
 ### Phase 2: Admin Catalog Management
@@ -132,7 +132,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation and Auth | 3/5 | In Progress | - |
+| 1. Foundation and Auth | 4/5 | In Progress | - |
 | 2. Admin Catalog Management | 0/3 | Not started | - |
 | 3. Storefront and Discovery | 0/4 | Not started | - |
 | 4. Order Builder and Purchase | 0/3 | Not started | - |
