@@ -1,8 +1,16 @@
+import { Show } from '@clerk/react';
+import { LoginPage } from './pages/LoginPage';
+import { AppShell } from './components/layout/AppShell';
+
 export default function App() {
   return (
-    <div>
-      <h1>AIS Marketplace</h1>
-      <p>Welcome to the AIS Marketplace platform.</p>
-    </div>
+    <>
+      <Show when="signed-out">
+        <LoginPage />
+      </Show>
+      <Show when="signed-in">
+        <AppShell />
+      </Show>
+    </>
   );
 }
