@@ -31,9 +31,9 @@ export function AppSidebar() {
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
                 AIS
               </div>
-              <div className="flex flex-col gap-0.5 leading-none">
-                <span className="font-semibold">AIS Marketplace</span>
-                <span className="text-xs text-muted-foreground">
+              <div className="flex flex-col gap-0.5 leading-none overflow-hidden">
+                <span className="truncate font-semibold">AIS Marketplace</span>
+                <span className="truncate text-xs text-muted-foreground">
                   CPG Platform
                 </span>
               </div>
