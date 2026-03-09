@@ -6,11 +6,12 @@ import {
   createCompanySchema,
   updateCompanySchema,
 } from '@ais/shared/schemas';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const router: RouterType = Router();
 
-// GET / - List all companies
-router.get('/', async (_req, res, next) => {
+// GET / - List all companies (any authenticated user)
+router.get('/', requireAuth(), async (_req, res, next) => {
   try {
     const result = await db.select().from(companies);
     res.json(result);
@@ -19,8 +20,8 @@ router.get('/', async (_req, res, next) => {
   }
 });
 
-// GET /:id - Get company by ID
-router.get('/:id', async (req, res, next) => {
+// GET /:id - Get company by ID (any authenticated user)
+router.get('/:id', requireAuth(), async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     if (Number.isNaN(id)) {
@@ -44,8 +45,8 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-// POST / - Create a new company
-router.post('/', async (req, res, next) => {
+// POST / - Create a new company (admin only)
+router.post('/', requireAuth(), requireRole('admin'), async (req, res, next) => {
   try {
     const data = createCompanySchema.parse(req.body);
 
@@ -57,8 +58,8 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-// PATCH /:id - Update a company
-router.patch('/:id', async (req, res, next) => {
+// PATCH /:id - Update a company (admin only)
+router.patch('/:id', requireAuth(), requireRole('admin'), async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     if (Number.isNaN(id)) {

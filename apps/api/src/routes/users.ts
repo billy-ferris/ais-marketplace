@@ -2,11 +2,38 @@ import { Router, type Router as RouterType } from 'express';
 import { eq } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { users } from '../db/schema/index.js';
+import { requireAuth, requireRole, getCurrentUser } from '../middleware/auth.js';
 
 const router: RouterType = Router();
 
-// GET / - List all users with company relation
-router.get('/', async (_req, res, next) => {
+// GET /me - Get current authenticated user's data from local DB
+router.get('/me', requireAuth(), async (req, res, next) => {
+  try {
+    const { userId } = getCurrentUser(req);
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const user = await db.query.users.findFirst({
+      where: eq(users.clerkId, userId),
+      with: { company: true },
+    });
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found in local database' });
+      return;
+    }
+
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET / - List all users with company relation (admin only)
+router.get('/', requireAuth(), requireRole('admin'), async (_req, res, next) => {
   try {
     const result = await db.query.users.findMany({
       with: { company: true },
@@ -17,8 +44,8 @@ router.get('/', async (_req, res, next) => {
   }
 });
 
-// GET /:id - Get user by ID with company relation
-router.get('/:id', async (req, res, next) => {
+// GET /:id - Get user by ID with company relation (any authenticated user)
+router.get('/:id', requireAuth(), async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     if (Number.isNaN(id)) {

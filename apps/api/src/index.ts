@@ -3,6 +3,7 @@ import express, { type Express } from 'express';
 import cors from 'cors';
 import { clerkMiddleware } from '@clerk/express';
 import { API_ROUTES } from '@ais/shared/constants';
+import { webhookRouter } from './routes/webhooks.js';
 import { companyRouter } from './routes/companies.js';
 import { userRouter } from './routes/users.js';
 import { errorHandler } from './middleware/error.js';
@@ -10,8 +11,8 @@ import { errorHandler } from './middleware/error.js';
 const app: Express = express();
 const port = process.env.PORT || 3001;
 
-// Webhook routes FIRST (need raw body) — actual webhook handler added in Plan 03
-// app.use('/api/webhooks', webhookRouter);
+// Webhook routes FIRST (need raw body — Svix signature verification requires Buffer, not parsed JSON)
+app.use('/api/webhooks', webhookRouter);
 
 // Then JSON parser, CORS, and Clerk middleware for all other routes
 app.use(express.json());
