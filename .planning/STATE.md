@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-03-09T13:44:53Z"
-last_activity: 2026-03-09 -- Completed plan 02-03 (Brands/categories CRUD & shared UI)
+last_updated: "2026-03-09T13:53:22Z"
+last_activity: 2026-03-09 -- Completed plan 02-04 (Brand & category management pages)
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 12
-  completed_plans: 9
-  percent: 75
+  completed_plans: 10
+  percent: 83
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 ## Current Position
 
 Phase: 2 of 6 (Admin Catalog Management)
-Plan: 4 of 7 in current phase
+Plan: 5 of 7 in current phase
 Status: Executing
-Last activity: 2026-03-09 -- Completed plan 02-03 (Brands/categories CRUD & shared UI)
+Last activity: 2026-03-09 -- Completed plan 02-04 (Brand & category management pages)
 
-Progress: [███████▌░░] 75%
+Progress: [████████▎░] 83%
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [███████▌░░] 75%
 | Phase 02 P01 | 2 | 2 tasks | 8 files |
 | Phase 02 P02 | 7 | 2 tasks | 35 files |
 | Phase 02 P03 | 4 | 2 tasks | 9 files |
+| Phase 02 P04 | 5 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,9 @@ Recent decisions affecting current work:
 - [Phase 02-03]: Slug uniqueness uses ne() filter to exclude current entity on update
 - [Phase 02-03]: Brand list joins companies table to include companyName (no N+1)
 - [Phase 02-03]: ImageUploader delegates actual upload to parent via onChange(File) callback
+- [Phase 02-04]: Category icon column shows name as code badge instead of rendering icon (avoids importing entire lucide-react icons map, saves ~1MB)
+- [Phase 02-04]: react-hook-form used directly with register/errors pattern (no shadcn Form wrapper needed)
+- [Phase 02-04]: Company select in BrandDialog filters /api/companies response to type=manufacturer on client
 
 ### Pending Todos
 
@@ -101,6 +105,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T13:44:53Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-03-09T13:53:22Z
+Stopped at: Completed 02-04-PLAN.md
 Resume file: None

@@ -51,11 +51,11 @@ Plans:
 **Plans**: 7 plans
 
 Plans:
-- [ ] 02-00-PLAN.md — Wave 0 test infrastructure (stub test files for all Phase 2 API routes, schemas, and seed)
-- [ ] 02-01-PLAN.md — Drizzle schema tables (brands, categories, brand_listings, inventory_skus, listing_categories, brand_listing_images)
-- [ ] 02-02-PLAN.md — Shared types, Zod schemas, constants, dependency install, React Router + sidebar restructure
-- [ ] 02-03-PLAN.md — Brand and category API routes + shared UI components (DataTable, dialogs, image upload)
-- [ ] 02-04-PLAN.md — Brand and category frontend (TanStack Query hooks, dialog modals, management pages)
+- [x] 02-00-PLAN.md — Wave 0 test infrastructure (stub test files for all Phase 2 API routes, schemas, and seed)
+- [x] 02-01-PLAN.md — Drizzle schema tables (brands, categories, brand_listings, inventory_skus, listing_categories, brand_listing_images)
+- [x] 02-02-PLAN.md — Shared types, Zod schemas, constants, dependency install, React Router + sidebar restructure
+- [x] 02-03-PLAN.md — Brand and category API routes + shared UI components (DataTable, dialogs, image upload)
+- [x] 02-04-PLAN.md — Brand and category frontend (TanStack Query hooks, dialog modals, management pages)
 - [ ] 02-05-PLAN.md — Inventory listing CRUD (API routes, data table, create/edit pages, inline SKU editor)
 - [ ] 02-06-PLAN.md — Seed data and end-to-end admin verification checkpoint
 
@@ -137,7 +137,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation and Auth | 5/5 | Complete   | 2026-03-09 |
-| 2. Admin Catalog Management | 4/7 | In Progress|  |
+| 2. Admin Catalog Management | 5/7 | In Progress|  |
 | 3. Storefront and Discovery | 0/4 | Not started | - |
 | 4. Order Builder and Purchase | 0/3 | Not started | - |
 | 5. Offer Negotiation and Notifications | 0/3 | Not started | - |
