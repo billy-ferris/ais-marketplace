@@ -15,7 +15,7 @@ Requirements for demo-ready MVP. Each maps to roadmap phases.
 - [x] **AUTH-04**: Users are assigned one of three roles: Admin, Manufacturer, or Retailer
 - [ ] **AUTH-05**: Role-based access control enforces permission boundaries between roles
 - [x] **AUTH-06**: Companies are first-class entities with company name, contact name, phone, type (manufacturer/retailer), and margin percentage (default 10%)
-- [ ] **AUTH-07**: Users belong to a company via foreign key. Phase 1 supports one user per company; schema supports multiple users per company for future expansion.
+- [x] **AUTH-07**: Users belong to a company via foreign key. Phase 1 supports one user per company; schema supports multiple users per company for future expansion.
 
 ### Catalog & Browsing
 
@@ -155,7 +155,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-04 | Phase 1 | Complete |
 | AUTH-05 | Phase 1 | Pending |
 | AUTH-06 | Phase 1 | Complete |
-| AUTH-07 | Phase 1 | Pending |
+| AUTH-07 | Phase 1 | Complete |
 | ADMN-01 | Phase 2 | Pending |
 | ADMN-02 | Phase 2 | Pending |
 | CATL-01 | Phase 3 | Pending |
