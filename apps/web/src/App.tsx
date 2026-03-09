@@ -1,6 +1,11 @@
 import { Show } from '@clerk/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { RouterProvider } from 'react-router';
+import { Toaster } from '@/components/ui/sonner';
 import { LoginPage } from './pages/LoginPage';
-import { AppShell } from './components/layout/AppShell';
+import { router } from './lib/router';
+
+const queryClient = new QueryClient();
 
 export default function App() {
   return (
@@ -9,7 +14,10 @@ export default function App() {
         <LoginPage />
       </Show>
       <Show when="signed-in">
-        <AppShell />
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+          <Toaster />
+        </QueryClientProvider>
       </Show>
     </>
   );

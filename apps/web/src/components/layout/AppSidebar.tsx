@@ -1,4 +1,6 @@
 import { useUser } from '@clerk/react';
+import { Link, useLocation } from 'react-router';
+import { ChevronRight } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -10,17 +12,31 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { useRole } from '@/hooks/useRole';
-import { getNavItemsForRole } from '@/lib/constants';
+import { getNavItemsForRole, type NavItem } from '@/lib/constants';
 import { ROLE_LABELS } from '@ais/shared';
 
 export function AppSidebar() {
   const { role } = useRole();
   const { user } = useUser();
+  const location = useLocation();
 
   const navItems = role ? getNavItemsForRole(role) : [];
+
+  const isPathActive = (path: string) => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -47,17 +63,26 @@ export function AppSidebar() {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.path}>
-                  <SidebarMenuButton
-                    isActive={item.path === '/'}
-                    tooltip={item.label}
-                  >
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navItems.map((item) =>
+                item.children ? (
+                  <CollapsibleNavItem
+                    key={item.path}
+                    item={item}
+                    isPathActive={isPathActive}
+                  />
+                ) : (
+                  <SidebarMenuItem key={item.path}>
+                    <SidebarMenuButton
+                      render={<Link to={item.path} />}
+                      isActive={isPathActive(item.path)}
+                      tooltip={item.label}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ),
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -88,5 +113,44 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
+  );
+}
+
+function CollapsibleNavItem({
+  item,
+  isPathActive,
+}: {
+  item: NavItem;
+  isPathActive: (path: string) => boolean;
+}) {
+  const isOpen = isPathActive(item.path);
+
+  return (
+    <Collapsible defaultOpen={isOpen} className="group/collapsible">
+      <SidebarMenuItem>
+        <CollapsibleTrigger className="w-full">
+          <SidebarMenuButton tooltip={item.label} isActive={isOpen}>
+            <item.icon />
+            <span>{item.label}</span>
+            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[open]/collapsible:rotate-90" />
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            {item.children?.map((child) => (
+              <SidebarMenuSubItem key={child.path}>
+                <SidebarMenuSubButton
+                  render={<Link to={child.path} />}
+                  isActive={isPathActive(child.path)}
+                >
+                  <child.icon />
+                  <span>{child.label}</span>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            ))}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </SidebarMenuItem>
+    </Collapsible>
   );
 }

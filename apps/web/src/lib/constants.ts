@@ -5,6 +5,8 @@ import {
   Handshake,
   ShoppingBag,
   ClipboardList,
+  Tag,
+  LayoutGrid,
   type LucideIcon,
 } from 'lucide-react';
 import { UserRole } from '@ais/shared';
@@ -13,11 +15,21 @@ export interface NavItem {
   label: string;
   icon: LucideIcon;
   path: string;
+  children?: NavItem[];
 }
 
 const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
-  { label: 'Manage', icon: Package, path: '/manage' },
+  {
+    label: 'Manage',
+    icon: Package,
+    path: '/manage',
+    children: [
+      { label: 'Brands', icon: Tag, path: '/manage/brands' },
+      { label: 'Categories', icon: LayoutGrid, path: '/manage/categories' },
+      { label: 'Listings', icon: Package, path: '/manage/listings' },
+    ],
+  },
   { label: 'Users', icon: Users, path: '/users' },
 ];
 

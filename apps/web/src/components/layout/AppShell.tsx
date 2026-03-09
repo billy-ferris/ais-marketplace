@@ -1,4 +1,5 @@
 import { UserButton } from '@clerk/react';
+import { Outlet } from 'react-router';
 import {
   SidebarInset,
   SidebarProvider,
@@ -6,7 +7,6 @@ import {
 } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
 import { AppSidebar } from './AppSidebar';
-import { DashboardLayout } from './DashboardLayout';
 
 export function AppShell() {
   return (
@@ -21,7 +21,7 @@ export function AppShell() {
           </div>
         </header>
         <main className="flex-1 p-6">
-          <DashboardLayout />
+          <Outlet />
         </main>
       </SidebarInset>
     </SidebarProvider>
