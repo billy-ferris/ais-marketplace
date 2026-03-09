@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 02-admin-catalog-management
 source: 02-00-SUMMARY.md, 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md
 started: 2026-03-09T14:35:00Z
-updated: 2026-03-09T17:10:00Z
+updated: 2026-03-09T17:25:00Z
 ---
 
 ## Current Test
@@ -64,6 +64,7 @@ note: Same R2 CORS issue affects image upload
 ### 12. Inline SKU Editor
 expected: On the listing create/edit form, the SKU section allows adding new SKU rows with fields for SKU code, UPC, price, MSRP, quantity, and expiration date. Rows can be removed (with undo for existing SKUs on edit). Multiple SKUs can be added to a single listing.
 result: pass
+note: Image upload area height is too large and breaks out of the container border (cosmetic)
 
 ### 13. Edit a Listing
 expected: On /manage/listings, clicking edit on a listing row navigates to the edit page. The form is pre-populated with the listing's current data including brand, status, selected categories, images, and existing SKUs. Changes can be saved and a success toast is shown.
@@ -88,7 +89,17 @@ skipped: 0
   reason: "User reported: Cross-Origin Request Blocked at https://undefined.r2.cloudflarestorage.com — R2 account ID env var is undefined, causing CORS failure on presigned URL PUT"
   severity: blocker
   test: 3
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "All 5 R2 environment variables (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, R2_PUBLIC_URL) are missing from apps/api/.env. The endpoint template literal in uploads.ts interpolates undefined as the string 'undefined'."
+  artifacts:
+    - path: "apps/api/src/routes/uploads.ts"
+      issue: "Line 10: endpoint uses process.env.R2_ACCOUNT_ID which is undefined"
+    - path: "apps/api/.env"
+      issue: "Missing all R2 credentials — only has DB, Clerk, and frontend vars"
+  missing:
+    - "Add R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, R2_PUBLIC_URL to apps/api/.env from Cloudflare dashboard"
+  debug_session: ".planning/debug/r2-presigned-url-undefined.md"
+
+## Cosmetic Notes
+
+- Test 10: Status filter default label shows "all" instead of "All Statuses"
+- Test 12: SKU image upload area height is too large and breaks out of the container border
