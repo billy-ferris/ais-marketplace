@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 2.1 context gathered
-last_updated: "2026-03-09T22:36:58.220Z"
-last_activity: 2026-03-09 -- Completed plan 02-06 (Seed data & end-to-end admin verification)
+status: in-progress
+stopped_at: Completed 02.2-01 (Zero-mock test stubs)
+last_updated: "2026-03-09T23:52:22Z"
+last_activity: 2026-03-09 -- Completed plan 02.2-01 (Zero-mock test stubs)
 progress:
   total_phases: 7
   completed_phases: 2
@@ -21,17 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-08)
 
 **Core value:** Retailers can discover and purchase discounted CPG inventory from verified manufacturers through a transparent, friction-free marketplace -- with every transaction brokered by AIS.
-**Current focus:** Phase 2.1: Manufacturer Self-Service & Approval Workflow
+**Current focus:** Phase 2.2: Populate Phase 2 test stubs with real implementations
 
 ## Current Position
 
-Phase: 2 of 7 (Admin Catalog Management) -- COMPLETE
-Next: Phase 2.1 (Manufacturer Self-Service & Approval Workflow)
-Plan: 7 of 7 in Phase 2 (all complete)
-Status: Phase 2 complete, ready for Phase 2.1
-Last activity: 2026-03-09 -- Completed plan 02-06 (Seed data & end-to-end admin verification)
+Phase: 2.2 (Populate Phase 2 test stubs with real implementations) -- IN PROGRESS
+Plan: 1 of 3 in Phase 2.2 (02.2-01 complete)
+Status: Plan 02.2-01 complete, ready for 02.2-02
+Last activity: 2026-03-09 -- Completed plan 02.2-01 (Zero-mock test stubs: 28 tests)
 
-Progress: [██████████] 100%
+Progress: [███-------] 33%
 
 ## Performance Metrics
 
@@ -62,6 +61,7 @@ Progress: [██████████] 100%
 | Phase 02 P04 | 5 | 2 tasks | 10 files |
 | Phase 02 P05 | 12 | 2 tasks | 10 files |
 | Phase 02 P06 | 45 | 2 tasks | 12 files |
+| Phase 02.2 P01 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -103,10 +103,16 @@ Recent decisions affecting current work:
 - [Phase 02-06]: Seed script cleans catalog tables in FK order before re-inserting for idempotent runs
 - [Phase 02-06]: Removed expirationDate from inventory SKU schema -- CPG items tracked by lot/batch externally
 - [Phase 02-06]: Changed Clerk acceptsToken from 'any' to 'session_token' for explicit token type matching
+- [Phase 02.2-01]: Used safeParse() consistently (not parse()) for clean success/error assertions, with parse() only for default-value extraction
 
 ### Pending Todos
 
 None yet.
+
+### Roadmap Evolution
+
+- Phase 2.1 inserted after Phase 2: Manufacturer Self-Service & Approval Workflow (INSERTED)
+- Phase 2.2 inserted after Phase 2: Populate Phase 2 test stubs with real implementations (URGENT)
 
 ### Blockers/Concerns
 
@@ -115,6 +121,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T22:36:58.218Z
-Stopped at: Phase 2.1 context gathered
-Resume file: .planning/phases/02.1-manufacturer-self-service-approval-workflow/02.1-CONTEXT.md
+Last session: 2026-03-09T23:52:22Z
+Stopped at: Completed 02.2-01-PLAN.md
+Resume file: .planning/phases/02.2-populate-phase-2-test-stubs-with-real-implementations/02.2-02-PLAN.md
