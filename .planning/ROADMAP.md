@@ -2,7 +2,7 @@
 
 ## Overview
 
-This roadmap delivers a demo-ready B2B marketplace for CPG excess inventory in 6 phases. The build follows architectural dependencies: foundation and auth first, then admin tooling to populate the catalog, then the public storefront, then purchasing flows, then the core offer negotiation engine with margin transformation, and finally the role-specific portals that complete the demo experience. Every phase delivers a coherent, verifiable capability. All data lives in PostgreSQL for Phase 1 (no CMS).
+This roadmap delivers a demo-ready B2B marketplace for CPG excess inventory in 7 phases (6 planned + 1 inserted). The build follows architectural dependencies: foundation and auth first, then admin tooling to populate the catalog, then manufacturer self-service with approval workflow (inserted as 2.1), then the public storefront, then purchasing flows, then the core offer negotiation engine with margin transformation, and finally the role-specific portals that complete the demo experience. Every phase delivers a coherent, verifiable capability. All data lives in PostgreSQL for Phase 1 (no CMS).
 
 ## Phases
 
@@ -14,6 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation and Auth** - Monorepo scaffolding, PostgreSQL schema, Clerk authentication with three-role RBAC, and companies as first-class entities (completed 2026-03-09)
 - [ ] **Phase 2: Admin Catalog Management** - Admin can create, edit, and manage inventory listings, brands, and categories in PostgreSQL
+- [ ] **Phase 2.1: Manufacturer Self-Service & Approval Workflow** [INSERTED] - Manufacturers create listings and brands scoped to their company with admin approval workflow; notification inbox with email via Resend
 - [ ] **Phase 3: Storefront and Discovery** - Retailers can browse the catalog by brand and category, search products, filter and sort results, and view listing details
 - [ ] **Phase 4: Order Builder and Purchase** - Retailers can select SKUs from a listing, build an order with quantities, and complete a Buy Now purchase or initiate an offer
 - [ ] **Phase 5: Offer Negotiation and Notifications** - The AIS margin-transformed negotiation engine with multi-round counter support and in-app notifications for all transaction events
@@ -59,6 +60,23 @@ Plans:
 - [x] 02-05-PLAN.md — Inventory listing CRUD (API routes, data table, create/edit pages, inline SKU editor)
 - [ ] 02-06-PLAN.md — Seed data and end-to-end admin verification checkpoint
 
+### Phase 2.1: Manufacturer Self-Service & Approval Workflow [INSERTED]
+**Goal**: Manufacturers can create listings and brands scoped to their company, with admin approval workflow and notification inbox for all users
+**Depends on**: Phase 2
+**Requirements**: MFSS-01, MFSS-02, MFSS-03, MFSS-04, APRV-01, APRV-02, APRV-03, APRV-04, APRV-05, APRV-06, APRV-07, NINB-01, NINB-02, NINB-03, NINB-04, NINB-05
+**Success Criteria** (what must be TRUE):
+  1. Manufacturer can create listings and brands from manage pages, scoped to their own company, and items enter "pending_approval" status automatically
+  2. Manufacturer manage pages show only their company's data; categories are read-only (assign only, no create/edit/delete)
+  3. Admin sees pending submissions in a dedicated review queue and can approve (activate), reject (with reason), or edit before deciding
+  4. SKUs inherit listing approval status; admin-created items bypass approval and go directly to active
+  5. All users have a notification inbox accessible from sidebar with unread count badge
+  6. Admin receives notification on new submissions; manufacturer receives notification on approval/rejection (with reason)
+  7. Email notifications are sent via Resend for all approval workflow events
+**Plans**: TBD
+
+Plans:
+- [ ] 02.1-01: TBD during planning
+
 ### Phase 3: Storefront and Discovery
 **Goal**: Retailers can discover and evaluate available CPG inventory through a professional browsing and search experience
 **Depends on**: Phase 2
@@ -96,7 +114,7 @@ Plans:
 ### Phase 5: Offer Negotiation and Notifications
 **Goal**: Retailers and Manufacturers can negotiate through the AIS margin-transformed offer system, and all users receive in-app notifications for transaction events
 **Depends on**: Phase 4
-**Requirements**: OFFR-01, OFFR-02, OFFR-03, OFFR-04, OFFR-05, OFFR-06, NOTF-01, NOTF-02
+**Requirements**: OFFR-01, OFFR-02, OFFR-03, OFFR-04, OFFR-05, OFFR-06, NOTF-01, NOTF-02, NOTF-03
 **Success Criteria** (what must be TRUE):
   1. Retailer's submitted offer has the manufacturer's company-specific AIS margin (default 10%) automatically added before the Manufacturer sees it; the Retailer never sees the margin-adjusted price
   2. Manufacturer can accept, decline, or counter an offer; counteroffers have the company-specific AIS margin stripped before the Retailer sees them
@@ -132,12 +150,13 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
+Phases execute in numeric order: 1 -> 2 -> 2.1 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation and Auth | 5/5 | Complete   | 2026-03-09 |
 | 2. Admin Catalog Management | 6/7 | In Progress|  |
+| 2.1. Manufacturer Self-Service & Approval Workflow | 0/? | Not started | - |
 | 3. Storefront and Discovery | 0/4 | Not started | - |
 | 4. Order Builder and Purchase | 0/3 | Not started | - |
 | 5. Offer Negotiation and Notifications | 0/3 | Not started | - |

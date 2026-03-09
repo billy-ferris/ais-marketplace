@@ -67,10 +67,36 @@ Requirements for demo-ready MVP. Each maps to roadmap phases.
 - [ ] **ADMN-04**: Admin can view and manage registered users and their roles
 - [ ] **ADMN-05**: Admin can set a custom AIS margin percentage per company (defaults to 10%)
 
+### Manufacturer Self-Service
+
+- [ ] **MFSS-01**: Manufacturer can create and edit inventory listings scoped to their own company
+- [ ] **MFSS-02**: Manufacturer can create and edit brands scoped to their own company
+- [ ] **MFSS-03**: Manufacturer can assign existing categories to listings but cannot create, edit, or delete categories
+- [ ] **MFSS-04**: Manufacturer manage pages display only data belonging to their company
+
+### Approval Workflow
+
+- [ ] **APRV-01**: Manufacturer-created listings and brands automatically enter "pending_approval" status
+- [ ] **APRV-02**: Admin can view all pending submissions in a dedicated approval review queue
+- [ ] **APRV-03**: Admin can approve a pending submission, activating the listing or brand
+- [ ] **APRV-04**: Admin can reject a pending submission with a written reason
+- [ ] **APRV-05**: Admin can edit a submission before approving or rejecting
+- [ ] **APRV-06**: SKUs inherit their parent listing's approval status (approved/rejected as a unit)
+- [ ] **APRV-07**: Admin-created listings and brands bypass approval and are immediately active
+
+### Notification Inbox
+
+- [ ] **NINB-01**: Dedicated notification inbox page accessible from sidebar for all users
+- [ ] **NINB-02**: Sidebar displays unread notification count as a badge
+- [ ] **NINB-03**: Admin receives in-app notification when a manufacturer submits a listing or brand for approval
+- [ ] **NINB-04**: Manufacturer receives in-app notification when their submission is approved or rejected (with reason if rejected)
+- [ ] **NINB-05**: Email notifications sent via Resend for all approval workflow events
+
 ### Notifications
 
 - [ ] **NOTF-01**: In-app notifications are delivered for all transaction events (offer received, accepted, declined, countered, order confirmed)
 - [ ] **NOTF-02**: In-app notifications are always on and cannot be disabled
+- [ ] **NOTF-03**: Email notifications via Resend for transaction events (offer received, accepted, declined, countered, order confirmed)
 
 ### Export
 
@@ -89,7 +115,6 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ### Notifications & Email
 
-- **NOTF-03**: Email notifications via Resend for transaction events (offer received, accepted, declined, countered, order confirmed)
 - **NOTF-04**: Users can toggle email notifications on/off per event type
 - **NOTF-05**: Notification preferences saved to profile and respected by Resend dispatch layer
 
@@ -100,7 +125,7 @@ Deferred to future release. Tracked but not in current roadmap.
 ### Manufacturer Features
 
 - **MFPR-03**: Manufacturer can view completed orders and transaction history
-- **MFPR-04**: Manufacturer self-serve inventory upload (CSV/XLS bulk upload and manual entry)
+- **MFPR-04**: Manufacturer bulk inventory upload (CSV/XLS bulk upload); manual entry moved to v1 as MFSS-01
 
 ### Company & Teams
 
@@ -158,6 +183,22 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-07 | Phase 1 | Complete |
 | ADMN-01 | Phase 2 | Complete |
 | ADMN-02 | Phase 2 | Complete |
+| MFSS-01 | Phase 2.1 | Pending |
+| MFSS-02 | Phase 2.1 | Pending |
+| MFSS-03 | Phase 2.1 | Pending |
+| MFSS-04 | Phase 2.1 | Pending |
+| APRV-01 | Phase 2.1 | Pending |
+| APRV-02 | Phase 2.1 | Pending |
+| APRV-03 | Phase 2.1 | Pending |
+| APRV-04 | Phase 2.1 | Pending |
+| APRV-05 | Phase 2.1 | Pending |
+| APRV-06 | Phase 2.1 | Pending |
+| APRV-07 | Phase 2.1 | Pending |
+| NINB-01 | Phase 2.1 | Pending |
+| NINB-02 | Phase 2.1 | Pending |
+| NINB-03 | Phase 2.1 | Pending |
+| NINB-04 | Phase 2.1 | Pending |
+| NINB-05 | Phase 2.1 | Pending |
 | CATL-01 | Phase 3 | Pending |
 | CATL-02 | Phase 3 | Pending |
 | CATL-03 | Phase 3 | Pending |
@@ -182,6 +223,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OFFR-06 | Phase 5 | Pending |
 | NOTF-01 | Phase 5 | Pending |
 | NOTF-02 | Phase 5 | Pending |
+| NOTF-03 | Phase 5 | Pending |
 | MFPR-01 | Phase 6 | Pending |
 | MFPR-02 | Phase 6 | Pending |
 | ADMN-03 | Phase 6 | Pending |
@@ -191,10 +233,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXPT-02 | Phase 6 | Pending |
 
 **Coverage:**
-- v1 requirements: 40 total
-- Mapped to phases: 40
+- v1 requirements: 57 total
+- Mapped to phases: 57
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-08*
-*Last updated: 2026-03-08 after roadmap creation*
+*Last updated: 2026-03-09 — added MFSS, APRV, NINB requirements for Phase 2.1; moved NOTF-03 to v1*

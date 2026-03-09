@@ -28,6 +28,9 @@ Retailers can discover and purchase discounted CPG inventory from verified manuf
 - [ ] Best Offer flow — Retailer proposes price, AIS 10% margin auto-added, Manufacturer accepts/counters/declines
 - [ ] Manufacturer portal — view inventory status, receive offers, accept/decline/counter
 - [ ] Admin inventory management — create/edit/delete listings, set negotiation potential, restrictions, FOB
+- [ ] Manufacturer self-service — manufacturers create listings and brands scoped to their company; categories are read-only (assign only)
+- [ ] Approval workflow — manufacturer-created listings and brands require admin approval before activation; admin can approve, reject (with reason), or edit during review
+- [ ] Notification inbox — dedicated inbox page for all users with sidebar unread badge; in-app and email notifications for approval events
 - [ ] Admin offer visibility dashboard — read-only view of all offers and statuses
 - [ ] In-app notifications for all transaction events (always on)
 - [ ] Email notifications via Resend for transaction events (toggleable per user preference)
@@ -36,7 +39,7 @@ Retailers can discover and purchase discounted CPG inventory from verified manuf
 ### Out of Scope
 
 - Persistent cross-listing cart — Order Builder is scoped per BrandListing, no session/cross-listing state
-- Manufacturer self-serve inventory upload — Phase 2 (Admin enters manually in MVP)
+- Manufacturer bulk inventory upload (CSV/XLS) — Phase 2 (manual entry via UI now in v1 Phase 2.1; bulk upload deferred)
 - Retail campaigns (RangeMe-style) — Phase 2
 - Marketing bulletins — Phase 2
 - Admin email blast tool — Phase 2
@@ -89,7 +92,8 @@ Retailers can discover and purchase discounted CPG inventory from verified manuf
 | Clerk for auth | Native Vite/React + Node/Express SDKs, built-in RBAC, simpler than Auth0 for MVP | — Pending |
 | PostgreSQL only for Phase 1 | Simpler architecture, zero CMS cost, one data source. Contentful free tier prohibits commercial use ($300/mo Lite). Sanity (free, commercial OK) added in Phase 2 for editorial content. | — Pending |
 | No persistent cart | Order Builder scoped per BrandListing simplifies UX and avoids cross-listing complexity | — Pending |
-| Admin manual inventory entry (Phase 1) | Lowest friction to get demo-ready MVP; Manufacturer upload portal deferred to Phase 2 | — Pending |
+| Admin manual inventory entry (Phase 1) | Lowest friction to get demo-ready MVP; manufacturer self-service added in Phase 2.1 with approval workflow | — Pending |
+| Manufacturer self-service with approval (Phase 2.1) | Manufacturers create listings/brands scoped to their company; admin approves/rejects. Critical to demo the full business model where both admin and manufacturer can populate the catalog | — Pending |
 | Manufacturer negotiates directly | Manufacturer accepts/declines/counters in their own portal; Admin is read-only observer | — Pending |
 | Resend for email | Clean Node.js SDK, free tier covers early stage (3k/mo), scales to $20/mo for 50k | — Pending |
 | Railway for backend hosting | Usage-based pricing minimizes early-stage costs; evaluate Render or AWS as traffic grows | — Pending |
@@ -99,4 +103,4 @@ Retailers can discover and purchase discounted CPG inventory from verified manuf
 | Per-company margin | Margin % negotiated per company during onboarding, stored on company entity, default 10%. More realistic B2B model than flat platform fee. | — Pending |
 
 ---
-*Last updated: 2026-03-08 after per-company margin decision*
+*Last updated: 2026-03-09 — added manufacturer self-service with approval workflow (Phase 2.1)*
