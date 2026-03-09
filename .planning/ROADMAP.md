@@ -48,12 +48,13 @@ Plans:
   1. Admin can create a new inventory listing with all product fields (name, description, UPC, images, size, case pack, price, MSRP, quantity, expiration date) and it persists in PostgreSQL
   2. Admin can edit and delete existing listings, and changes are reflected immediately
   3. Admin can create, edit, and delete brands and categories, and assign listings to them
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 02-01: Brand and category CRUD API and admin UI
-- [ ] 02-02: Inventory listing CRUD API and admin UI
-- [ ] 02-03: Seed data and image upload pipeline
+- [ ] 02-01-PLAN.md — Schema, types, constants, dependency install, React Router + sidebar restructure
+- [ ] 02-02-PLAN.md — Brand and category CRUD (API routes, data tables, dialog modals, image upload)
+- [ ] 02-03-PLAN.md — Inventory listing CRUD (API routes, data table, create/edit pages, inline SKU editor)
+- [ ] 02-04-PLAN.md — Seed data and end-to-end admin verification checkpoint
 
 ### Phase 3: Storefront and Discovery
 **Goal**: Retailers can discover and evaluate available CPG inventory through a professional browsing and search experience
@@ -133,7 +134,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation and Auth | 5/5 | Complete   | 2026-03-09 |
-| 2. Admin Catalog Management | 0/3 | Not started | - |
+| 2. Admin Catalog Management | 0/4 | Not started | - |
 | 3. Storefront and Discovery | 0/4 | Not started | - |
 | 4. Order Builder and Purchase | 0/3 | Not started | - |
 | 5. Offer Negotiation and Notifications | 0/3 | Not started | - |
