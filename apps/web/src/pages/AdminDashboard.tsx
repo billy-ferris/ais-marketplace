@@ -1,5 +1,5 @@
 import { useUser } from '@clerk/react';
-import { Package, Tag, Users, BarChart3, Settings } from 'lucide-react';
+import { Package, Tag, Users, BarChart3, Building2 } from 'lucide-react';
 import { ComingSoonCard } from '@/components/shared/ComingSoonCard';
 
 export function AdminDashboard() {
@@ -26,19 +26,14 @@ export function AdminDashboard() {
           icon={Tag}
         />
         <ComingSoonCard
-          title="User Management"
-          description="View and manage registered users and roles"
-          icon={Users}
+          title="Account Management"
+          description="Manage companies, users, and account settings"
+          icon={Building2}
         />
         <ComingSoonCard
           title="Offer Dashboard"
           description="Monitor all offers and negotiations"
           icon={BarChart3}
-        />
-        <ComingSoonCard
-          title="Margin Settings"
-          description="Configure AIS margin per company"
-          icon={Settings}
         />
       </div>
     </div>

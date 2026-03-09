@@ -2,15 +2,15 @@ import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { createClerkClient } from '@clerk/express';
 import { eq } from 'drizzle-orm';
-import { companies } from './schema/companies.js';
-import { users } from './schema/users.js';
-import * as schema from './schema/index.js';
+import { companies } from './schema/companies';
+import { users } from './schema/users';
+import * as schema from './schema/index';
 
 // Initialize database and Clerk client
 const db = drizzle(process.env.DATABASE_URL!, { schema });
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
 
-const DEMO_PASSWORD = 'DemoPass123!';
+const DEMO_PASSWORD = 'AisMarket2026!';
 
 // ---------------------------------------------------------------------------
 // Seed data definitions
@@ -27,7 +27,7 @@ const seedCompanies = [
     state: 'NY',
   },
   {
-    name: 'Luxe Beauty Co.',
+    name: 'Summit Home Appliances',
     type: 'manufacturer' as const,
     marginPercentage: '8.00',
     contactName: 'Sarah Chen',
@@ -73,7 +73,7 @@ const seedUsers = [
     companyIndex: 0,
   },
   {
-    email: 'manufacturer@luxebeauty.com',
+    email: 'manufacturer@summithome.com',
     firstName: 'Sarah',
     lastName: 'Chen',
     role: 'manufacturer' as const,

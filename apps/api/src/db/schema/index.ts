@@ -1,3 +1,3 @@
-export { companies, companyTypeEnum } from './companies.js';
-export { users, userRoleEnum } from './users.js';
-export { usersRelations, companiesRelations } from './relations.js';
+export { companies, companyTypeEnum } from './companies';
+export { users, userRoleEnum } from './users';
+export { usersRelations, companiesRelations } from './relations';

@@ -5,7 +5,7 @@ import {
   timestamp,
   varchar,
 } from 'drizzle-orm/pg-core';
-import { companies } from './companies.js';
+import { companies } from './companies';
 
 export const userRoleEnum = pgEnum('user_role', [
   'admin',

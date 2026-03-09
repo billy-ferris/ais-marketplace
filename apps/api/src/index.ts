@@ -3,10 +3,10 @@ import express, { type Express } from 'express';
 import cors from 'cors';
 import { clerkMiddleware } from '@clerk/express';
 import { API_ROUTES } from '@ais/shared/constants';
-import { webhookRouter } from './routes/webhooks.js';
-import { companyRouter } from './routes/companies.js';
-import { userRouter } from './routes/users.js';
-import { errorHandler } from './middleware/error.js';
+import { webhookRouter } from './routes/webhooks';
+import { companyRouter } from './routes/companies';
+import { userRouter } from './routes/users';
+import { errorHandler } from './middleware/error';
 
 const app: Express = express();
 const port = process.env.PORT || 3001;
