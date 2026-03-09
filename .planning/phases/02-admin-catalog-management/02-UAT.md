@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: complete
 phase: 02-admin-catalog-management
 source: 02-00-SUMMARY.md, 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md
 started: 2026-03-09T14:35:00Z
-updated: 2026-03-09T17:25:00Z
+updated: 2026-03-09T20:30:00Z
 ---
 
 ## Current Test
@@ -22,9 +22,8 @@ result: pass
 
 ### 3. Create a Brand
 expected: On /manage/brands, clicking "Add Brand" (or similar create button) opens a dialog with fields for brand name, company select (filtered to manufacturers), and logo image upload. Submitting the form creates the brand, shows a success toast, closes the dialog, and the new brand appears in the table.
-result: issue
-reported: "Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://undefined.r2.cloudflarestorage.com/images/... (Reason: CORS request did not succeed). Status code: (null)."
-severity: blocker
+result: pass
+note: R2 env vars were missing; fixed and verified by user
 
 ### 4. Search and Sort Brands
 expected: On /manage/brands, typing in the search input filters the brand list after a short debounce (~300ms). Clicking column headers (e.g., Name) toggles sort order. Pagination controls appear at the bottom of the table.
@@ -77,27 +76,14 @@ result: pass
 ## Summary
 
 total: 14
-passed: 13
-issues: 1
+passed: 14
+issues: 0
 pending: 0
 skipped: 0
 
 ## Gaps
 
-- truth: "Image upload works when creating/editing brands and listings"
-  status: failed
-  reason: "User reported: Cross-Origin Request Blocked at https://undefined.r2.cloudflarestorage.com — R2 account ID env var is undefined, causing CORS failure on presigned URL PUT"
-  severity: blocker
-  test: 3
-  root_cause: "All 5 R2 environment variables (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, R2_PUBLIC_URL) are missing from apps/api/.env. The endpoint template literal in uploads.ts interpolates undefined as the string 'undefined'."
-  artifacts:
-    - path: "apps/api/src/routes/uploads.ts"
-      issue: "Line 10: endpoint uses process.env.R2_ACCOUNT_ID which is undefined"
-    - path: "apps/api/.env"
-      issue: "Missing all R2 credentials — only has DB, Clerk, and frontend vars"
-  missing:
-    - "Add R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, R2_PUBLIC_URL to apps/api/.env from Cloudflare dashboard"
-  debug_session: ".planning/debug/r2-presigned-url-undefined.md"
+[none — all resolved]
 
 ## Cosmetic Notes
 
