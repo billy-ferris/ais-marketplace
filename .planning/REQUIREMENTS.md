@@ -9,8 +9,8 @@ Requirements for demo-ready MVP. Each maps to roadmap phases.
 
 ### Authentication & Users
 
-- [ ] **AUTH-01**: User can create account with email and password via Clerk
-- [ ] **AUTH-02**: User receives email verification after signup
+- [x] **AUTH-01**: User can create account with email and password via Clerk
+- [x] **AUTH-02**: User receives email verification after signup
 - [x] **AUTH-03**: User session persists across browser refresh
 - [x] **AUTH-04**: Users are assigned one of three roles: Admin, Manufacturer, or Retailer
 - [x] **AUTH-05**: Role-based access control enforces permission boundaries between roles
@@ -149,8 +149,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Complete |
+| AUTH-02 | Phase 1 | Complete |
 | AUTH-03 | Phase 1 | Complete |
 | AUTH-04 | Phase 1 | Complete |
 | AUTH-05 | Phase 1 | Complete |

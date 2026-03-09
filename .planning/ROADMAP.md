@@ -12,7 +12,7 @@ This roadmap delivers a demo-ready B2B marketplace for CPG excess inventory in 6
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation and Auth** - Monorepo scaffolding, PostgreSQL schema, Clerk authentication with three-role RBAC, and companies as first-class entities
+- [x] **Phase 1: Foundation and Auth** - Monorepo scaffolding, PostgreSQL schema, Clerk authentication with three-role RBAC, and companies as first-class entities (completed 2026-03-09)
 - [ ] **Phase 2: Admin Catalog Management** - Admin can create, edit, and manage inventory listings, brands, and categories in PostgreSQL
 - [ ] **Phase 3: Storefront and Discovery** - Retailers can browse the catalog by brand and category, search products, filter and sort results, and view listing details
 - [ ] **Phase 4: Order Builder and Purchase** - Retailers can select SKUs from a listing, build an order with quantities, and complete a Buy Now purchase or initiate an offer
@@ -38,7 +38,7 @@ Plans:
 - [x] 01-01-PLAN.md — Monorepo scaffolding, Turborepo config, and @ais/shared package with types, schemas, and constants
 - [x] 01-02-PLAN.md — PostgreSQL schema with Drizzle ORM (companies + users tables, relations, API routes)
 - [x] 01-03-PLAN.md — Frontend auth experience (Clerk login page, app shell, sidebar, role dashboards)
-- [ ] 01-04-PLAN.md — Clerk backend auth (RBAC middleware, webhook, seed script with demo data)
+- [x] 01-04-PLAN.md — Clerk backend auth (RBAC middleware, webhook, seed script with demo data)
 
 ### Phase 2: Admin Catalog Management
 **Goal**: Admin can populate and manage the full product catalog through an internal management interface
@@ -132,7 +132,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation and Auth | 4/5 | In Progress | - |
+| 1. Foundation and Auth | 5/5 | Complete   | 2026-03-09 |
 | 2. Admin Catalog Management | 0/3 | Not started | - |
 | 3. Storefront and Discovery | 0/4 | Not started | - |
 | 4. Order Builder and Purchase | 0/3 | Not started | - |
