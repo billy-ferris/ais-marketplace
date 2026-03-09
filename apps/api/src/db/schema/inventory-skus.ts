@@ -1,0 +1,30 @@
+import {
+  date,
+  integer,
+  numeric,
+  pgTable,
+  timestamp,
+  varchar,
+  text,
+} from 'drizzle-orm/pg-core';
+import { brandListings } from './brand-listings';
+
+export const inventorySkus = pgTable('inventory_skus', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  listingId: integer('listing_id')
+    .notNull()
+    .references(() => brandListings.id),
+  name: varchar({ length: 255 }).notNull(),
+  description: text(),
+  upc: varchar({ length: 20 }),
+  size: varchar({ length: 100 }),
+  casePack: integer('case_pack'),
+  price: numeric({ precision: 10, scale: 2 }).notNull(),
+  msrp: numeric({ precision: 10, scale: 2 }),
+  quantity: integer().notNull().default(0),
+  expirationDate: date('expiration_date'),
+  imageUrl: varchar('image_url', { length: 1024 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at'),
+});
