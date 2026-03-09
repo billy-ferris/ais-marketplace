@@ -48,7 +48,6 @@ export interface InventorySKU {
   price: string;
   msrp: string | null;
   quantity: number;
-  expirationDate: string | null;
   imageUrl: string | null;
   createdAt: Date;
   updatedAt: Date;

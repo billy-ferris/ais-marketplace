@@ -14,7 +14,6 @@ export const createSkuSchema = z.object({
     .regex(/^\d+(\.\d{1,2})?$/, 'Must be a decimal number (e.g., "24.99")')
     .optional(),
   quantity: z.number().int().nonnegative(),
-  expirationDate: z.string().datetime({ offset: true }).or(z.string().date()).optional(),
   imageUrl: z.string().url().max(1024).optional(),
 });
 

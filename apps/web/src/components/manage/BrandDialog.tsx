@@ -183,10 +183,11 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
           <div className="space-y-2">
             <Label>Manufacturer</Label>
             <Select
-              value={selectedCompanyId ?? null}
-              onValueChange={(val) => {
-                if (val !== null) {
-                  setValue('companyId', val, { shouldValidate: true });
+              value={companies.find((c) => c.id === selectedCompanyId)?.name ?? null}
+              onValueChange={(name) => {
+                const company = companies.find((c) => c.name === name);
+                if (company) {
+                  setValue('companyId', company.id, { shouldValidate: true });
                 }
               }}
             >
@@ -195,7 +196,7 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
               </SelectTrigger>
               <SelectContent>
                 {companies.map((company) => (
-                  <SelectItem key={company.id} value={company.id}>
+                  <SelectItem key={company.id} value={company.name}>
                     {company.name}
                   </SelectItem>
                 ))}

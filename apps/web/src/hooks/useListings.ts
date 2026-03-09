@@ -41,7 +41,6 @@ export interface ListingSku {
   price: string;
   msrp: string | null;
   quantity: number;
-  expirationDate: string | null;
   imageUrl: string | null;
   createdAt: string;
   updatedAt: string;

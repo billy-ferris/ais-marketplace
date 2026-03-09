@@ -184,7 +184,6 @@ const seedSkusByListing: Array<Array<{
   price: string;
   msrp: string;
   quantity: number;
-  expirationDate: string | null;
 }>> = [
   // Listing 0: Premium Hair Care Bundle
   [
@@ -197,7 +196,6 @@ const seedSkusByListing: Array<Array<{
       price: '18.99',
       msrp: '24.99',
       quantity: 200,
-      expirationDate: '2027-06-15',
     },
     {
       name: 'Deep Conditioner 8oz',
@@ -208,7 +206,6 @@ const seedSkusByListing: Array<Array<{
       price: '22.99',
       msrp: '29.99',
       quantity: 150,
-      expirationDate: '2027-06-15',
     },
     {
       name: 'Leave-In Styling Cream 6oz',
@@ -219,7 +216,6 @@ const seedSkusByListing: Array<Array<{
       price: '14.99',
       msrp: '19.99',
       quantity: 300,
-      expirationDate: '2027-09-01',
     },
   ],
   // Listing 1: Professional Beauty Tools Set
@@ -233,7 +229,6 @@ const seedSkusByListing: Array<Array<{
       price: '34.99',
       msrp: '49.99',
       quantity: 100,
-      expirationDate: null,
     },
     {
       name: 'Eyelash Curler Pro',
@@ -244,7 +239,6 @@ const seedSkusByListing: Array<Array<{
       price: '12.99',
       msrp: '17.99',
       quantity: 250,
-      expirationDate: null,
     },
   ],
   // Listing 2: Luxury Fragrance Collection
@@ -258,7 +252,6 @@ const seedSkusByListing: Array<Array<{
       price: '54.99',
       msrp: '79.99',
       quantity: 75,
-      expirationDate: null,
     },
     {
       name: 'Citrus Breeze Body Mist 8oz',
@@ -269,7 +262,6 @@ const seedSkusByListing: Array<Array<{
       price: '19.99',
       msrp: '27.99',
       quantity: 180,
-      expirationDate: '2027-12-31',
     },
   ],
   // Listing 3: Summit Kitchen Essentials
@@ -283,7 +275,6 @@ const seedSkusByListing: Array<Array<{
       price: '24.99',
       msrp: '34.99',
       quantity: 400,
-      expirationDate: '2027-03-01',
     },
     {
       name: 'Vitamin C Immunity Gummies 60ct',
@@ -294,7 +285,6 @@ const seedSkusByListing: Array<Array<{
       price: '16.99',
       msrp: '22.99',
       quantity: 500,
-      expirationDate: '2027-08-15',
     },
     {
       name: 'Stainless Steel Water Bottle 32oz',
@@ -305,7 +295,6 @@ const seedSkusByListing: Array<Array<{
       price: '29.99',
       msrp: '39.99',
       quantity: 120,
-      expirationDate: null,
     },
   ],
   // Listing 4: Seasonal Nail Art Kit
@@ -319,7 +308,6 @@ const seedSkusByListing: Array<Array<{
       price: '28.99',
       msrp: '39.99',
       quantity: 150,
-      expirationDate: '2027-10-01',
     },
     {
       name: 'Nail Art Stamping Kit',
@@ -330,7 +318,6 @@ const seedSkusByListing: Array<Array<{
       price: '15.99',
       msrp: '21.99',
       quantity: 200,
-      expirationDate: null,
     },
     {
       name: 'Cuticle Oil Pen 3-Pack',
@@ -341,7 +328,6 @@ const seedSkusByListing: Array<Array<{
       price: '9.99',
       msrp: '14.99',
       quantity: 350,
-      expirationDate: '2028-01-15',
     },
   ],
 ];
@@ -538,8 +524,7 @@ async function main(): Promise<void> {
         price: sku.price,
         msrp: sku.msrp,
         quantity: sku.quantity,
-        expirationDate: sku.expirationDate,
-      });
+        });
       skuCount++;
     }
   }

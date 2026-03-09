@@ -227,7 +227,6 @@ router.post('/', requireAuth(), requireRole('admin'), async (req, res, next) => 
           price: sku.price,
           msrp: sku.msrp,
           quantity: sku.quantity,
-          expirationDate: sku.expirationDate,
           imageUrl: sku.imageUrl,
         })),
       );
@@ -345,7 +344,6 @@ router.patch('/:id', requireAuth(), requireRole('admin'), async (req, res, next)
             price: sku.price,
             msrp: sku.msrp,
             quantity: sku.quantity,
-            expirationDate: sku.expirationDate,
             imageUrl: sku.imageUrl,
           })),
         );

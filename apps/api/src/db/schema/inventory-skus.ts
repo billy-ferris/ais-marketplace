@@ -1,5 +1,4 @@
 import {
-  date,
   integer,
   numeric,
   pgTable,
@@ -22,7 +21,6 @@ export const inventorySkus = pgTable('inventory_skus', {
   price: numeric({ precision: 10, scale: 2 }).notNull(),
   msrp: numeric({ precision: 10, scale: 2 }),
   quantity: integer().notNull().default(0),
-  expirationDate: date('expiration_date'),
   imageUrl: varchar('image_url', { length: 1024 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

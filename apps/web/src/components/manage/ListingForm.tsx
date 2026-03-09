@@ -84,7 +84,6 @@ function existingSkusToFormData(
     price: sku.price,
     msrp: sku.msrp ?? '',
     quantity: sku.quantity.toString(),
-    expirationDate: sku.expirationDate ?? '',
     imageUrl: sku.imageUrl,
   }));
 }
@@ -333,10 +332,11 @@ export function ListingForm({
           <div className="space-y-2">
             <Label>Brand *</Label>
             <Select
-              value={selectedBrandId ?? null}
-              onValueChange={(val) => {
-                if (val !== null) {
-                  setValue('brandId', val as unknown as number, {
+              value={brandOptions.find((b) => b.id === selectedBrandId)?.name ?? null}
+              onValueChange={(name) => {
+                const brand = brandOptions.find((b) => b.name === name);
+                if (brand) {
+                  setValue('brandId', brand.id, {
                     shouldValidate: true,
                   });
                 }
@@ -347,7 +347,7 @@ export function ListingForm({
               </SelectTrigger>
               <SelectContent>
                 {brandOptions.map((brand) => (
-                  <SelectItem key={brand.id} value={brand.id}>
+                  <SelectItem key={brand.id} value={brand.name}>
                     {brand.name}
                   </SelectItem>
                 ))}
@@ -363,14 +363,11 @@ export function ListingForm({
           <div className="space-y-2">
             <Label>Status</Label>
             <Select
-              value={selectedStatus ?? 'draft'}
-              onValueChange={(val) => {
-                if (val !== null) {
-                  setValue(
-                    'status',
-                    val as ListingFormInput['status'],
-                    { shouldValidate: true },
-                  );
+              value={LISTING_STATUS_LABELS[selectedStatus ?? 'draft']}
+              onValueChange={(label) => {
+                const opt = STATUS_OPTIONS.find((o) => o.label === label);
+                if (opt) {
+                  setValue('status', opt.value, { shouldValidate: true });
                 }
               }}
             >
@@ -379,7 +376,7 @@ export function ListingForm({
               </SelectTrigger>
               <SelectContent>
                 {STATUS_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
+                  <SelectItem key={opt.value} value={opt.label}>
                     {opt.label}
                   </SelectItem>
                 ))}

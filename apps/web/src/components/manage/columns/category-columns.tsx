@@ -1,6 +1,6 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,9 +60,7 @@ export function getCategoryColumns({
         return (
           <DropdownMenu>
             <DropdownMenuTrigger
-              render={
-                <Button variant="ghost" size="icon-sm" />
-              }
+              className={buttonVariants({ variant: 'ghost', size: 'icon-sm' })}
             >
               <MoreHorizontal className="size-4" />
               <span className="sr-only">Open menu</span>

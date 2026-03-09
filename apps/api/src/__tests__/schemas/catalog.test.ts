@@ -28,7 +28,7 @@ describe('Catalog Zod Schemas', () => {
     it.todo('should reject empty name');
     it.todo('should require price as decimal string');
     it.todo('should require quantity as non-negative integer');
-    it.todo('should accept optional upc, size, casePack, msrp, expirationDate, imageUrl');
+    it.todo('should accept optional upc, size, casePack, msrp, imageUrl');
   });
 
   describe('updateBrandSchema', () => {
