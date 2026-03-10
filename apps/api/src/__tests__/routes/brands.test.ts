@@ -417,4 +417,12 @@ describe('Brand Routes', () => {
       );
     });
   });
+
+  // ---- Manufacturer scoping ----
+  describe('Manufacturer scoping', () => {
+    it.todo('should filter brands to manufacturer company when role is manufacturer');
+    it.todo('should auto-set companyId from session for manufacturer brand create');
+    it.todo('should return all brands for admin role');
+    it.todo('should prevent manufacturer from editing other company brands');
+  });
 });

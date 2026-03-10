@@ -172,4 +172,10 @@ describe('Catalog Zod Schemas', () => {
       expect(partial.success).toBe(true);
     });
   });
+
+  describe('ListingStatus enum', () => {
+    it.todo('should include pending_approval status');
+    it.todo('should include rejected status');
+    it.todo('should have labels for all status values including pending_approval and rejected');
+  });
 });

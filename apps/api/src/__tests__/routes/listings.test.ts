@@ -715,4 +715,24 @@ describe('Listing Routes', () => {
       expect(mockDb.delete.mock.calls.length).toBeGreaterThanOrEqual(2);
     });
   });
+
+  // ---- Manufacturer scoping ----
+  describe('Manufacturer scoping', () => {
+    it.todo('should filter listings to manufacturer company when role is manufacturer');
+    it.todo('should filter brand dropdown to manufacturer company brands');
+    it.todo('should return all listings for admin role');
+  });
+
+  // ---- Approval workflow ----
+  describe('Approval workflow', () => {
+    it.todo('should set status to draft on manufacturer listing create');
+    it.todo('should allow manufacturer to submit listing for review (draft -> pending_approval)');
+    it.todo('should prevent manufacturer from editing listing in pending_approval status');
+    it.todo('should allow admin to approve listing (pending_approval -> active)');
+    it.todo('should allow admin to reject listing with reason (pending_approval -> rejected)');
+    it.todo('should allow manufacturer to resubmit rejected listing (rejected -> pending_approval)');
+    it.todo('should bypass approval for admin-created listings');
+    it.todo('should return 409 when approving already-processed listing');
+    it.todo('should allow manufacturer to archive active listing');
+  });
 });
