@@ -1,5 +1,5 @@
 import { Router, type Router as RouterType } from 'express';
-import { eq, isNull, ilike, and, count, sql } from 'drizzle-orm';
+import { eq, isNull, ilike, and, count, sql, inArray } from 'drizzle-orm';
 import { db } from '../db/index';
 import {
   brandListings,
@@ -8,6 +8,7 @@ import {
   listingCategories,
   brands,
   categories,
+  users,
 } from '../db/schema/index';
 import {
   createListingSchema,
@@ -16,7 +17,8 @@ import {
   updateSkuSchema,
 } from '@ais/shared/schemas';
 import type { CreateSkuInput } from '@ais/shared/schemas';
-import { requireAuth, requireRole } from '../middleware/auth';
+import { requireAuth, requireRole, getCurrentUser, getCompanyUser } from '../middleware/auth';
+import { notifyApprovalEvent } from '../services/notification';
 
 const router: RouterType = Router();
 
@@ -24,9 +26,53 @@ const router: RouterType = Router();
 const notDeleted = (table: { deletedAt: typeof brandListings.deletedAt }) =>
   isNull(table.deletedAt);
 
+/**
+ * Helper to verify a listing belongs to the manufacturer's company.
+ * Returns the listing if found, or null if not belonging to the user's company.
+ */
+async function getListingForCompany(listingId: number, companyId: number) {
+  const listing = await db.query.brandListings.findFirst({
+    where: and(eq(brandListings.id, listingId), notDeleted(brandListings)),
+    with: {
+      brand: {
+        columns: { companyId: true },
+      },
+    },
+  });
+
+  if (!listing || listing.brand.companyId !== companyId) {
+    return null;
+  }
+
+  return listing;
+}
+
+/**
+ * Helper to find all users belonging to a company (for notifications).
+ */
+async function getCompanyUserIds(companyId: number): Promise<number[]> {
+  const companyUsers = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.companyId, companyId));
+  return companyUsers.map((u) => u.id);
+}
+
+/**
+ * Helper to get all admin user IDs (for notifications).
+ */
+async function getAdminUserIds(): Promise<number[]> {
+  const admins = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.role, 'admin'));
+  return admins.map((u) => u.id);
+}
+
 // GET / - List listings with pagination, search, status filter, brandId filter
-router.get('/', requireAuth(), requireRole('admin'), async (req, res, next) => {
+router.get('/', requireAuth(), requireRole('admin', 'manufacturer'), async (req, res, next) => {
   try {
+    const { role } = getCurrentUser(req);
     const search = req.query.search as string | undefined;
     const status = req.query.status as string | undefined;
     const brandId = req.query.brandId
@@ -42,10 +88,20 @@ router.get('/', requireAuth(), requireRole('admin'), async (req, res, next) => {
       conditions.push(ilike(brandListings.name, `%${search}%`));
     }
     if (status) {
-      conditions.push(eq(brandListings.status, status as 'draft' | 'active' | 'sold_out' | 'archived'));
+      conditions.push(eq(brandListings.status, status as 'draft' | 'active' | 'sold_out' | 'archived' | 'pending_approval' | 'rejected'));
     }
     if (brandId) {
       conditions.push(eq(brandListings.brandId, brandId));
+    }
+
+    // Manufacturer: scope to their company's brands
+    if (role === 'manufacturer') {
+      const user = await getCompanyUser(req);
+      if (!user?.companyId) {
+        res.status(403).json({ error: 'No company associated with your account' });
+        return;
+      }
+      conditions.push(eq(brands.companyId, user.companyId));
     }
 
     const whereClause = and(...conditions);
@@ -70,12 +126,13 @@ router.get('/', requireAuth(), requireRole('admin'), async (req, res, next) => {
           brandId: brandListings.brandId,
           brandName: brands.name,
           status: brandListings.status,
+          rejectionReason: brandListings.rejectionReason,
           skuCount: sql<number>`coalesce(${skuCountSubquery.skuCount}, 0)`.mapWith(Number),
           createdAt: brandListings.createdAt,
           updatedAt: brandListings.updatedAt,
         })
         .from(brandListings)
-        .leftJoin(brands, eq(brandListings.brandId, brands.id))
+        .innerJoin(brands, eq(brandListings.brandId, brands.id))
         .leftJoin(
           skuCountSubquery,
           eq(brandListings.id, skuCountSubquery.listingId),
@@ -87,6 +144,7 @@ router.get('/', requireAuth(), requireRole('admin'), async (req, res, next) => {
       db
         .select({ total: count() })
         .from(brandListings)
+        .innerJoin(brands, eq(brandListings.brandId, brands.id))
         .where(whereClause),
     ]);
 
@@ -143,8 +201,9 @@ router.get('/', requireAuth(), requireRole('admin'), async (req, res, next) => {
 });
 
 // GET /:id - Get listing by ID with full relations
-router.get('/:id', requireAuth(), requireRole('admin'), async (req, res, next) => {
+router.get('/:id', requireAuth(), requireRole('admin', 'manufacturer'), async (req, res, next) => {
   try {
+    const { role } = getCurrentUser(req);
     const id = Number(req.params.id);
     if (Number.isNaN(id)) {
       res.status(400).json({ error: 'Invalid listing ID' });
@@ -178,6 +237,15 @@ router.get('/:id', requireAuth(), requireRole('admin'), async (req, res, next) =
       return;
     }
 
+    // Manufacturer can only see their own company's listings
+    if (role === 'manufacturer') {
+      const user = await getCompanyUser(req);
+      if (!user?.companyId || listing.brand.company.id !== user.companyId) {
+        res.status(404).json({ error: 'Listing not found' });
+        return;
+      }
+    }
+
     // Flatten listingCategories to just categories (filter out deleted)
     const responseCategories = listing.listingCategories
       .filter((lc) => lc.category.deletedAt === null)
@@ -194,11 +262,37 @@ router.get('/:id', requireAuth(), requireRole('admin'), async (req, res, next) =
 });
 
 // POST / - Create a new listing with optional nested SKUs, images, and categories
-router.post('/', requireAuth(), requireRole('admin'), async (req, res, next) => {
+router.post('/', requireAuth(), requireRole('admin', 'manufacturer'), async (req, res, next) => {
   try {
+    const { role } = getCurrentUser(req);
     const { listing: listingData, skus, images, categoryIds } = req.body;
 
     const parsedListing = createListingSchema.parse(listingData);
+
+    let listingStatus = parsedListing.status;
+    let listingBrandId = parsedListing.brandId;
+
+    if (role === 'manufacturer') {
+      // Force draft status for manufacturer-created listings
+      listingStatus = 'draft';
+
+      // Verify the brand belongs to the manufacturer's company
+      const user = await getCompanyUser(req);
+      if (!user?.companyId) {
+        res.status(403).json({ error: 'No company associated with your account' });
+        return;
+      }
+
+      const [brand] = await db
+        .select({ companyId: brands.companyId })
+        .from(brands)
+        .where(and(eq(brands.id, parsedListing.brandId), isNull(brands.deletedAt)));
+
+      if (!brand || brand.companyId !== user.companyId) {
+        res.status(400).json({ error: 'Brand does not belong to your company' });
+        return;
+      }
+    }
 
     // Insert the listing
     const [newListing] = await db
@@ -206,8 +300,8 @@ router.post('/', requireAuth(), requireRole('admin'), async (req, res, next) => 
       .values({
         name: parsedListing.name,
         description: parsedListing.description,
-        brandId: parsedListing.brandId,
-        status: parsedListing.status,
+        brandId: listingBrandId,
+        status: listingStatus,
       })
       .returning();
 
@@ -299,8 +393,9 @@ router.post('/', requireAuth(), requireRole('admin'), async (req, res, next) => 
 });
 
 // PATCH /:id - Update listing with granular SKU, image, and category management
-router.patch('/:id', requireAuth(), requireRole('admin'), async (req, res, next) => {
+router.patch('/:id', requireAuth(), requireRole('admin', 'manufacturer'), async (req, res, next) => {
   try {
+    const { role } = getCurrentUser(req);
     const id = Number(req.params.id);
     if (Number.isNaN(id)) {
       res.status(400).json({ error: 'Invalid listing ID' });
@@ -309,7 +404,11 @@ router.patch('/:id', requireAuth(), requireRole('admin'), async (req, res, next)
 
     // Check listing exists and is not deleted
     const [existing] = await db
-      .select({ id: brandListings.id })
+      .select({
+        id: brandListings.id,
+        status: brandListings.status,
+        brandId: brandListings.brandId,
+      })
       .from(brandListings)
       .where(and(eq(brandListings.id, id), notDeleted(brandListings)));
 
@@ -318,14 +417,46 @@ router.patch('/:id', requireAuth(), requireRole('admin'), async (req, res, next)
       return;
     }
 
+    // Manufacturer-specific checks
+    if (role === 'manufacturer') {
+      const user = await getCompanyUser(req);
+      if (!user?.companyId) {
+        res.status(403).json({ error: 'No company associated with your account' });
+        return;
+      }
+
+      // Verify listing belongs to manufacturer's company
+      const [brand] = await db
+        .select({ companyId: brands.companyId })
+        .from(brands)
+        .where(eq(brands.id, existing.brandId));
+
+      if (!brand || brand.companyId !== user.companyId) {
+        res.status(403).json({ error: 'Forbidden' });
+        return;
+      }
+
+      // Cannot edit listing while pending approval
+      if (existing.status === 'pending_approval') {
+        res.status(403).json({ error: 'Cannot edit listing while pending approval' });
+        return;
+      }
+    }
+
     const { listing: listingData, skus, images, categoryIds } = req.body;
 
     // Update listing fields if provided
     if (listingData && Object.keys(listingData).length > 0) {
       const parsed = updateListingSchema.parse(listingData);
+
+      // Manufacturer cannot change status via PATCH
+      const updateValues = role === 'manufacturer'
+        ? { ...parsed, status: undefined, updatedAt: new Date() }
+        : { ...parsed, updatedAt: new Date() };
+
       await db
         .update(brandListings)
-        .set({ ...parsed, updatedAt: new Date() })
+        .set(updateValues)
         .where(eq(brandListings.id, id));
     }
 
@@ -478,7 +609,7 @@ router.patch('/:id', requireAuth(), requireRole('admin'), async (req, res, next)
   }
 });
 
-// DELETE /:id - Soft delete listing with cascade
+// DELETE /:id - Soft delete listing with cascade (admin-only)
 router.delete('/:id', requireAuth(), requireRole('admin'), async (req, res, next) => {
   try {
     const id = Number(req.params.id);
@@ -515,6 +646,314 @@ router.delete('/:id', requireAuth(), requireRole('admin'), async (req, res, next
       .where(eq(brandListingImages.listingId, id));
 
     res.json({ message: 'Listing deleted' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---- Approval Workflow Endpoints ----
+
+// POST /:id/submit - Submit listing for review (manufacturer or admin)
+router.post('/:id/submit', requireAuth(), requireRole('admin', 'manufacturer'), async (req, res, next) => {
+  try {
+    const { role } = getCurrentUser(req);
+    const id = Number(req.params.id);
+    if (Number.isNaN(id)) {
+      res.status(400).json({ error: 'Invalid listing ID' });
+      return;
+    }
+
+    // Verify listing exists and get current status
+    const [existing] = await db
+      .select({
+        id: brandListings.id,
+        name: brandListings.name,
+        status: brandListings.status,
+        brandId: brandListings.brandId,
+      })
+      .from(brandListings)
+      .where(and(eq(brandListings.id, id), notDeleted(brandListings)));
+
+    if (!existing) {
+      res.status(404).json({ error: 'Listing not found' });
+      return;
+    }
+
+    // Manufacturer: verify listing belongs to their company
+    if (role === 'manufacturer') {
+      const user = await getCompanyUser(req);
+      if (!user?.companyId) {
+        res.status(403).json({ error: 'No company associated with your account' });
+        return;
+      }
+      const companyListing = await getListingForCompany(id, user.companyId);
+      if (!companyListing) {
+        res.status(404).json({ error: 'Listing not found' });
+        return;
+      }
+    }
+
+    // Can only submit from draft, rejected, or archived status
+    const validSourceStatuses = ['draft', 'rejected', 'archived'];
+    if (!validSourceStatuses.includes(existing.status)) {
+      res.status(400).json({ error: 'Can only submit listings in draft, rejected, or archived status' });
+      return;
+    }
+
+    // Optimistic locking: include expected status in WHERE clause
+    const [updated] = await db
+      .update(brandListings)
+      .set({
+        status: 'pending_approval',
+        rejectionReason: null,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(brandListings.id, id),
+          inArray(brandListings.status, ['draft', 'rejected', 'archived']),
+        ),
+      )
+      .returning();
+
+    if (!updated) {
+      res.status(409).json({ error: 'Listing status has already changed' });
+      return;
+    }
+
+    // Notify all admin users
+    const adminUserIds = await getAdminUserIds();
+    await notifyApprovalEvent({
+      type: 'listing_submitted',
+      listingId: id,
+      listingName: existing.name,
+      recipientUserIds: adminUserIds,
+    });
+
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /:id/approve - Admin approves listing
+router.post('/:id/approve', requireAuth(), requireRole('admin'), async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (Number.isNaN(id)) {
+      res.status(400).json({ error: 'Invalid listing ID' });
+      return;
+    }
+
+    // Verify listing exists and check status
+    const [existing] = await db
+      .select({
+        id: brandListings.id,
+        name: brandListings.name,
+        status: brandListings.status,
+        brandId: brandListings.brandId,
+      })
+      .from(brandListings)
+      .where(and(eq(brandListings.id, id), notDeleted(brandListings)));
+
+    if (!existing) {
+      res.status(404).json({ error: 'Listing not found' });
+      return;
+    }
+
+    if (existing.status !== 'pending_approval') {
+      res.status(409).json({ error: 'Listing is not pending approval' });
+      return;
+    }
+
+    // Optimistic locking
+    const [updated] = await db
+      .update(brandListings)
+      .set({
+        status: 'active',
+        rejectionReason: null,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(brandListings.id, id),
+          eq(brandListings.status, 'pending_approval'),
+        ),
+      )
+      .returning();
+
+    if (!updated) {
+      res.status(409).json({ error: 'Listing has already been processed' });
+      return;
+    }
+
+    // Notify the manufacturer's company users
+    const [brand] = await db
+      .select({ companyId: brands.companyId })
+      .from(brands)
+      .where(eq(brands.id, existing.brandId));
+
+    if (brand) {
+      const companyUserIds = await getCompanyUserIds(brand.companyId);
+      await notifyApprovalEvent({
+        type: 'listing_approved',
+        listingId: id,
+        listingName: existing.name,
+        recipientUserIds: companyUserIds,
+      });
+    }
+
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /:id/reject - Admin rejects listing
+router.post('/:id/reject', requireAuth(), requireRole('admin'), async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    if (Number.isNaN(id)) {
+      res.status(400).json({ error: 'Invalid listing ID' });
+      return;
+    }
+
+    const { reason } = req.body;
+    if (!reason || typeof reason !== 'string' || reason.trim().length === 0) {
+      res.status(400).json({ error: 'Rejection reason is required' });
+      return;
+    }
+
+    // Verify listing exists and check status
+    const [existing] = await db
+      .select({
+        id: brandListings.id,
+        name: brandListings.name,
+        status: brandListings.status,
+        brandId: brandListings.brandId,
+      })
+      .from(brandListings)
+      .where(and(eq(brandListings.id, id), notDeleted(brandListings)));
+
+    if (!existing) {
+      res.status(404).json({ error: 'Listing not found' });
+      return;
+    }
+
+    if (existing.status !== 'pending_approval') {
+      res.status(409).json({ error: 'Listing is not pending approval' });
+      return;
+    }
+
+    // Optimistic locking
+    const [updated] = await db
+      .update(brandListings)
+      .set({
+        status: 'rejected',
+        rejectionReason: reason.trim(),
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(brandListings.id, id),
+          eq(brandListings.status, 'pending_approval'),
+        ),
+      )
+      .returning();
+
+    if (!updated) {
+      res.status(409).json({ error: 'Listing has already been processed' });
+      return;
+    }
+
+    // Notify the manufacturer's company users
+    const [brand] = await db
+      .select({ companyId: brands.companyId })
+      .from(brands)
+      .where(eq(brands.id, existing.brandId));
+
+    if (brand) {
+      const companyUserIds = await getCompanyUserIds(brand.companyId);
+      await notifyApprovalEvent({
+        type: 'listing_rejected',
+        listingId: id,
+        listingName: existing.name,
+        recipientUserIds: companyUserIds,
+        rejectionReason: reason.trim(),
+      });
+    }
+
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /:id/archive - Archive an active listing
+router.post('/:id/archive', requireAuth(), requireRole('admin', 'manufacturer'), async (req, res, next) => {
+  try {
+    const { role } = getCurrentUser(req);
+    const id = Number(req.params.id);
+    if (Number.isNaN(id)) {
+      res.status(400).json({ error: 'Invalid listing ID' });
+      return;
+    }
+
+    // Verify listing exists
+    const [existing] = await db
+      .select({
+        id: brandListings.id,
+        status: brandListings.status,
+        brandId: brandListings.brandId,
+      })
+      .from(brandListings)
+      .where(and(eq(brandListings.id, id), notDeleted(brandListings)));
+
+    if (!existing) {
+      res.status(404).json({ error: 'Listing not found' });
+      return;
+    }
+
+    // Manufacturer: verify listing belongs to their company
+    if (role === 'manufacturer') {
+      const user = await getCompanyUser(req);
+      if (!user?.companyId) {
+        res.status(403).json({ error: 'No company associated with your account' });
+        return;
+      }
+      const companyListing = await getListingForCompany(id, user.companyId);
+      if (!companyListing) {
+        res.status(404).json({ error: 'Listing not found' });
+        return;
+      }
+    }
+
+    if (existing.status !== 'active') {
+      res.status(400).json({ error: 'Can only archive active listings' });
+      return;
+    }
+
+    // Optimistic locking
+    const [updated] = await db
+      .update(brandListings)
+      .set({
+        status: 'archived',
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(brandListings.id, id),
+          eq(brandListings.status, 'active'),
+        ),
+      )
+      .returning();
+
+    if (!updated) {
+      res.status(409).json({ error: 'Listing status has already changed' });
+      return;
+    }
+
+    res.json(updated);
   } catch (err) {
     next(err);
   }

@@ -6,7 +6,7 @@ import {
   createBrandSchema,
   updateBrandSchema,
 } from '@ais/shared/schemas';
-import { requireAuth, requireRole } from '../middleware/auth';
+import { requireAuth, requireRole, getCurrentUser, getCompanyUser } from '../middleware/auth';
 
 const router: RouterType = Router();
 
@@ -53,12 +53,10 @@ async function findUniqueSlug(
 }
 
 // GET / - List brands with pagination, search, and companyId filter
-router.get('/', requireAuth(), requireRole('admin'), async (req, res, next) => {
+router.get('/', requireAuth(), requireRole('admin', 'manufacturer'), async (req, res, next) => {
   try {
+    const { role } = getCurrentUser(req);
     const search = req.query.search as string | undefined;
-    const companyId = req.query.companyId
-      ? Number(req.query.companyId)
-      : undefined;
     const page = Math.max(1, Number(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
     const offset = (page - 1) * limit;
@@ -68,8 +66,23 @@ router.get('/', requireAuth(), requireRole('admin'), async (req, res, next) => {
     if (search) {
       conditions.push(ilike(brands.name, `%${search}%`));
     }
-    if (companyId) {
-      conditions.push(eq(brands.companyId, companyId));
+
+    if (role === 'manufacturer') {
+      // Manufacturer can only see their company's brands
+      const user = await getCompanyUser(req);
+      if (!user?.companyId) {
+        res.status(403).json({ error: 'No company associated with your account' });
+        return;
+      }
+      conditions.push(eq(brands.companyId, user.companyId));
+    } else {
+      // Admin: optional companyId filter from query param
+      const companyId = req.query.companyId
+        ? Number(req.query.companyId)
+        : undefined;
+      if (companyId) {
+        conditions.push(eq(brands.companyId, companyId));
+      }
     }
 
     const whereClause = and(...conditions);
@@ -114,8 +127,9 @@ router.get('/', requireAuth(), requireRole('admin'), async (req, res, next) => {
 });
 
 // GET /:id - Get brand by ID with company relation
-router.get('/:id', requireAuth(), requireRole('admin'), async (req, res, next) => {
+router.get('/:id', requireAuth(), requireRole('admin', 'manufacturer'), async (req, res, next) => {
   try {
+    const { role } = getCurrentUser(req);
     const id = Number(req.params.id);
     if (Number.isNaN(id)) {
       res.status(400).json({ error: 'Invalid brand ID' });
@@ -143,6 +157,15 @@ router.get('/:id', requireAuth(), requireRole('admin'), async (req, res, next) =
       return;
     }
 
+    // Manufacturer can only see their own company's brands
+    if (role === 'manufacturer') {
+      const user = await getCompanyUser(req);
+      if (!user?.companyId || brand.companyId !== user.companyId) {
+        res.status(404).json({ error: 'Brand not found' });
+        return;
+      }
+    }
+
     res.json(brand);
   } catch (err) {
     next(err);
@@ -150,15 +173,28 @@ router.get('/:id', requireAuth(), requireRole('admin'), async (req, res, next) =
 });
 
 // POST / - Create a new brand
-router.post('/', requireAuth(), requireRole('admin'), async (req, res, next) => {
+router.post('/', requireAuth(), requireRole('admin', 'manufacturer'), async (req, res, next) => {
   try {
+    const { role } = getCurrentUser(req);
     const data = createBrandSchema.parse(req.body);
     const baseSlug = generateSlug(data.name);
     const slug = await findUniqueSlug(baseSlug);
 
+    let insertValues = { ...data, slug };
+
+    if (role === 'manufacturer') {
+      // Force companyId to the manufacturer's own company
+      const user = await getCompanyUser(req);
+      if (!user?.companyId) {
+        res.status(403).json({ error: 'No company associated with your account' });
+        return;
+      }
+      insertValues = { ...insertValues, companyId: user.companyId };
+    }
+
     const [brand] = await db
       .insert(brands)
-      .values({ ...data, slug })
+      .values(insertValues)
       .returning();
 
     res.status(201).json(brand);
@@ -168,12 +204,30 @@ router.post('/', requireAuth(), requireRole('admin'), async (req, res, next) => 
 });
 
 // PATCH /:id - Update a brand
-router.patch('/:id', requireAuth(), requireRole('admin'), async (req, res, next) => {
+router.patch('/:id', requireAuth(), requireRole('admin', 'manufacturer'), async (req, res, next) => {
   try {
+    const { role } = getCurrentUser(req);
     const id = Number(req.params.id);
     if (Number.isNaN(id)) {
       res.status(400).json({ error: 'Invalid brand ID' });
       return;
+    }
+
+    // Manufacturer: verify brand belongs to their company
+    if (role === 'manufacturer') {
+      const user = await getCompanyUser(req);
+      if (!user?.companyId) {
+        res.status(403).json({ error: 'No company associated with your account' });
+        return;
+      }
+      const [existingBrand] = await db
+        .select({ companyId: brands.companyId })
+        .from(brands)
+        .where(and(eq(brands.id, id), isNull(brands.deletedAt)));
+      if (!existingBrand || existingBrand.companyId !== user.companyId) {
+        res.status(403).json({ error: 'Forbidden' });
+        return;
+      }
     }
 
     const data = updateBrandSchema.parse(req.body);
@@ -182,6 +236,11 @@ router.patch('/:id', requireAuth(), requireRole('admin'), async (req, res, next)
       ...data,
       updatedAt: new Date(),
     };
+
+    // Manufacturer cannot change companyId
+    if (role === 'manufacturer') {
+      delete updateData.companyId;
+    }
 
     // Regenerate slug if name is being updated
     if (data.name) {

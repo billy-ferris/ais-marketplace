@@ -21,6 +21,23 @@ vi.mock('../../middleware/auth', () => ({
   requireRole: vi.fn(
     () => (_req: Request, _res: Response, next: NextFunction) => next(),
   ),
+  getCurrentUser: vi.fn().mockReturnValue({
+    userId: 'test-user',
+    role: 'admin',
+    sessionClaims: { metadata: { role: 'admin' } },
+  }),
+  getCompanyUser: vi.fn().mockResolvedValue({
+    id: 1,
+    companyId: 1,
+    role: 'admin',
+    email: 'admin@test.com',
+    firstName: 'Admin',
+  }),
+}));
+
+// Mock notification service
+vi.mock('../../services/notification', () => ({
+  notifyApprovalEvent: vi.fn().mockResolvedValue(undefined),
 }));
 
 // Shared chainable mock for `db` — vi.hoisted() ensures this is available

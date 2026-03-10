@@ -19,7 +19,7 @@ vi.mock('@clerk/express', () => ({
   }),
 }));
 
-// Mock auth middleware as pass-through
+// Mock auth middleware as pass-through (admin role by default)
 vi.mock('../../middleware/auth', () => ({
   requireAuth: vi.fn(
     () => (_req: Request, _res: Response, next: NextFunction) => next(),
@@ -27,6 +27,18 @@ vi.mock('../../middleware/auth', () => ({
   requireRole: vi.fn(
     () => (_req: Request, _res: Response, next: NextFunction) => next(),
   ),
+  getCurrentUser: vi.fn().mockReturnValue({
+    userId: 'test-user',
+    role: 'admin',
+    sessionClaims: { metadata: { role: 'admin' } },
+  }),
+  getCompanyUser: vi.fn().mockResolvedValue({
+    id: 1,
+    companyId: 1,
+    role: 'admin',
+    email: 'admin@test.com',
+    firstName: 'Admin',
+  }),
 }));
 
 // Mock db with chainable methods

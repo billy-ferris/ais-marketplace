@@ -1,6 +1,9 @@
 import { clerkMiddleware, getAuth } from '@clerk/express';
 import type { UserRole } from '@ais/shared';
 import type { Request, RequestHandler } from 'express';
+import { eq } from 'drizzle-orm';
+import { db } from '../db/index';
+import { users } from '../db/schema/index';
 
 export { clerkMiddleware };
 
@@ -47,7 +50,28 @@ export function getCurrentUser(req: Request) {
   const auth = getAuth(req, { acceptsToken: 'session_token' });
   return {
     userId: auth.userId,
-    role: auth.sessionClaims?.metadata?.role ?? null,
+    role: (auth.sessionClaims?.metadata?.role ?? null) as UserRole | null,
     sessionClaims: auth.sessionClaims,
   };
+}
+
+/**
+ * Look up the local database user from the Clerk userId on the request.
+ * Returns user record with id, companyId, role, email, firstName -- or null if not found.
+ * Centralizes the companyId lookup pattern for manufacturer scoping.
+ */
+export async function getCompanyUser(req: Request) {
+  const { userId: clerkId } = getCurrentUser(req);
+  if (!clerkId) return null;
+
+  return db.query.users.findFirst({
+    where: eq(users.clerkId, clerkId),
+    columns: {
+      id: true,
+      companyId: true,
+      role: true,
+      email: true,
+      firstName: true,
+    },
+  }) ?? null;
 }
