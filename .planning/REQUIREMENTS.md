@@ -69,28 +69,28 @@ Requirements for demo-ready MVP. Each maps to roadmap phases.
 
 ### Manufacturer Self-Service
 
-- [ ] **MFSS-01**: Manufacturer can create and edit inventory listings scoped to their own company
-- [ ] **MFSS-02**: Manufacturer can create and edit brands scoped to their own company
-- [ ] **MFSS-03**: Manufacturer can assign existing categories to listings but cannot create, edit, or delete categories
-- [ ] **MFSS-04**: Manufacturer manage pages display only data belonging to their company
+- [x] **MFSS-01**: Manufacturer can create and edit inventory listings scoped to their own company
+- [x] **MFSS-02**: Manufacturer can create and edit brands scoped to their own company
+- [x] **MFSS-03**: Manufacturer can assign existing categories to listings but cannot create, edit, or delete categories
+- [x] **MFSS-04**: Manufacturer manage pages display only data belonging to their company
 
 ### Approval Workflow
 
 - [x] **APRV-01**: Manufacturer-created listings and brands automatically enter "pending_approval" status
-- [ ] **APRV-02**: Admin can view all pending submissions in a dedicated approval review queue
-- [ ] **APRV-03**: Admin can approve a pending submission, activating the listing or brand
-- [ ] **APRV-04**: Admin can reject a pending submission with a written reason
-- [ ] **APRV-05**: Admin can edit a submission before approving or rejecting
+- [x] **APRV-02**: Admin can view all pending submissions in a dedicated approval review queue
+- [x] **APRV-03**: Admin can approve a pending submission, activating the listing or brand
+- [x] **APRV-04**: Admin can reject a pending submission with a written reason
+- [x] **APRV-05**: Admin can edit a submission before approving or rejecting
 - [x] **APRV-06**: SKUs inherit their parent listing's approval status (approved/rejected as a unit)
 - [x] **APRV-07**: Admin-created listings and brands bypass approval and are immediately active
 
 ### Notification Inbox
 
 - [ ] **NINB-01**: Dedicated notification inbox page accessible from sidebar for all users
-- [ ] **NINB-02**: Sidebar displays unread notification count as a badge
-- [ ] **NINB-03**: Admin receives in-app notification when a manufacturer submits a listing or brand for approval
-- [ ] **NINB-04**: Manufacturer receives in-app notification when their submission is approved or rejected (with reason if rejected)
-- [ ] **NINB-05**: Email notifications sent via Resend for all approval workflow events
+- [x] **NINB-02**: Sidebar displays unread notification count as a badge
+- [x] **NINB-03**: Admin receives in-app notification when a manufacturer submits a listing or brand for approval
+- [x] **NINB-04**: Manufacturer receives in-app notification when their submission is approved or rejected (with reason if rejected)
+- [x] **NINB-05**: Email notifications sent via Resend for all approval workflow events
 
 ### Notifications
 
@@ -183,22 +183,22 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-07 | Phase 1 | Complete |
 | ADMN-01 | Phase 2 | Complete |
 | ADMN-02 | Phase 2 | Complete |
-| MFSS-01 | Phase 2.1 | Pending |
-| MFSS-02 | Phase 2.1 | Pending |
-| MFSS-03 | Phase 2.1 | Pending |
-| MFSS-04 | Phase 2.1 | Pending |
+| MFSS-01 | Phase 2.1 | Complete |
+| MFSS-02 | Phase 2.1 | Complete |
+| MFSS-03 | Phase 2.1 | Complete |
+| MFSS-04 | Phase 2.1 | Complete |
 | APRV-01 | Phase 2.1 | Complete |
-| APRV-02 | Phase 2.1 | Pending |
-| APRV-03 | Phase 2.1 | Pending |
-| APRV-04 | Phase 2.1 | Pending |
-| APRV-05 | Phase 2.1 | Pending |
+| APRV-02 | Phase 2.1 | Complete |
+| APRV-03 | Phase 2.1 | Complete |
+| APRV-04 | Phase 2.1 | Complete |
+| APRV-05 | Phase 2.1 | Complete |
 | APRV-06 | Phase 2.1 | Complete |
 | APRV-07 | Phase 2.1 | Complete |
 | NINB-01 | Phase 2.1 | Pending |
-| NINB-02 | Phase 2.1 | Pending |
-| NINB-03 | Phase 2.1 | Pending |
-| NINB-04 | Phase 2.1 | Pending |
-| NINB-05 | Phase 2.1 | Pending |
+| NINB-02 | Phase 2.1 | Complete |
+| NINB-03 | Phase 2.1 | Complete |
+| NINB-04 | Phase 2.1 | Complete |
+| NINB-05 | Phase 2.1 | Complete |
 | CATL-01 | Phase 3 | Pending |
 | CATL-02 | Phase 3 | Pending |
 | CATL-03 | Phase 3 | Pending |

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-stopped_at: Completed 02.1-01-PLAN.md
-last_updated: "2026-03-10T00:07:29.000Z"
-last_activity: "2026-03-09 -- Completed plan 02.1-01 (Schema foundation & shared types for approval workflow)"
+stopped_at: Completed 02.1-02-PLAN.md
+last_updated: "2026-03-10T00:16:32.000Z"
+last_activity: "2026-03-10 -- Completed plan 02.1-02 (Backend API: role-scoped routes, approval workflow, notifications)"
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 18
-  completed_plans: 16
-  percent: 89
+  completed_plans: 17
+  percent: 94
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 ## Current Position
 
 Phase: 2.1 (Manufacturer Self-Service & Approval Workflow)
-Plan: 1 of 3 in Phase 2.1 (Plan 01 complete)
-Status: Plan 01 complete, schema foundation and shared types established
-Last activity: 2026-03-09 -- Completed plan 02.1-01 (Schema foundation & shared types for approval workflow)
+Plan: 2 of 3 in Phase 2.1 (Plan 02 complete)
+Status: Plan 02 complete, backend API layer with approval workflow and notifications
+Last activity: 2026-03-10 -- Completed plan 02.1-02 (Backend API: role-scoped routes, approval workflow, notifications)
 
-Progress: [████████░░] 89%
+Progress: [█████████░] 94%
 
 ## Performance Metrics
 
@@ -65,6 +65,7 @@ Progress: [████████░░] 89%
 | Phase 02.2 P02 | 4 | 2 tasks | 2 files |
 | Phase 02.2 P03 | 4 | 2 tasks | 2 files |
 | Phase 02.1 P01 | 3 | 2 tasks | 12 files |
+| Phase 02.1 P02 | 6 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -112,6 +113,10 @@ Recent decisions affecting current work:
 - [Phase 02.2-03]: Route middleware stack length check for admin role verification (avoids clearAllMocks clearing registration-time spy calls)
 - [Phase 02.1-01]: Appended pending_approval and rejected to existing pgEnum (Postgres only supports append, not reorder)
 - [Phase 02.1-01]: Notification table uses integer FK to users.id (not clerk_id) for DB-level referential integrity
+- [Phase 02.1-02]: Resend email failures fire-and-forget (caught+logged, never thrown) to avoid blocking approval actions
+- [Phase 02.1-02]: Listing GET / uses innerJoin on brands for reliable manufacturer company scoping
+- [Phase 02.1-02]: Submit endpoint accepts draft, rejected, and archived as valid source statuses for re-submission
+- [Phase 02.1-02]: All approval state transitions use optimistic locking (WHERE status = expected_status)
 
 ### Pending Todos
 
@@ -129,6 +134,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T00:07:29Z
-Stopped at: Completed 02.1-01-PLAN.md
-Resume file: .planning/phases/02.1-manufacturer-self-service-approval-workflow/02.1-02-PLAN.md
+Last session: 2026-03-10T00:16:32Z
+Stopped at: Completed 02.1-02-PLAN.md
+Resume file: .planning/phases/02.1-manufacturer-self-service-approval-workflow/02.1-03-PLAN.md
