@@ -8,6 +8,7 @@ import {
   useMarkAllRead,
   type Notification,
 } from '@/hooks/useNotifications';
+import { useRole } from '@/hooks/useRole';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function timeAgo(dateString: string): string {
@@ -82,6 +83,7 @@ function NotificationItem({
 
 export function NotificationsPage() {
   const navigate = useNavigate();
+  const { isAdmin } = useRole();
   const [page, setPage] = useState(1);
   const limit = 20;
 
@@ -102,7 +104,12 @@ export function NotificationsPage() {
       markRead.mutate(notification.id);
     }
     if (notification.entityType === 'listing' && notification.entityId) {
-      navigate(`/manage/listings/${notification.entityId}/edit`);
+      // Admin: "listing_submitted" notifications route to approval review page
+      if (isAdmin && notification.type === 'listing_submitted') {
+        navigate(`/manage/approvals/${notification.entityId}`);
+      } else {
+        navigate(`/manage/listings/${notification.entityId}/edit`);
+      }
     }
   }
 
