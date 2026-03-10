@@ -1,19 +1,33 @@
 import { useParams, useNavigate } from 'react-router';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Info, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { ListingForm } from '@/components/manage/ListingForm';
-import { useListing, useUpdateListing } from '@/hooks/useListings';
+import {
+  useListing,
+  useUpdateListing,
+  useSubmitForReview,
+} from '@/hooks/useListings';
+import { useRole } from '@/hooks/useRole';
 
 export function ListingEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const listingId = Number(id);
+  const { isManufacturer } = useRole();
 
   const { data: listing, isLoading, error } = useListing(
     Number.isNaN(listingId) ? null : listingId,
   );
   const updateListing = useUpdateListing();
+  const submitForReview = useSubmitForReview();
+
+  const isPendingApproval = listing?.status === 'pending_approval';
+  const isRejected = listing?.status === 'rejected';
+  const isDraftOrRejected =
+    listing?.status === 'draft' || listing?.status === 'rejected';
+  const isReadOnly = isManufacturer && isPendingApproval;
 
   if (isLoading) {
     return (
@@ -80,21 +94,63 @@ export function ListingEditPage() {
         </div>
       </div>
 
-      <div className="max-w-3xl">
-        <ListingForm
-          listing={listing}
-          onSubmit={(payload) => {
-            updateListing.mutate(
-              { id: listingId, ...payload },
-              {
-                onSuccess: () => {
-                  navigate('/manage/listings');
+      <div className="max-w-3xl space-y-4">
+        {isManufacturer && isRejected && listing.rejectionReason && (
+          <Alert variant="destructive">
+            <AlertTriangle className="size-4" />
+            <AlertTitle>Listing Rejected</AlertTitle>
+            <AlertDescription>
+              {listing.rejectionReason}. Edit and resubmit for review.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {isReadOnly && (
+          <Alert>
+            <Info className="size-4" />
+            <AlertTitle>Under Review</AlertTitle>
+            <AlertDescription>
+              This listing is under review and cannot be edited.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {!isReadOnly && (
+          <ListingForm
+            listing={listing}
+            onSubmit={(payload) => {
+              updateListing.mutate(
+                { id: listingId, ...payload },
+                {
+                  onSuccess: () => {
+                    navigate('/manage/listings');
+                  },
                 },
-              },
-            );
-          }}
-          isSubmitting={updateListing.isPending}
-        />
+              );
+            }}
+            isSubmitting={updateListing.isPending}
+            hideStatus={isManufacturer}
+            extraActions={
+              isManufacturer && isDraftOrRejected ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    submitForReview.mutate(listingId, {
+                      onSuccess: () => {
+                        navigate('/manage/listings');
+                      },
+                    });
+                  }}
+                  disabled={submitForReview.isPending}
+                >
+                  <Send className="size-4" />
+                  Submit for Review
+                </Button>
+              ) : undefined
+            }
+          />
+        )}
       </div>
     </div>
   );

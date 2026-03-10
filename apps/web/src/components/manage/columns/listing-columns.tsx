@@ -1,11 +1,12 @@
 import { type ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Send, Archive } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { buttonVariants } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { ListingRow } from '@/hooks/useListings';
@@ -18,6 +19,8 @@ const STATUS_VARIANT: Record<
   active: 'default',
   sold_out: 'destructive',
   archived: 'outline',
+  pending_approval: 'outline',
+  rejected: 'destructive',
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -25,16 +28,28 @@ const STATUS_LABEL: Record<string, string> = {
   active: 'Active',
   sold_out: 'Sold Out',
   archived: 'Archived',
+  pending_approval: 'Pending Approval',
+  rejected: 'Rejected',
+};
+
+const STATUS_CLASS: Record<string, string> = {
+  pending_approval: 'bg-amber-100 text-amber-800 border-amber-200',
 };
 
 interface ListingColumnCallbacks {
   onEdit: (listing: ListingRow) => void;
   onDelete: (listing: ListingRow) => void;
+  onSubmitForReview?: (listing: ListingRow) => void;
+  onArchive?: (listing: ListingRow) => void;
+  isManufacturer?: boolean;
 }
 
 export function getListingColumns({
   onEdit,
   onDelete,
+  onSubmitForReview,
+  onArchive,
+  isManufacturer,
 }: ListingColumnCallbacks): ColumnDef<ListingRow, unknown>[] {
   return [
     {
@@ -64,7 +79,10 @@ export function getListingColumns({
       cell: ({ row }) => {
         const status = row.original.status;
         return (
-          <Badge variant={STATUS_VARIANT[status] ?? 'secondary'}>
+          <Badge
+            variant={STATUS_VARIANT[status] ?? 'secondary'}
+            className={STATUS_CLASS[status] ?? ''}
+          >
             {STATUS_LABEL[status] ?? status}
           </Badge>
         );
@@ -107,6 +125,13 @@ export function getListingColumns({
       enableSorting: false,
       cell: ({ row }) => {
         const listing = row.original;
+        const canSubmitForReview =
+          isManufacturer &&
+          onSubmitForReview &&
+          (listing.status === 'draft' || listing.status === 'rejected');
+        const canArchive =
+          isManufacturer && onArchive && listing.status === 'active';
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -120,6 +145,19 @@ export function getListingColumns({
                 <Pencil className="size-4" />
                 Edit
               </DropdownMenuItem>
+              {canSubmitForReview && (
+                <DropdownMenuItem onClick={() => onSubmitForReview(listing)}>
+                  <Send className="size-4" />
+                  Submit for Review
+                </DropdownMenuItem>
+              )}
+              {canArchive && (
+                <DropdownMenuItem onClick={() => onArchive(listing)}>
+                  <Archive className="size-4" />
+                  Archive
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
               <DropdownMenuItem
                 variant="destructive"
                 onClick={() => onDelete(listing)}

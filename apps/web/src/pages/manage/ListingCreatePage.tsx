@@ -3,10 +3,12 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ListingForm } from '@/components/manage/ListingForm';
 import { useCreateListing } from '@/hooks/useListings';
+import { useRole } from '@/hooks/useRole';
 
 export function ListingCreatePage() {
   const navigate = useNavigate();
   const createListing = useCreateListing();
+  const { isManufacturer } = useRole();
 
   return (
     <div className="space-y-6">
@@ -38,6 +40,7 @@ export function ListingCreatePage() {
             });
           }}
           isSubmitting={createListing.isPending}
+          hideStatus={isManufacturer}
         />
       </div>
     </div>

@@ -54,6 +54,8 @@ interface ListingFormProps {
     categoryIds?: number[];
   }) => void;
   isSubmitting?: boolean;
+  hideStatus?: boolean;
+  extraActions?: React.ReactNode;
 }
 
 const STATUS_OPTIONS = Object.entries(LISTING_STATUS_LABELS).map(
@@ -94,6 +96,8 @@ export function ListingForm({
   listing,
   onSubmit,
   isSubmitting = false,
+  hideStatus = false,
+  extraActions,
 }: ListingFormProps) {
   // Brands for select
   const { data: brandsData } = useBrands({ limit: 100 });
@@ -362,29 +366,31 @@ export function ListingForm({
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label>Status</Label>
-            <Select
-              value={LISTING_STATUS_LABELS[selectedStatus ?? 'draft']}
-              onValueChange={(label) => {
-                const opt = STATUS_OPTIONS.find((o) => o.label === label);
-                if (opt) {
-                  setValue('status', opt.value, { shouldValidate: true });
-                }
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.label}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {!hideStatus && (
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select
+                value={LISTING_STATUS_LABELS[selectedStatus ?? 'draft']}
+                onValueChange={(label) => {
+                  const opt = STATUS_OPTIONS.find((o) => o.label === label);
+                  if (opt) {
+                    setValue('status', opt.value, { shouldValidate: true });
+                  }
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.label}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
       </div>
 
@@ -503,7 +509,8 @@ export function ListingForm({
       </div>
 
       {/* Submit */}
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        {extraActions}
         <Button type="submit" disabled={isSubmitting || isUploading}>
           {isSubmitting && <Loader2 className="size-4 animate-spin" />}
           {listing ? 'Save Changes' : 'Create Listing'}

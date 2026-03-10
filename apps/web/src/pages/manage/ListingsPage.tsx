@@ -17,20 +17,26 @@ import { getListingColumns } from '@/components/manage/columns/listing-columns';
 import {
   useListings,
   useDeleteListing,
+  useSubmitForReview,
+  useArchiveListing,
   type ListingRow,
 } from '@/hooks/useListings';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useRole } from '@/hooks/useRole';
 
 const STATUS_FILTERS = [
   { value: 'all', label: 'All Statuses' },
   { value: 'draft', label: 'Draft' },
   { value: 'active', label: 'Active' },
+  { value: 'pending_approval', label: 'Pending Approval' },
+  { value: 'rejected', label: 'Rejected' },
   { value: 'sold_out', label: 'Sold Out' },
   { value: 'archived', label: 'Archived' },
 ];
 
 export function ListingsPage() {
   const navigate = useNavigate();
+  const { isManufacturer } = useRole();
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -44,6 +50,8 @@ export function ListingsPage() {
   // Delete state
   const [deleteTarget, setDeleteTarget] = useState<ListingRow | null>(null);
   const deleteListing = useDeleteListing();
+  const submitForReview = useSubmitForReview();
+  const archiveListing = useArchiveListing();
 
   const { data, isLoading } = useListings({
     search: debouncedSearch || undefined,
@@ -63,9 +71,30 @@ export function ListingsPage() {
     setDeleteTarget(listing);
   }, []);
 
+  const handleSubmitForReview = useCallback(
+    (listing: ListingRow) => {
+      submitForReview.mutate(listing.id);
+    },
+    [submitForReview],
+  );
+
+  const handleArchive = useCallback(
+    (listing: ListingRow) => {
+      archiveListing.mutate(listing.id);
+    },
+    [archiveListing],
+  );
+
   const columns = useMemo(
-    () => getListingColumns({ onEdit: handleEdit, onDelete: handleDelete }),
-    [handleEdit, handleDelete],
+    () =>
+      getListingColumns({
+        onEdit: handleEdit,
+        onDelete: handleDelete,
+        onSubmitForReview: isManufacturer ? handleSubmitForReview : undefined,
+        onArchive: isManufacturer ? handleArchive : undefined,
+        isManufacturer,
+      }),
+    [handleEdit, handleDelete, handleSubmitForReview, handleArchive, isManufacturer],
   );
 
   function handleConfirmDelete() {

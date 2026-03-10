@@ -7,6 +7,8 @@ import { CategoriesPage } from '@/pages/manage/CategoriesPage';
 import { ListingsPage } from '@/pages/manage/ListingsPage';
 import { ListingCreatePage } from '@/pages/manage/ListingCreatePage';
 import { ListingEditPage } from '@/pages/manage/ListingEditPage';
+import { ApprovalsPage } from '@/pages/manage/ApprovalsPage';
+import { NotificationsPage } from '@/pages/NotificationsPage';
 
 export const router = createBrowserRouter([
   {
@@ -22,8 +24,10 @@ export const router = createBrowserRouter([
           { path: 'listings', element: <ListingsPage /> },
           { path: 'listings/new', element: <ListingCreatePage /> },
           { path: 'listings/:id/edit', element: <ListingEditPage /> },
+          { path: 'approvals', element: <ApprovalsPage /> },
         ],
       },
+      { path: 'notifications', element: <NotificationsPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

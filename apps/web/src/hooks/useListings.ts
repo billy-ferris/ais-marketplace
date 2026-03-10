@@ -15,6 +15,7 @@ export interface ListingRow {
   brandId: number;
   brandName: string | null;
   status: string;
+  rejectionReason: string | null;
   skuCount: number;
   categories: ListingCategory[];
   createdAt: string;
@@ -53,6 +54,7 @@ export interface ListingDetail {
   description: string | null;
   brandId: number;
   status: string;
+  rejectionReason: string | null;
   createdAt: string;
   updatedAt: string;
   brand: {
@@ -166,6 +168,69 @@ export function useDeleteListing() {
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to delete listing');
+    },
+  });
+}
+
+export function useSubmitForReview() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) =>
+      apiFetch(`${API_ROUTES.LISTINGS}/${id}/submit`, { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      toast.success('Listing submitted for review');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to submit listing for review');
+    },
+  });
+}
+
+export function useApproveListing() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) =>
+      apiFetch(`${API_ROUTES.LISTINGS}/${id}/approve`, { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      toast.success('Listing approved');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to approve listing');
+    },
+  });
+}
+
+export function useRejectListing() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: number; reason: string }) =>
+      apiFetch(`${API_ROUTES.LISTINGS}/${id}/reject`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      toast.success('Listing rejected');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to reject listing');
+    },
+  });
+}
+
+export function useArchiveListing() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) =>
+      apiFetch(`${API_ROUTES.LISTINGS}/${id}/archive`, { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      toast.success('Listing archived');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to archive listing');
     },
   });
 }
