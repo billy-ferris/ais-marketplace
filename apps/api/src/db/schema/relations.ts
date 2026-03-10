@@ -7,12 +7,14 @@ import { inventorySkus } from './inventory-skus';
 import { categories } from './categories';
 import { listingCategories } from './listing-categories';
 import { brandListingImages } from './brand-listing-images';
+import { notifications } from './notifications';
 
-export const usersRelations = relations(users, ({ one }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
   company: one(companies, {
     fields: [users.companyId],
     references: [companies.id],
   }),
+  notifications: many(notifications),
 }));
 
 export const companiesRelations = relations(companies, ({ many }) => ({
@@ -75,3 +77,7 @@ export const brandListingImagesRelations = relations(
     }),
   }),
 );
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, { fields: [notifications.userId], references: [users.id] }),
+}));

@@ -3,6 +3,8 @@ export const ListingStatus = {
   ACTIVE: 'active',
   SOLD_OUT: 'sold_out',
   ARCHIVED: 'archived',
+  PENDING_APPROVAL: 'pending_approval',
+  REJECTED: 'rejected',
 } as const;
 
 export type ListingStatus = (typeof ListingStatus)[keyof typeof ListingStatus];
@@ -12,6 +14,8 @@ export const LISTING_STATUS_LABELS: Record<ListingStatus, string> = {
   [ListingStatus.ACTIVE]: 'Active',
   [ListingStatus.SOLD_OUT]: 'Sold Out',
   [ListingStatus.ARCHIVED]: 'Archived',
+  [ListingStatus.PENDING_APPROVAL]: 'Pending Approval',
+  [ListingStatus.REJECTED]: 'Rejected',
 };
 
 export interface Brand {
@@ -32,6 +36,7 @@ export interface BrandListing {
   description: string | null;
   brandId: number;
   status: ListingStatus;
+  rejectionReason: string | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;

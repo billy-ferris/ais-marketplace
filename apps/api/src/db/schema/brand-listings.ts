@@ -13,6 +13,8 @@ export const listingStatusEnum = pgEnum('listing_status', [
   'active',
   'sold_out',
   'archived',
+  'pending_approval',
+  'rejected',
 ]);
 
 export const brandListings = pgTable('brand_listings', {
@@ -24,6 +26,7 @@ export const brandListings = pgTable('brand_listings', {
     .references(() => brands.id),
   status: listingStatusEnum().notNull().default('draft'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+  rejectionReason: varchar('rejection_reason', { length: 1000 }),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
 });

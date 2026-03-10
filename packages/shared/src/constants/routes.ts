@@ -8,4 +8,5 @@ export const API_ROUTES = {
   CATEGORIES: '/api/categories',
   LISTINGS: '/api/listings',
   UPLOADS: '/api/uploads',
+  NOTIFICATIONS: '/api/notifications',
 } as const;

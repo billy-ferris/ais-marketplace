@@ -4,7 +4,7 @@ export const createListingSchema = z.object({
   name: z.string().min(1, 'Listing name is required').max(255),
   description: z.string().max(5000).optional(),
   brandId: z.number().int().positive('Brand is required'),
-  status: z.enum(['draft', 'active', 'sold_out', 'archived']).optional().default('draft'),
+  status: z.enum(['draft', 'active', 'sold_out', 'archived', 'pending_approval', 'rejected']).optional().default('draft'),
   categoryIds: z.array(z.number().int().positive()).optional(),
 });
 

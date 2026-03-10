@@ -6,6 +6,7 @@ export { brandListings, listingStatusEnum } from './brand-listings';
 export { inventorySkus } from './inventory-skus';
 export { listingCategories } from './listing-categories';
 export { brandListingImages } from './brand-listing-images';
+export { notifications, notificationTypeEnum } from './notifications';
 export {
   usersRelations,
   companiesRelations,
@@ -15,4 +16,5 @@ export {
   categoriesRelations,
   listingCategoriesRelations,
   brandListingImagesRelations,
+  notificationsRelations,
 } from './relations';
