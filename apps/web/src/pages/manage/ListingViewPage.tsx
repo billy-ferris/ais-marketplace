@@ -20,6 +20,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ImagePlaceholder } from '@/components/shared/ImagePlaceholder';
 import { useListing } from '@/hooks/useListings';
 
 const STATUS_BADGE: Record<string, { label: string; className: string }> = {
@@ -200,10 +201,13 @@ export function ListingViewPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12"></TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>SKU</TableHead>
+                  <TableHead>UPC</TableHead>
                   <TableHead>Size</TableHead>
                   <TableHead>Case Pack</TableHead>
+                  <TableHead>Cases/Pallet</TableHead>
                   <TableHead className="text-right">Price</TableHead>
                   <TableHead className="text-right">MSRP</TableHead>
                   <TableHead className="text-right">Qty</TableHead>
@@ -212,10 +216,23 @@ export function ListingViewPage() {
               <TableBody>
                 {listing.inventorySkus.map((sku) => (
                   <TableRow key={sku.id}>
+                    <TableCell>
+                      {sku.imageUrl ? (
+                        <img
+                          src={sku.imageUrl}
+                          alt={sku.name}
+                          className="size-8 rounded object-cover"
+                        />
+                      ) : (
+                        <ImagePlaceholder className="size-8" iconSize={14} />
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">{sku.name}</TableCell>
                     <TableCell>{sku.sku || '-'}</TableCell>
+                    <TableCell>{sku.upc || '-'}</TableCell>
                     <TableCell>{sku.size || '-'}</TableCell>
                     <TableCell>{sku.casePack ?? '-'}</TableCell>
+                    <TableCell>{sku.casesPerPallet ?? '-'}</TableCell>
                     <TableCell className="text-right">
                       ${Number(sku.price).toFixed(2)}
                     </TableCell>

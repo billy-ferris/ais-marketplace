@@ -963,4 +963,74 @@ router.post('/:id/archive', requireAuth(), requireRole('admin', 'manufacturer'),
   }
 });
 
+// POST /:id/revert-to-draft - Revert an archived listing back to draft
+router.post('/:id/revert-to-draft', requireAuth(), requireRole('admin', 'manufacturer'), async (req, res, next) => {
+  try {
+    const { role } = getCurrentUser(req);
+    const id = Number(req.params.id);
+    if (Number.isNaN(id)) {
+      res.status(400).json({ error: 'Invalid listing ID' });
+      return;
+    }
+
+    // Verify listing exists
+    const [existing] = await db
+      .select({
+        id: brandListings.id,
+        status: brandListings.status,
+        brandId: brandListings.brandId,
+      })
+      .from(brandListings)
+      .where(and(eq(brandListings.id, id), notDeleted(brandListings)));
+
+    if (!existing) {
+      res.status(404).json({ error: 'Listing not found' });
+      return;
+    }
+
+    // Manufacturer: verify listing belongs to their company
+    if (role === 'manufacturer') {
+      const user = await getCompanyUser(req);
+      if (!user?.companyId) {
+        res.status(403).json({ error: 'No company associated with your account' });
+        return;
+      }
+      const companyListing = await getListingForCompany(id, user.companyId);
+      if (!companyListing) {
+        res.status(404).json({ error: 'Listing not found' });
+        return;
+      }
+    }
+
+    if (existing.status !== 'archived') {
+      res.status(400).json({ error: 'Can only revert archived listings to draft' });
+      return;
+    }
+
+    // Optimistic locking
+    const [updated] = await db
+      .update(brandListings)
+      .set({
+        status: 'draft',
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(brandListings.id, id),
+          eq(brandListings.status, 'archived'),
+        ),
+      )
+      .returning();
+
+    if (!updated) {
+      res.status(409).json({ error: 'Listing status has already changed' });
+      return;
+    }
+
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+});
+
 export { router as listingRouter };

@@ -136,7 +136,7 @@ export function getListingColumns({
         const canSubmitForReview =
           isManufacturer &&
           onSubmitForReview &&
-          (listing.status === 'draft' || listing.status === 'rejected');
+          (listing.status === 'draft' || listing.status === 'rejected' || listing.status === 'archived');
         const canArchive =
           isManufacturer && onArchive && isActive;
 

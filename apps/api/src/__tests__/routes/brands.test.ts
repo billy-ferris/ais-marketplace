@@ -483,6 +483,55 @@ describe('Brand Routes', () => {
       expect(res.status).toHaveBeenCalledWith(201);
     });
 
+    it('should auto-populate companyId for manufacturer when not provided', async () => {
+      const { getCurrentUser, getCompanyUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'mfg-user', role: 'manufacturer' });
+      (getCompanyUser as any).mockResolvedValue({ id: 2, companyId: 5, role: 'manufacturer' });
+
+      // findUniqueSlug: no existing slug conflict
+      mockDb.then = vi.fn((resolve: any) => {
+        resolve([]);
+      });
+      mockDb.returning.mockResolvedValue([
+        { id: 3, name: 'New Brand', slug: 'new-brand', companyId: 5 },
+      ]);
+
+      const handler = getHandler(brandRouter, 'post', '/');
+      const { req, res, next } = createMockReqRes({
+        body: { name: 'New Brand' },
+      });
+
+      await handler(req, res, next);
+
+      expect(mockDb.values).toHaveBeenCalledWith(
+        expect.objectContaining({ companyId: 5 }),
+      );
+      expect(res.status).toHaveBeenCalledWith(201);
+    });
+
+    it('should return 400 when admin creates brand without companyId', async () => {
+      const { getCurrentUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'admin-user', role: 'admin' });
+
+      // findUniqueSlug: no existing slug conflict
+      let callCount = 0;
+      mockDb.then = vi.fn((resolve: any) => {
+        callCount++;
+        if (callCount === 1) return resolve([]);
+        return resolve([]);
+      });
+
+      const handler = getHandler(brandRouter, 'post', '/');
+      const { req, res, next } = createMockReqRes({
+        body: { name: 'Brand Without Company' },
+      });
+
+      await handler(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ error: 'companyId is required' });
+    });
+
     it('should return all brands for admin role', async () => {
       // getCurrentUser already defaults to admin role via the mock
       let callCount = 0;

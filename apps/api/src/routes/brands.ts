@@ -180,17 +180,25 @@ router.post('/', requireAuth(), requireRole('admin', 'manufacturer'), async (req
     const baseSlug = generateSlug(data.name);
     const slug = await findUniqueSlug(baseSlug);
 
-    let insertValues = { ...data, slug };
+    let companyId: number;
 
     if (role === 'manufacturer') {
-      // Force companyId to the manufacturer's own company
+      // Auto-populate companyId from the manufacturer's own company
       const user = await getCompanyUser(req);
       if (!user?.companyId) {
         res.status(403).json({ error: 'No company associated with your account' });
         return;
       }
-      insertValues = { ...insertValues, companyId: user.companyId };
+      companyId = user.companyId;
+    } else {
+      if (!data.companyId) {
+        res.status(400).json({ error: 'companyId is required' });
+        return;
+      }
+      companyId = data.companyId;
     }
+
+    const insertValues = { ...data, slug, companyId };
 
     const [brand] = await db
       .insert(brands)

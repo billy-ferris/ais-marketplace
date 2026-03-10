@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/button';
 import { ImageUploader } from '@/components/shared/ImageUploader';
 import { useCreateBrand, useUpdateBrand, type BrandRow } from '@/hooks/useBrands';
 import { useUpload } from '@/hooks/useUpload';
+import { useRole } from '@/hooks/useRole';
 
 interface Company {
   id: number;
@@ -46,6 +47,7 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
   const { uploadFile, isUploading } = useUpload();
   const createBrand = useCreateBrand();
   const updateBrand = useUpdateBrand();
+  const { isManufacturer } = useRole();
 
   const {
     register,
@@ -66,20 +68,16 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
 
   const selectedCompanyId = watch('companyId');
 
-  // Load companies when dialog opens
+  // Load companies for admin only
   useEffect(() => {
-    if (open) {
+    if (open && !isManufacturer) {
       apiFetch<Company[]>(API_ROUTES.COMPANIES)
         .then((data) => {
-          // Filter to manufacturers only
           setCompanies(data.filter((c) => c.type === 'manufacturer'));
         })
-        .catch(() => {
-          // If filtering fails, show all companies
-          setCompanies([]);
-        });
+        .catch(() => setCompanies([]));
     }
-  }, [open]);
+  }, [open, isManufacturer]);
 
   // Reset form when dialog opens/closes or brand changes
   useEffect(() => {
@@ -180,34 +178,36 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label>Manufacturer</Label>
-            <Select
-              value={companies.find((c) => c.id === selectedCompanyId)?.name ?? null}
-              onValueChange={(name) => {
-                const company = companies.find((c) => c.name === name);
-                if (company) {
-                  setValue('companyId', company.id, { shouldValidate: true });
-                }
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a manufacturer" />
-              </SelectTrigger>
-              <SelectContent>
-                {companies.map((company) => (
-                  <SelectItem key={company.id} value={company.name}>
-                    {company.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.companyId && (
-              <p className="text-xs text-destructive">
-                {errors.companyId.message}
-              </p>
-            )}
-          </div>
+          {!isManufacturer && (
+            <div className="space-y-2">
+              <Label>Manufacturer</Label>
+              <Select
+                value={companies.find((c) => c.id === selectedCompanyId)?.name ?? null}
+                onValueChange={(name) => {
+                  const company = companies.find((c) => c.name === name);
+                  if (company) {
+                    setValue('companyId', company.id, { shouldValidate: true });
+                  }
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a manufacturer" />
+                </SelectTrigger>
+                <SelectContent>
+                  {companies.map((company) => (
+                    <SelectItem key={company.id} value={company.name}>
+                      {company.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.companyId && (
+                <p className="text-xs text-destructive">
+                  {errors.companyId.message}
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Logo</Label>

@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router';
-import { ArrowLeft, AlertTriangle, Info, Send } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Info, Send, FileEdit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -8,6 +8,7 @@ import {
   useListing,
   useUpdateListing,
   useSubmitForReview,
+  useRevertToDraft,
 } from '@/hooks/useListings';
 import { useRole } from '@/hooks/useRole';
 
@@ -22,9 +23,11 @@ export function ListingEditPage() {
   );
   const updateListing = useUpdateListing();
   const submitForReview = useSubmitForReview();
+  const revertToDraft = useRevertToDraft();
 
   const isPendingApproval = listing?.status === 'pending_approval';
   const isRejected = listing?.status === 'rejected';
+  const isArchived = listing?.status === 'archived';
   const isDraftOrRejected =
     listing?.status === 'draft' || listing?.status === 'rejected';
   const isActive = listing?.status === 'active';
@@ -142,23 +145,43 @@ export function ListingEditPage() {
             }}
             isSubmitting={updateListing.isPending}
             hideStatus={isManufacturer}
+            hideSubmit={isManufacturer && isArchived}
             extraActions={
-              isManufacturer && isDraftOrRejected ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    submitForReview.mutate(listingId, {
-                      onSuccess: () => {
-                        navigate('/manage/listings');
-                      },
-                    });
-                  }}
-                  disabled={submitForReview.isPending}
-                >
-                  <Send className="size-4" />
-                  Submit for Review
-                </Button>
+              isManufacturer && (isDraftOrRejected || isArchived) ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      submitForReview.mutate(listingId, {
+                        onSuccess: () => {
+                          navigate('/manage/listings');
+                        },
+                      });
+                    }}
+                    disabled={submitForReview.isPending}
+                  >
+                    <Send className="size-4" />
+                    Submit for Review
+                  </Button>
+                  {isArchived && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        revertToDraft.mutate(listingId, {
+                          onSuccess: () => {
+                            navigate('/manage/listings');
+                          },
+                        });
+                      }}
+                      disabled={revertToDraft.isPending}
+                    >
+                      <FileEdit className="size-4" />
+                      Save as Draft
+                    </Button>
+                  )}
+                </>
               ) : undefined
             }
           />

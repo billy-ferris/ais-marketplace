@@ -57,6 +57,7 @@ interface ListingFormProps {
   hideStatus?: boolean;
   extraActions?: React.ReactNode;
   submitLabel?: string;
+  hideSubmit?: boolean;
 }
 
 const STATUS_OPTIONS = Object.entries(LISTING_STATUS_LABELS).map(
@@ -100,6 +101,7 @@ export function ListingForm({
   hideStatus = false,
   extraActions,
   submitLabel,
+  hideSubmit = false,
 }: ListingFormProps) {
   // Brands for select
   const { data: brandsData } = useBrands({ limit: 100 });
@@ -513,10 +515,12 @@ export function ListingForm({
       {/* Submit */}
       <div className="flex justify-end gap-2">
         {extraActions}
-        <Button type="submit" disabled={isSubmitting || isUploading}>
-          {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-          {submitLabel ?? (listing ? 'Save Changes' : 'Create Listing')}
-        </Button>
+        {!hideSubmit && (
+          <Button type="submit" disabled={isSubmitting || isUploading}>
+            {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+            {submitLabel ?? (listing ? 'Save Changes' : 'Create Listing')}
+          </Button>
+        )}
       </div>
     </form>
   );

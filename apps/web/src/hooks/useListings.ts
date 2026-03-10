@@ -220,6 +220,21 @@ export function useRejectListing() {
   });
 }
 
+export function useRevertToDraft() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) =>
+      apiFetch(`${API_ROUTES.LISTINGS}/${id}/revert-to-draft`, { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      toast.success('Listing reverted to draft');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to revert listing to draft');
+    },
+  });
+}
+
 export function useArchiveListing() {
   const queryClient = useQueryClient();
   return useMutation({
