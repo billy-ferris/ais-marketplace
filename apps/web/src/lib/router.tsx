@@ -7,7 +7,9 @@ import { CategoriesPage } from '@/pages/manage/CategoriesPage';
 import { ListingsPage } from '@/pages/manage/ListingsPage';
 import { ListingCreatePage } from '@/pages/manage/ListingCreatePage';
 import { ListingEditPage } from '@/pages/manage/ListingEditPage';
+import { ListingViewPage } from '@/pages/manage/ListingViewPage';
 import { ApprovalsPage } from '@/pages/manage/ApprovalsPage';
+import { ApprovalReviewPage } from '@/pages/manage/ApprovalReviewPage';
 import { NotificationsPage } from '@/pages/NotificationsPage';
 
 export const router = createBrowserRouter([
@@ -23,8 +25,10 @@ export const router = createBrowserRouter([
           { path: 'categories', element: <CategoriesPage /> },
           { path: 'listings', element: <ListingsPage /> },
           { path: 'listings/new', element: <ListingCreatePage /> },
+          { path: 'listings/:id', element: <ListingViewPage /> },
           { path: 'listings/:id/edit', element: <ListingEditPage /> },
           { path: 'approvals', element: <ApprovalsPage /> },
+          { path: 'approvals/:id', element: <ApprovalReviewPage /> },
         ],
       },
       { path: 'notifications', element: <NotificationsPage /> },

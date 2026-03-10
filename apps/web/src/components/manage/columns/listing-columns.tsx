@@ -1,5 +1,5 @@
 import { type ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, Pencil, Trash2, Send, Archive } from 'lucide-react';
+import { MoreHorizontal, Pencil, Eye, Trash2, Send, Archive } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { buttonVariants } from '@/components/ui/button';
 import {
@@ -33,11 +33,13 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const STATUS_CLASS: Record<string, string> = {
+  active: 'bg-green-100 text-green-800 border-green-200',
   pending_approval: 'bg-amber-100 text-amber-800 border-amber-200',
 };
 
 interface ListingColumnCallbacks {
   onEdit: (listing: ListingRow) => void;
+  onView: (listing: ListingRow) => void;
   onDelete: (listing: ListingRow) => void;
   onSubmitForReview?: (listing: ListingRow) => void;
   onArchive?: (listing: ListingRow) => void;
@@ -46,6 +48,7 @@ interface ListingColumnCallbacks {
 
 export function getListingColumns({
   onEdit,
+  onView,
   onDelete,
   onSubmitForReview,
   onArchive,
@@ -56,15 +59,18 @@ export function getListingColumns({
       accessorKey: 'name',
       header: 'Name',
       enableSorting: true,
-      cell: ({ row }) => (
-        <button
-          type="button"
-          className="text-left font-medium text-primary hover:underline"
-          onClick={() => onEdit(row.original)}
-        >
-          {row.original.name}
-        </button>
-      ),
+      cell: ({ row }) => {
+        const isActive = row.original.status === 'active';
+        return (
+          <button
+            type="button"
+            className="text-left font-medium text-primary hover:underline"
+            onClick={() => (isActive ? onView : onEdit)(row.original)}
+          >
+            {row.original.name}
+          </button>
+        );
+      },
     },
     {
       accessorKey: 'brandName',
@@ -125,12 +131,13 @@ export function getListingColumns({
       enableSorting: false,
       cell: ({ row }) => {
         const listing = row.original;
+        const isActive = listing.status === 'active';
         const canSubmitForReview =
           isManufacturer &&
           onSubmitForReview &&
           (listing.status === 'draft' || listing.status === 'rejected');
         const canArchive =
-          isManufacturer && onArchive && listing.status === 'active';
+          isManufacturer && onArchive && isActive;
 
         return (
           <DropdownMenu>
@@ -141,10 +148,17 @@ export function getListingColumns({
               <span className="sr-only">Open menu</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(listing)}>
-                <Pencil className="size-4" />
-                Edit
-              </DropdownMenuItem>
+              {isActive ? (
+                <DropdownMenuItem onClick={() => onView(listing)}>
+                  <Eye className="size-4" />
+                  View
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onClick={() => onEdit(listing)}>
+                  <Pencil className="size-4" />
+                  Edit
+                </DropdownMenuItem>
+              )}
               {canSubmitForReview && (
                 <DropdownMenuItem onClick={() => onSubmitForReview(listing)}>
                   <Send className="size-4" />

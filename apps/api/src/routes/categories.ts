@@ -50,8 +50,8 @@ async function findUniqueSlug(
   }
 }
 
-// GET / - List categories with pagination and search
-router.get('/', requireAuth(), requireRole('admin'), async (req, res, next) => {
+// GET / - List categories with pagination and search (read access for all authenticated roles)
+router.get('/', requireAuth(), requireRole('admin', 'manufacturer', 'retailer'), async (req, res, next) => {
   try {
     const search = req.query.search as string | undefined;
     const page = Math.max(1, Number(req.query.page) || 1);
@@ -94,8 +94,8 @@ router.get('/', requireAuth(), requireRole('admin'), async (req, res, next) => {
   }
 });
 
-// GET /:id - Get category by ID
-router.get('/:id', requireAuth(), requireRole('admin'), async (req, res, next) => {
+// GET /:id - Get category by ID (read access for all authenticated roles)
+router.get('/:id', requireAuth(), requireRole('admin', 'manufacturer', 'retailer'), async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     if (Number.isNaN(id)) {

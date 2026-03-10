@@ -1,14 +1,38 @@
+import { useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ListingForm } from '@/components/manage/ListingForm';
-import { useCreateListing } from '@/hooks/useListings';
+import { useCreateListing, useSubmitForReview } from '@/hooks/useListings';
 import { useRole } from '@/hooks/useRole';
 
 export function ListingCreatePage() {
   const navigate = useNavigate();
   const createListing = useCreateListing();
+  const submitForReview = useSubmitForReview();
   const { isManufacturer } = useRole();
+  const submitForReviewAfterCreate = useRef(false);
+
+  const handleSubmit = useCallback(
+    (payload: Record<string, unknown>) => {
+      const shouldSubmit = submitForReviewAfterCreate.current;
+      submitForReviewAfterCreate.current = false;
+
+      createListing.mutate(payload, {
+        onSuccess: (data: unknown) => {
+          if (shouldSubmit && data && typeof data === 'object' && 'id' in data) {
+            submitForReview.mutate((data as { id: number }).id, {
+              onSuccess: () => navigate('/manage/listings'),
+              onError: () => navigate('/manage/listings'),
+            });
+          } else {
+            navigate('/manage/listings');
+          }
+        },
+      });
+    },
+    [createListing, submitForReview, navigate],
+  );
 
   return (
     <div className="space-y-6">
@@ -32,15 +56,25 @@ export function ListingCreatePage() {
 
       <div className="max-w-3xl">
         <ListingForm
-          onSubmit={(payload) => {
-            createListing.mutate(payload, {
-              onSuccess: () => {
-                navigate('/manage/listings');
-              },
-            });
-          }}
-          isSubmitting={createListing.isPending}
+          onSubmit={handleSubmit}
+          isSubmitting={createListing.isPending || submitForReview.isPending}
           hideStatus={isManufacturer}
+          extraActions={
+            isManufacturer ? (
+              <Button
+                type="submit"
+                variant="outline"
+                disabled={createListing.isPending || submitForReview.isPending}
+                onClick={() => {
+                  submitForReviewAfterCreate.current = true;
+                }}
+              >
+                <Send className="size-4" />
+                Submit for Review
+              </Button>
+            ) : undefined
+          }
+          submitLabel={isManufacturer ? 'Save as Draft' : 'Create Listing'}
         />
       </div>
     </div>

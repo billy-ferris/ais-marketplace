@@ -67,6 +67,13 @@ export function ListingsPage() {
     [navigate],
   );
 
+  const handleView = useCallback(
+    (listing: ListingRow) => {
+      navigate(`/manage/listings/${listing.id}`);
+    },
+    [navigate],
+  );
+
   const handleDelete = useCallback((listing: ListingRow) => {
     setDeleteTarget(listing);
   }, []);
@@ -89,12 +96,13 @@ export function ListingsPage() {
     () =>
       getListingColumns({
         onEdit: handleEdit,
+        onView: handleView,
         onDelete: handleDelete,
         onSubmitForReview: isManufacturer ? handleSubmitForReview : undefined,
         onArchive: isManufacturer ? handleArchive : undefined,
         isManufacturer,
       }),
-    [handleEdit, handleDelete, handleSubmitForReview, handleArchive, isManufacturer],
+    [handleEdit, handleView, handleDelete, handleSubmitForReview, handleArchive, isManufacturer],
   );
 
   function handleConfirmDelete() {
