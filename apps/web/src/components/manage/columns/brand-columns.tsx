@@ -44,6 +44,20 @@ export function getBrandColumns({
       header: 'Name',
       enableSorting: true,
     },
+    {
+      accessorKey: 'description',
+      header: 'Description',
+      enableSorting: false,
+      cell: ({ row }) => {
+        const desc = row.original.description;
+        if (!desc) return <span className="text-muted-foreground">-</span>;
+        return (
+          <span className="line-clamp-1" title={desc}>
+            {desc}
+          </span>
+        );
+      },
+    },
     ...(!isManufacturer ? [{
       accessorKey: 'companyName',
       header: 'Company',
