@@ -76,13 +76,13 @@ Requirements for demo-ready MVP. Each maps to roadmap phases.
 
 ### Approval Workflow
 
-- [ ] **APRV-01**: Manufacturer-created listings and brands automatically enter "pending_approval" status
+- [x] **APRV-01**: Manufacturer-created listings and brands automatically enter "pending_approval" status
 - [ ] **APRV-02**: Admin can view all pending submissions in a dedicated approval review queue
 - [ ] **APRV-03**: Admin can approve a pending submission, activating the listing or brand
 - [ ] **APRV-04**: Admin can reject a pending submission with a written reason
 - [ ] **APRV-05**: Admin can edit a submission before approving or rejecting
-- [ ] **APRV-06**: SKUs inherit their parent listing's approval status (approved/rejected as a unit)
-- [ ] **APRV-07**: Admin-created listings and brands bypass approval and are immediately active
+- [x] **APRV-06**: SKUs inherit their parent listing's approval status (approved/rejected as a unit)
+- [x] **APRV-07**: Admin-created listings and brands bypass approval and are immediately active
 
 ### Notification Inbox
 
@@ -187,13 +187,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MFSS-02 | Phase 2.1 | Pending |
 | MFSS-03 | Phase 2.1 | Pending |
 | MFSS-04 | Phase 2.1 | Pending |
-| APRV-01 | Phase 2.1 | Pending |
+| APRV-01 | Phase 2.1 | Complete |
 | APRV-02 | Phase 2.1 | Pending |
 | APRV-03 | Phase 2.1 | Pending |
 | APRV-04 | Phase 2.1 | Pending |
 | APRV-05 | Phase 2.1 | Pending |
-| APRV-06 | Phase 2.1 | Pending |
-| APRV-07 | Phase 2.1 | Pending |
+| APRV-06 | Phase 2.1 | Complete |
+| APRV-07 | Phase 2.1 | Complete |
 | NINB-01 | Phase 2.1 | Pending |
 | NINB-02 | Phase 2.1 | Pending |
 | NINB-03 | Phase 2.1 | Pending |

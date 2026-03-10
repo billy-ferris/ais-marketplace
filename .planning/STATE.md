@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 02.2-03-PLAN.md (Phase 2.2 complete)
-last_updated: "2026-03-10T00:00:35.441Z"
-last_activity: "2026-03-09 -- Completed plan 02.2-03 (Listing & Upload route handler tests: 27 tests)"
+status: in-progress
+stopped_at: Completed 02.1-01-PLAN.md
+last_updated: "2026-03-10T00:07:29.000Z"
+last_activity: "2026-03-09 -- Completed plan 02.1-01 (Schema foundation & shared types for approval workflow)"
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 18
-  completed_plans: 15
-  percent: 100
+  completed_plans: 16
+  percent: 89
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-08)
 
 **Core value:** Retailers can discover and purchase discounted CPG inventory from verified manufacturers through a transparent, friction-free marketplace -- with every transaction brokered by AIS.
-**Current focus:** Phase 2.2: Populate Phase 2 test stubs with real implementations
+**Current focus:** Phase 2.1: Manufacturer Self-Service & Approval Workflow
 
 ## Current Position
 
-Phase: 2.2 (Populate Phase 2 test stubs with real implementations) -- COMPLETE
-Plan: 3 of 3 in Phase 2.2 (all complete)
-Status: Phase 2.2 complete, all 85 test stubs populated, ready for Phase 2.1
-Last activity: 2026-03-09 -- Completed plan 02.2-03 (Listing & Upload route handler tests: 27 tests)
+Phase: 2.1 (Manufacturer Self-Service & Approval Workflow)
+Plan: 1 of 3 in Phase 2.1 (Plan 01 complete)
+Status: Plan 01 complete, schema foundation and shared types established
+Last activity: 2026-03-09 -- Completed plan 02.1-01 (Schema foundation & shared types for approval workflow)
 
-Progress: [██████████] 100%
+Progress: [████████░░] 89%
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ Progress: [██████████] 100%
 | Phase 02.2 P01 | 2 | 2 tasks | 2 files |
 | Phase 02.2 P02 | 4 | 2 tasks | 2 files |
 | Phase 02.2 P03 | 4 | 2 tasks | 2 files |
+| Phase 02.1 P01 | 3 | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -109,6 +110,8 @@ Recent decisions affecting current work:
 - [Phase 02.2-03]: vi.hoisted() required for mock variables referenced inside vi.mock() factory functions (vitest hoists vi.mock above all declarations)
 - [Phase 02.2-03]: Thenable mock pattern (mockDb.then = vi.fn) controls Promise.all resolution order for complex route handlers
 - [Phase 02.2-03]: Route middleware stack length check for admin role verification (avoids clearAllMocks clearing registration-time spy calls)
+- [Phase 02.1-01]: Appended pending_approval and rejected to existing pgEnum (Postgres only supports append, not reorder)
+- [Phase 02.1-01]: Notification table uses integer FK to users.id (not clerk_id) for DB-level referential integrity
 
 ### Pending Todos
 
@@ -126,6 +129,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T23:55:00Z
-Stopped at: Completed 02.2-03-PLAN.md (Phase 2.2 complete)
-Resume file: .planning/phases/02.1-manufacturer-self-service-approval-workflow/
+Last session: 2026-03-10T00:07:29Z
+Stopped at: Completed 02.1-01-PLAN.md
+Resume file: .planning/phases/02.1-manufacturer-self-service-approval-workflow/02.1-02-PLAN.md
