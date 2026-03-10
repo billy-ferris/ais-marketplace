@@ -27,7 +27,8 @@ export function ListingEditPage() {
   const isRejected = listing?.status === 'rejected';
   const isDraftOrRejected =
     listing?.status === 'draft' || listing?.status === 'rejected';
-  const isReadOnly = isManufacturer && isPendingApproval;
+  const isActive = listing?.status === 'active';
+  const isReadOnly = isManufacturer && (isPendingApproval || isActive);
 
   if (isLoading) {
     return (
@@ -105,12 +106,23 @@ export function ListingEditPage() {
           </Alert>
         )}
 
-        {isReadOnly && (
+        {isManufacturer && isPendingApproval && (
           <Alert>
             <Info className="size-4" />
             <AlertTitle>Under Review</AlertTitle>
             <AlertDescription>
               This listing is under review and cannot be edited.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {isManufacturer && isActive && (
+          <Alert>
+            <Info className="size-4" />
+            <AlertTitle>Active Listing</AlertTitle>
+            <AlertDescription>
+              This listing is active and cannot be edited. Archive it first if
+              changes are needed.
             </AlertDescription>
           </Alert>
         )}

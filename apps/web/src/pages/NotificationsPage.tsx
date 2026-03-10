@@ -107,6 +107,8 @@ export function NotificationsPage() {
       // Admin: "listing_submitted" notifications route to approval review page
       if (isAdmin && notification.type === 'listing_submitted') {
         navigate(`/manage/approvals/${notification.entityId}`);
+      } else if (notification.type === 'listing_approved') {
+        navigate(`/manage/listings/${notification.entityId}`);
       } else {
         navigate(`/manage/listings/${notification.entityId}/edit`);
       }

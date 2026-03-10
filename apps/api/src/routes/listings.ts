@@ -436,9 +436,13 @@ router.patch('/:id', requireAuth(), requireRole('admin', 'manufacturer'), async 
         return;
       }
 
-      // Cannot edit listing while pending approval
+      // Cannot edit listing while pending approval or active
       if (existing.status === 'pending_approval') {
         res.status(403).json({ error: 'Cannot edit listing while pending approval' });
+        return;
+      }
+      if (existing.status === 'active') {
+        res.status(403).json({ error: 'Cannot edit an active listing' });
         return;
       }
     }
