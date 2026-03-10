@@ -86,7 +86,7 @@ Requirements for demo-ready MVP. Each maps to roadmap phases.
 
 ### Notification Inbox
 
-- [ ] **NINB-01**: Dedicated notification inbox page accessible from sidebar for all users
+- [x] **NINB-01**: Dedicated notification inbox page accessible from sidebar for all users
 - [x] **NINB-02**: Sidebar displays unread notification count as a badge
 - [x] **NINB-03**: Admin receives in-app notification when a manufacturer submits a listing or brand for approval
 - [x] **NINB-04**: Manufacturer receives in-app notification when their submission is approved or rejected (with reason if rejected)
@@ -194,7 +194,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | APRV-05 | Phase 2.1 | Complete |
 | APRV-06 | Phase 2.1 | Complete |
 | APRV-07 | Phase 2.1 | Complete |
-| NINB-01 | Phase 2.1 | Pending |
+| NINB-01 | Phase 2.1 | Complete |
 | NINB-02 | Phase 2.1 | Complete |
 | NINB-03 | Phase 2.1 | Complete |
 | NINB-04 | Phase 2.1 | Complete |

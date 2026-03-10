@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in-progress
-stopped_at: Completed 02.1-02-PLAN.md
-last_updated: "2026-03-10T00:16:32.000Z"
+status: completed
+stopped_at: "Completed 02.1-03-PLAN.md (checkpoint: human-verify pending)"
+last_updated: "2026-03-10T01:12:19.753Z"
 last_activity: "2026-03-10 -- Completed plan 02.1-02 (Backend API: role-scoped routes, approval workflow, notifications)"
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 18
-  completed_plans: 17
+  completed_plans: 18
   percent: 94
 ---
 
@@ -66,6 +66,7 @@ Progress: [█████████░] 94%
 | Phase 02.2 P03 | 4 | 2 tasks | 2 files |
 | Phase 02.1 P01 | 3 | 2 tasks | 12 files |
 | Phase 02.1 P02 | 6 | 2 tasks | 10 files |
+| Phase 02.1 P03 | 3 | 3 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -117,6 +118,11 @@ Recent decisions affecting current work:
 - [Phase 02.1-02]: Listing GET / uses innerJoin on brands for reliable manufacturer company scoping
 - [Phase 02.1-02]: Submit endpoint accepts draft, rejected, and archived as valid source statuses for re-submission
 - [Phase 02.1-02]: All approval state transitions use optimistic locking (WHERE status = expected_status)
+- [Phase 02.1]: ApprovalReviewPage as dedicated detail page instead of inline approve/reject in table rows
+- [Phase 02.1]: ListingViewPage for read-only active listing detail (View vs Edit for active listings)
+- [Phase 02.1]: Admin listing_submitted notifications route to /manage/approvals/:id instead of listing edit page
+- [Phase 02.1]: Categories API GET endpoints opened to manufacturer and retailer roles for listing creation
+- [Phase 02.1]: Email service lazy-initialized to avoid crash when RESEND_API_KEY not set
 
 ### Pending Todos
 
@@ -134,6 +140,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T00:16:32Z
-Stopped at: Completed 02.1-02-PLAN.md
-Resume file: .planning/phases/02.1-manufacturer-self-service-approval-workflow/02.1-03-PLAN.md
+Last session: 2026-03-10T01:12:19.750Z
+Stopped at: Completed 02.1-03-PLAN.md (checkpoint: human-verify pending)
+Resume file: None
