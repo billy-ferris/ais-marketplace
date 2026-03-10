@@ -61,11 +61,12 @@ export function getListingColumns({
       enableSorting: true,
       cell: ({ row }) => {
         const isActive = row.original.status === 'active';
+        const clickHandler = isActive && isManufacturer ? onView : onEdit;
         return (
           <button
             type="button"
             className="text-left font-medium text-primary hover:underline"
-            onClick={() => (isActive ? onView : onEdit)(row.original)}
+            onClick={() => clickHandler(row.original)}
           >
             {row.original.name}
           </button>
@@ -148,12 +149,13 @@ export function getListingColumns({
               <span className="sr-only">Open menu</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {isActive ? (
+              {isActive && (
                 <DropdownMenuItem onClick={() => onView(listing)}>
                   <Eye className="size-4" />
                   View
                 </DropdownMenuItem>
-              ) : (
+              )}
+              {(!isActive || !isManufacturer) && (
                 <DropdownMenuItem onClick={() => onEdit(listing)}>
                   <Pencil className="size-4" />
                   Edit
