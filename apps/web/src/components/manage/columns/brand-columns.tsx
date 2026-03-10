@@ -48,13 +48,14 @@ export function getBrandColumns({
       accessorKey: 'description',
       header: 'Description',
       enableSorting: false,
+      meta: { cellClassName: 'max-w-0 w-full' },
       cell: ({ row }) => {
         const desc = row.original.description;
         if (!desc) return <span className="text-muted-foreground">-</span>;
         return (
-          <span className="block max-w-xs truncate" title={desc}>
+          <p className="truncate" title={desc}>
             {desc}
-          </span>
+          </p>
         );
       },
     },
