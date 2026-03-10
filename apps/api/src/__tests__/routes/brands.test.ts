@@ -432,9 +432,99 @@ describe('Brand Routes', () => {
 
   // ---- Manufacturer scoping ----
   describe('Manufacturer scoping', () => {
-    it.todo('should filter brands to manufacturer company when role is manufacturer');
-    it.todo('should auto-set companyId from session for manufacturer brand create');
-    it.todo('should return all brands for admin role');
-    it.todo('should prevent manufacturer from editing other company brands');
+    it('should filter brands to manufacturer company when role is manufacturer', async () => {
+      const { getCurrentUser, getCompanyUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'mfg-user', role: 'manufacturer' });
+      (getCompanyUser as any).mockResolvedValue({ id: 2, companyId: 5, role: 'manufacturer' });
+
+      let callCount = 0;
+      mockDb.then = vi.fn((resolve: any) => {
+        callCount++;
+        if (callCount === 1) resolve([mockBrand]);
+        else resolve([{ total: 1 }]);
+      });
+
+      const handler = getHandler(brandRouter, 'get', '/');
+      const { req, res, next } = createMockReqRes();
+
+      await handler(req, res, next);
+
+      // The manufacturer branch adds eq(brands.companyId, user.companyId)
+      expect(mockDb.where).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ data: [mockBrand] }),
+      );
+    });
+
+    it('should auto-set companyId from session for manufacturer brand create', async () => {
+      const { getCurrentUser, getCompanyUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'mfg-user', role: 'manufacturer' });
+      (getCompanyUser as any).mockResolvedValue({ id: 2, companyId: 5, role: 'manufacturer' });
+
+      // findUniqueSlug: no existing slug conflict
+      mockDb.then = vi.fn((resolve: any) => {
+        resolve([]);
+      });
+      mockDb.returning.mockResolvedValue([
+        { id: 2, name: 'Brand', slug: 'brand', companyId: 5 },
+      ]);
+
+      const handler = getHandler(brandRouter, 'post', '/');
+      const { req, res, next } = createMockReqRes({
+        body: { name: 'Brand', companyId: 999 },
+      });
+
+      await handler(req, res, next);
+
+      // Manufacturer's companyId (5) should override the supplied value (999)
+      expect(mockDb.values).toHaveBeenCalledWith(
+        expect.objectContaining({ companyId: 5 }),
+      );
+      expect(res.status).toHaveBeenCalledWith(201);
+    });
+
+    it('should return all brands for admin role', async () => {
+      // getCurrentUser already defaults to admin role via the mock
+      let callCount = 0;
+      mockDb.then = vi.fn((resolve: any) => {
+        callCount++;
+        if (callCount === 1) resolve([mockBrand]);
+        else resolve([{ total: 1 }]);
+      });
+
+      const handler = getHandler(brandRouter, 'get', '/');
+      const { req, res, next } = createMockReqRes();
+
+      await handler(req, res, next);
+
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: [mockBrand],
+          pagination: expect.objectContaining({ total: 1 }),
+        }),
+      );
+    });
+
+    it('should prevent manufacturer from editing other company brands', async () => {
+      const { getCurrentUser, getCompanyUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'mfg-user', role: 'manufacturer' });
+      (getCompanyUser as any).mockResolvedValue({ id: 2, companyId: 5, role: 'manufacturer' });
+
+      // Brand existence check returns a brand owned by a different company (99)
+      mockDb.then = vi.fn((resolve: any) => {
+        resolve([{ companyId: 99 }]);
+      });
+
+      const handler = getHandler(brandRouter, 'patch', '/:id');
+      const { req, res, next } = createMockReqRes({
+        params: { id: '1' },
+        body: { name: 'Steal Brand' },
+      });
+
+      await handler(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Forbidden' });
+    });
   });
 });

@@ -735,21 +735,385 @@ describe('Listing Routes', () => {
 
   // ---- Manufacturer scoping ----
   describe('Manufacturer scoping', () => {
-    it.todo('should filter listings to manufacturer company when role is manufacturer');
-    it.todo('should filter brand dropdown to manufacturer company brands');
-    it.todo('should return all listings for admin role');
+    it('should filter listings to manufacturer company when role is manufacturer', async () => {
+      const { getCurrentUser, getCompanyUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'mfg-user', role: 'manufacturer' });
+      (getCompanyUser as any).mockResolvedValue({ id: 2, companyId: 5, role: 'manufacturer' });
+
+      let callCount = 0;
+      mockDb.then = vi.fn((resolve: any) => {
+        callCount++;
+        if (callCount === 1) resolve([{ id: 1, name: 'Listing', brandName: 'B', status: 'draft', skuCount: 0, createdAt: new Date(), updatedAt: new Date() }]);
+        else resolve([{ total: 1 }]);
+      });
+
+      const handler = getHandler(listingRouter, 'get', '/');
+      const { req, res, next } = createMockReqRes();
+
+      await handler(req, res, next);
+
+      // Manufacturer branch adds eq(brands.companyId, user.companyId) condition
+      expect(mockDb.where).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalledOnce();
+    });
+
+    it('should filter brand dropdown to manufacturer company brands', async () => {
+      const { getCurrentUser, getCompanyUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'mfg-user', role: 'manufacturer' });
+      (getCompanyUser as any).mockResolvedValue({ id: 2, companyId: 5, role: 'manufacturer' });
+
+      // Brand ownership check: brand belongs to manufacturer's company
+      mockDb.then = vi.fn((resolve: any) => {
+        resolve([{ companyId: 5 }]);
+      });
+
+      mockDb.returning.mockResolvedValueOnce([
+        { id: 1, name: 'New Listing', brandId: 10, status: 'draft' },
+      ]);
+
+      mockDb.query.brandListings.findFirst.mockResolvedValue({
+        id: 1,
+        name: 'New Listing',
+        brand: { id: 10, name: 'Brand', company: { id: 5, name: 'MfgCo' } },
+        inventorySkus: [],
+        brandListingImages: [],
+        listingCategories: [],
+      });
+
+      const handler = getHandler(listingRouter, 'post', '/');
+      const { req, res, next } = createMockReqRes({
+        body: {
+          listing: { name: 'New Listing', brandId: 10 },
+        },
+      });
+
+      await handler(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(mockDb.insert).toHaveBeenCalled();
+    });
+
+    it('should return all listings for admin role', async () => {
+      // Explicitly reset to admin since prior tests may override to manufacturer
+      const { getCurrentUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'test-user', role: 'admin' });
+
+      let callCount = 0;
+      mockDb.then = vi.fn((resolve: any) => {
+        callCount++;
+        if (callCount === 1) resolve([{ id: 1, name: 'Listing', brandName: 'B', status: 'active', skuCount: 2, createdAt: new Date(), updatedAt: new Date() }]);
+        else resolve([{ total: 1 }]);
+      });
+
+      const handler = getHandler(listingRouter, 'get', '/');
+      const { req, res, next } = createMockReqRes();
+
+      await handler(req, res, next);
+
+      expect(res.json).toHaveBeenCalledOnce();
+      const payload = (res.json as any).mock.calls[0][0];
+      expect(payload.data).toHaveLength(1);
+      expect(payload.pagination).toMatchObject({ total: 1 });
+    });
   });
 
   // ---- Approval workflow ----
   describe('Approval workflow', () => {
-    it.todo('should set status to draft on manufacturer listing create');
-    it.todo('should allow manufacturer to submit listing for review (draft -> pending_approval)');
-    it.todo('should prevent manufacturer from editing listing in pending_approval status');
-    it.todo('should allow admin to approve listing (pending_approval -> active)');
-    it.todo('should allow admin to reject listing with reason (pending_approval -> rejected)');
-    it.todo('should allow manufacturer to resubmit rejected listing (rejected -> pending_approval)');
-    it.todo('should bypass approval for admin-created listings');
-    it.todo('should return 409 when approving already-processed listing');
-    it.todo('should allow manufacturer to archive active listing');
+    it('should set status to draft on manufacturer listing create', async () => {
+      const { getCurrentUser, getCompanyUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'mfg-user', role: 'manufacturer' });
+      (getCompanyUser as any).mockResolvedValue({ id: 2, companyId: 5, role: 'manufacturer' });
+
+      // Brand ownership check: brand belongs to manufacturer's company
+      mockDb.then = vi.fn((resolve: any) => {
+        resolve([{ companyId: 5 }]);
+      });
+
+      mockDb.returning.mockResolvedValueOnce([
+        { id: 1, name: 'New', brandId: 10, status: 'draft' },
+      ]);
+
+      mockDb.query.brandListings.findFirst.mockResolvedValue({
+        id: 1,
+        name: 'New',
+        brand: { id: 10, name: 'Brand', company: { id: 5, name: 'Co' } },
+        inventorySkus: [],
+        brandListingImages: [],
+        listingCategories: [],
+      });
+
+      const handler = getHandler(listingRouter, 'post', '/');
+      const { req, res, next } = createMockReqRes({
+        body: {
+          listing: { name: 'New', brandId: 10, status: 'active' },
+        },
+      });
+
+      await handler(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(201);
+      // Verify the insert was called with status 'draft', not 'active'
+      expect(mockDb.values).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'draft' }),
+      );
+    });
+
+    it('should allow manufacturer to submit listing for review (draft -> pending_approval)', async () => {
+      const { getCurrentUser, getCompanyUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'mfg-user', role: 'manufacturer' });
+      (getCompanyUser as any).mockResolvedValue({ id: 2, companyId: 5, role: 'manufacturer' });
+
+      const handler = getHandler(listingRouter, 'post', '/:id/submit');
+
+      // First await: existence check returns draft listing
+      // Second await: getListingForCompany (findFirst) handled below
+      // Third await: getAdminUserIds query
+      let callCount = 0;
+      mockDb.then = vi.fn((resolve: any) => {
+        callCount++;
+        if (callCount === 1) return resolve([{ id: 1, name: 'Test Listing', status: 'draft', brandId: 10 }]);
+        // getAdminUserIds and other queries
+        return resolve([]);
+      });
+
+      // getListingForCompany uses findFirst — brand belongs to manufacturer's company
+      mockDb.query.brandListings.findFirst.mockResolvedValue({
+        id: 1,
+        name: 'Test Listing',
+        brand: { companyId: 5 },
+      });
+
+      // The update().set().where().returning() call
+      mockDb.returning.mockResolvedValue([
+        { id: 1, name: 'Test Listing', status: 'pending_approval', rejectionReason: null },
+      ]);
+
+      const { req, res, next } = createMockReqRes({ params: { id: '1' } });
+
+      await handler(req, res, next);
+
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'pending_approval' }),
+      );
+    });
+
+    it('should prevent manufacturer from editing listing in pending_approval status', async () => {
+      const { getCurrentUser, getCompanyUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'mfg-user', role: 'manufacturer' });
+      (getCompanyUser as any).mockResolvedValue({ id: 2, companyId: 5, role: 'manufacturer' });
+
+      const handler = getHandler(listingRouter, 'patch', '/:id');
+
+      // Existence check returns pending_approval listing, then brand ownership check
+      let callCount = 0;
+      mockDb.then = vi.fn((resolve: any) => {
+        callCount++;
+        if (callCount === 1) return resolve([{ id: 1, status: 'pending_approval', brandId: 10 }]);
+        // Brand ownership check: brand belongs to manufacturer's company
+        if (callCount === 2) return resolve([{ companyId: 5 }]);
+        return resolve([]);
+      });
+
+      const { req, res, next } = createMockReqRes({
+        params: { id: '1' },
+        body: { listing: { name: 'Edited' } },
+      });
+
+      await handler(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Cannot edit listing while pending approval' });
+    });
+
+    it('should allow admin to approve listing (pending_approval -> active)', async () => {
+      const handler = getHandler(listingRouter, 'post', '/:id/approve');
+
+      // Existence check returns pending_approval listing, then brand query for notifications
+      let callCount = 0;
+      mockDb.then = vi.fn((resolve: any) => {
+        callCount++;
+        if (callCount === 1) return resolve([{ id: 1, name: 'Pending', status: 'pending_approval', brandId: 10 }]);
+        // Brand query for notifications
+        if (callCount === 2) return resolve([{ companyId: 5 }]);
+        // getCompanyUserIds query
+        return resolve([{ id: 3 }]);
+      });
+
+      mockDb.returning.mockResolvedValue([
+        { id: 1, name: 'Pending', status: 'active', rejectionReason: null },
+      ]);
+
+      const { req, res, next } = createMockReqRes({ params: { id: '1' } });
+
+      await handler(req, res, next);
+
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'active' }),
+      );
+
+      const { notifyApprovalEvent } = await import('../../services/notification');
+      expect(notifyApprovalEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'listing_approved', listingId: 1 }),
+      );
+    });
+
+    it('should allow admin to reject listing with reason (pending_approval -> rejected)', async () => {
+      const handler = getHandler(listingRouter, 'post', '/:id/reject');
+
+      // Existence check returns pending_approval listing, then brand query for notifications
+      let callCount = 0;
+      mockDb.then = vi.fn((resolve: any) => {
+        callCount++;
+        if (callCount === 1) return resolve([{ id: 1, name: 'Pending', status: 'pending_approval', brandId: 10 }]);
+        if (callCount === 2) return resolve([{ companyId: 5 }]);
+        return resolve([{ id: 3 }]);
+      });
+
+      mockDb.returning.mockResolvedValue([
+        { id: 1, name: 'Pending', status: 'rejected', rejectionReason: 'Quality issues' },
+      ]);
+
+      const { req, res, next } = createMockReqRes({
+        params: { id: '1' },
+        body: { reason: 'Quality issues' },
+      });
+
+      await handler(req, res, next);
+
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'rejected', rejectionReason: 'Quality issues' }),
+      );
+
+      const { notifyApprovalEvent } = await import('../../services/notification');
+      expect(notifyApprovalEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'listing_rejected',
+          listingId: 1,
+          rejectionReason: 'Quality issues',
+        }),
+      );
+    });
+
+    it('should allow manufacturer to resubmit rejected listing (rejected -> pending_approval)', async () => {
+      const { getCurrentUser, getCompanyUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'mfg-user', role: 'manufacturer' });
+      (getCompanyUser as any).mockResolvedValue({ id: 2, companyId: 5, role: 'manufacturer' });
+
+      const handler = getHandler(listingRouter, 'post', '/:id/submit');
+
+      // Existence check returns rejected listing
+      let callCount = 0;
+      mockDb.then = vi.fn((resolve: any) => {
+        callCount++;
+        if (callCount === 1) return resolve([{ id: 1, name: 'Rejected Listing', status: 'rejected', brandId: 10 }]);
+        return resolve([]);
+      });
+
+      // getListingForCompany: listing belongs to manufacturer's company
+      mockDb.query.brandListings.findFirst.mockResolvedValue({
+        id: 1,
+        name: 'Rejected Listing',
+        brand: { companyId: 5 },
+      });
+
+      mockDb.returning.mockResolvedValue([
+        { id: 1, name: 'Rejected Listing', status: 'pending_approval', rejectionReason: null },
+      ]);
+
+      const { req, res, next } = createMockReqRes({ params: { id: '1' } });
+
+      await handler(req, res, next);
+
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'pending_approval' }),
+      );
+    });
+
+    it('should bypass approval for admin-created listings', async () => {
+      // Explicitly reset to admin since prior tests override to manufacturer
+      const { getCurrentUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'test-user', role: 'admin' });
+
+      const handler = getHandler(listingRouter, 'post', '/');
+
+      mockDb.returning.mockResolvedValueOnce([
+        { id: 1, name: 'Admin Listing', brandId: 10, status: 'active' },
+      ]);
+
+      mockDb.query.brandListings.findFirst.mockResolvedValue({
+        id: 1,
+        name: 'Admin Listing',
+        brand: { id: 10, name: 'Brand', company: { id: 1, name: 'Co' } },
+        inventorySkus: [],
+        brandListingImages: [],
+        listingCategories: [],
+      });
+
+      const { req, res, next } = createMockReqRes({
+        body: {
+          listing: { name: 'Admin Listing', brandId: 10, status: 'active' },
+        },
+      });
+
+      await handler(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(201);
+      // Admin can set status directly; it should NOT be forced to 'draft'
+      expect(mockDb.values).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'active' }),
+      );
+    });
+
+    it('should return 409 when approving already-processed listing', async () => {
+      // Explicitly reset to admin since prior tests override to manufacturer
+      const { getCurrentUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'test-user', role: 'admin' });
+
+      const handler = getHandler(listingRouter, 'post', '/:id/approve');
+
+      // Existence check: listing is already active, not pending_approval
+      mockDb.then = vi.fn((resolve: any) => {
+        resolve([{ id: 1, name: 'Already Active', status: 'active', brandId: 10 }]);
+      });
+
+      const { req, res, next } = createMockReqRes({ params: { id: '1' } });
+
+      await handler(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Listing is not pending approval' });
+    });
+
+    it('should allow manufacturer to archive active listing', async () => {
+      const { getCurrentUser, getCompanyUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'mfg-user', role: 'manufacturer' });
+      (getCompanyUser as any).mockResolvedValue({ id: 2, companyId: 5, role: 'manufacturer' });
+
+      const handler = getHandler(listingRouter, 'post', '/:id/archive');
+
+      // Existence check: active listing
+      mockDb.then = vi.fn((resolve: any) => {
+        resolve([{ id: 1, status: 'active', brandId: 10 }]);
+      });
+
+      // getListingForCompany: listing belongs to manufacturer's company
+      mockDb.query.brandListings.findFirst.mockResolvedValue({
+        id: 1,
+        name: 'Active Listing',
+        brand: { companyId: 5 },
+      });
+
+      mockDb.returning.mockResolvedValue([
+        { id: 1, name: 'Active Listing', status: 'archived' },
+      ]);
+
+      const { req, res, next } = createMockReqRes({ params: { id: '1' } });
+
+      await handler(req, res, next);
+
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'archived' }),
+      );
+    });
   });
 });

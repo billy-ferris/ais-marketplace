@@ -7,6 +7,7 @@ import {
   updateListingSchema,
   createSkuSchema,
 } from '@ais/shared/schemas';
+import { ListingStatus, LISTING_STATUS_LABELS } from '@ais/shared/types';
 
 describe('Catalog Zod Schemas', () => {
   describe('createBrandSchema', () => {
@@ -174,8 +175,22 @@ describe('Catalog Zod Schemas', () => {
   });
 
   describe('ListingStatus enum', () => {
-    it.todo('should include pending_approval status');
-    it.todo('should include rejected status');
-    it.todo('should have labels for all status values including pending_approval and rejected');
+    it('should include pending_approval status', () => {
+      expect(ListingStatus.PENDING_APPROVAL).toBe('pending_approval');
+    });
+
+    it('should include rejected status', () => {
+      expect(ListingStatus.REJECTED).toBe('rejected');
+    });
+
+    it('should have labels for all status values including pending_approval and rejected', () => {
+      const allStatuses = Object.values(ListingStatus);
+      for (const status of allStatuses) {
+        expect(LISTING_STATUS_LABELS[status]).toBeDefined();
+        expect(typeof LISTING_STATUS_LABELS[status]).toBe('string');
+      }
+      expect(LISTING_STATUS_LABELS[ListingStatus.PENDING_APPROVAL]).toBe('Pending Approval');
+      expect(LISTING_STATUS_LABELS[ListingStatus.REJECTED]).toBe('Rejected');
+    });
   });
 });
