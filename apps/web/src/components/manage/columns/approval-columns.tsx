@@ -1,19 +1,15 @@
 import { type ColumnDef } from '@tanstack/react-table';
-import { Check, X, Pencil } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { ListingRow } from '@/hooks/useListings';
 
 interface ApprovalColumnCallbacks {
-  onApprove: (id: number) => void;
-  onReject: (listing: ListingRow) => void;
-  onEdit: (id: number) => void;
+  onReview: (id: number) => void;
 }
 
 export function getApprovalColumns({
-  onApprove,
-  onReject,
-  onEdit,
+  onReview,
 }: ApprovalColumnCallbacks): ColumnDef<ListingRow, unknown>[] {
   return [
     {
@@ -21,7 +17,13 @@ export function getApprovalColumns({
       header: 'Listing Name',
       enableSorting: true,
       cell: ({ row }) => (
-        <span className="font-medium">{row.original.name}</span>
+        <button
+          type="button"
+          className="text-left font-medium text-primary hover:underline"
+          onClick={() => onReview(row.original.id)}
+        >
+          {row.original.name}
+        </button>
       ),
     },
     {
@@ -54,38 +56,16 @@ export function getApprovalColumns({
       id: 'actions',
       header: '',
       enableSorting: false,
-      cell: ({ row }) => {
-        const listing = row.original;
-        return (
-          <div className="flex items-center gap-2 justify-end">
-            <Button
-              size="sm"
-              variant="default"
-              className="bg-green-600 hover:bg-green-700 text-white"
-              onClick={() => onApprove(listing.id)}
-            >
-              <Check className="size-4" />
-              Approve
-            </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => onReject(listing)}
-            >
-              <X className="size-4" />
-              Reject
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => onEdit(listing.id)}
-            >
-              <Pencil className="size-4" />
-              Edit
-            </Button>
-          </div>
-        );
-      },
+      cell: ({ row }) => (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => onReview(row.original.id)}
+        >
+          <Eye className="size-4" />
+          Review
+        </Button>
+      ),
     },
   ];
 }
