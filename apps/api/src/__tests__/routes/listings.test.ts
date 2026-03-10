@@ -925,6 +925,34 @@ describe('Listing Routes', () => {
       expect(res.json).toHaveBeenCalledWith({ error: 'Cannot edit listing while pending approval' });
     });
 
+    it('should prevent manufacturer from editing listing in active status', async () => {
+      const { getCurrentUser, getCompanyUser } = await import('../../middleware/auth');
+      (getCurrentUser as any).mockReturnValue({ userId: 'mfg-user', role: 'manufacturer' });
+      (getCompanyUser as any).mockResolvedValue({ id: 2, companyId: 5, role: 'manufacturer' });
+
+      const handler = getHandler(listingRouter, 'patch', '/:id');
+
+      // Existence check returns active listing, then brand ownership check
+      let callCount = 0;
+      mockDb.then = vi.fn((resolve: any) => {
+        callCount++;
+        if (callCount === 1) return resolve([{ id: 1, status: 'active', brandId: 10 }]);
+        // Brand ownership check: brand belongs to manufacturer's company
+        if (callCount === 2) return resolve([{ companyId: 5 }]);
+        return resolve([]);
+      });
+
+      const { req, res, next } = createMockReqRes({
+        params: { id: '1' },
+        body: { listing: { name: 'Edited' } },
+      });
+
+      await handler(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Cannot edit an active listing' });
+    });
+
     it('should allow admin to approve listing (pending_approval -> active)', async () => {
       const handler = getHandler(listingRouter, 'post', '/:id/approve');
 
