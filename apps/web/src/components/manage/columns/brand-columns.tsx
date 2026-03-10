@@ -52,7 +52,7 @@ export function getBrandColumns({
         const desc = row.original.description;
         if (!desc) return <span className="text-muted-foreground">-</span>;
         return (
-          <span className="line-clamp-1" title={desc}>
+          <span className="block max-w-xs truncate" title={desc}>
             {desc}
           </span>
         );
