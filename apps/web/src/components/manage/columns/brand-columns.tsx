@@ -13,11 +13,13 @@ import type { BrandRow } from '@/hooks/useBrands';
 interface BrandColumnCallbacks {
   onEdit: (brand: BrandRow) => void;
   onDelete: (brand: BrandRow) => void;
+  isManufacturer?: boolean;
 }
 
 export function getBrandColumns({
   onEdit,
   onDelete,
+  isManufacturer,
 }: BrandColumnCallbacks): ColumnDef<BrandRow, unknown>[] {
   return [
     {
@@ -42,12 +44,12 @@ export function getBrandColumns({
       header: 'Name',
       enableSorting: true,
     },
-    {
+    ...(!isManufacturer ? [{
       accessorKey: 'companyName',
       header: 'Company',
       enableSorting: true,
-      cell: ({ row }) => row.original.companyName ?? '-',
-    },
+      cell: ({ row }: { row: { original: BrandRow } }) => row.original.companyName ?? '-',
+    }] : []),
     {
       accessorKey: 'createdAt',
       header: 'Created',

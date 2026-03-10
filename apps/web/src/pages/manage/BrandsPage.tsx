@@ -9,8 +9,10 @@ import { BrandDialog } from '@/components/manage/BrandDialog';
 import { getBrandColumns } from '@/components/manage/columns/brand-columns';
 import { useBrands, useDeleteBrand, type BrandRow } from '@/hooks/useBrands';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useRole } from '@/hooks/useRole';
 
 export function BrandsPage() {
+  const { isManufacturer } = useRole();
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
 
@@ -44,8 +46,8 @@ export function BrandsPage() {
   }, []);
 
   const columns = useMemo(
-    () => getBrandColumns({ onEdit: handleEdit, onDelete: handleDelete }),
-    [handleEdit, handleDelete],
+    () => getBrandColumns({ onEdit: handleEdit, onDelete: handleDelete, isManufacturer }),
+    [handleEdit, handleDelete, isManufacturer],
   );
 
   function handleCreate() {
