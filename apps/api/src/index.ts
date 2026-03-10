@@ -10,6 +10,7 @@ import { brandRouter } from './routes/brands';
 import { categoryRouter } from './routes/categories';
 import { uploadRouter } from './routes/uploads';
 import { listingRouter } from './routes/listings';
+import { notificationRouter } from './routes/notifications';
 import { errorHandler } from './middleware/error';
 
 const app: Express = express();
@@ -35,6 +36,7 @@ app.use(API_ROUTES.BRANDS, brandRouter);
 app.use(API_ROUTES.CATEGORIES, categoryRouter);
 app.use(API_ROUTES.UPLOADS, uploadRouter);
 app.use(API_ROUTES.LISTINGS, listingRouter);
+app.use(API_ROUTES.NOTIFICATIONS, notificationRouter);
 
 // Health check
 app.get(API_ROUTES.HEALTH, (_req, res) => {
