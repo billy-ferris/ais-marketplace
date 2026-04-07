@@ -60,6 +60,16 @@ Plans:
 - [x] 02-05-PLAN.md — Inventory listing CRUD (API routes, data table, create/edit pages, inline SKU editor)
 - [x] 02-06-PLAN.md — Seed data and end-to-end admin verification checkpoint
 
+### Phase 02.3: Form Input Validation (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 2
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 02.3 to break down)
+
 ### Phase 02.2: Populate Phase 2 test stubs with real implementations (INSERTED)
 
 **Goal:** All 85 it.todo() test stubs across 6 test files are populated with real test implementations, achieving full test coverage for Phase 2 API routes, Zod schemas, and seed data
