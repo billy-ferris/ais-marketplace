@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02.4-04-PLAN.md
-last_updated: "2026-07-01T15:24:45Z"
-last_activity: 2026-07-01 -- Completed 02.4-04 (DB data-integrity constraints pushed to live dev DB)
+stopped_at: Completed 02.4-04-PLAN.md (DB data-integrity constraints)
+last_updated: "2026-07-01T15:30:59.266Z"
+last_activity: 2026-07-01
 progress:
   total_phases: 11
   completed_phases: 5
   total_plans: 28
-  completed_plans: 23
+  completed_plans: 27
   percent: 45
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 ## Current Position
 
 Phase: 02.4 (security-hardening) — EXECUTING
-Plan: 5 of 6
-Status: Executing Phase 02.4
-Last activity: 2026-07-01 -- Completed 02.4-04 (DB data-integrity constraints pushed to live dev DB)
+Plan: 6 of 6
+Status: Ready to execute
+Last activity: 2026-07-01
 
-Progress: [█████████░] 94%
+Progress: [██████████] 96%
 
 ## Performance Metrics
 
@@ -70,6 +70,7 @@ Progress: [█████████░] 94%
 | Phase 02.1 P01 | 3 | 2 tasks | 12 files |
 | Phase 02.1 P02 | 6 | 2 tasks | 10 files |
 | Phase 02.1 P03 | 3 | 3 tasks | 15 files |
+| Phase 02.4 P05 | 6 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -128,6 +129,8 @@ Recent decisions affecting current work:
 - [Phase 02.1]: Email service lazy-initialized to avoid crash when RESEND_API_KEY not set
 - [Phase 02.4-04]: FK onDelete policy (D-13): cascade for listing-owned children (inventorySkus.listingId, brandListingImages.listingId, listingCategories.listingId), restrict for cross-entity refs (brands.companyId, listingCategories.categoryId) — never set null (all five columns NOT NULL)
 - [Phase 02.4-04]: Slug uniqueness (D-09) and one-primary-image (D-10) enforced via Postgres partial unique indexes (WHERE deleted_at IS NULL / WHERE is_primary = true), replacing unenforceable app-level checks; pushed via db:push (no drizzle/ migrations dir)
+- [Phase ?]: [Phase 02.4-05]: Client /manage RBAC via RoleGuard wrapping each route element (default ForbiddenPage fallback, no redirect); API stays the authoritative boundary (defense-in-depth)
+- [Phase ?]: [Phase 02.4-05]: useUpload posts presigned-POST multipart (fields first, file last, no manual Content-Type) and throws on !uploadRes.ok rather than returning a broken publicUrl (WR-02)
 
 ### Pending Todos
 
@@ -149,6 +152,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-01T15:24:45Z
+Last session: 2026-07-01T15:30:23.349Z
 Stopped at: Completed 02.4-04-PLAN.md (DB data-integrity constraints)
 Resume file: None
