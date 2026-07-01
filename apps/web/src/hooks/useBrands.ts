@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, ApiError } from '@/lib/api';
 import { API_ROUTES } from '@ais/shared';
 import type { CreateBrandInput, UpdateBrandInput } from '@ais/shared';
 
@@ -67,7 +67,11 @@ export function useCreateBrand() {
       toast.success('Brand created');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to create brand');
+      const message =
+        error instanceof ApiError && error.formErrors.length
+          ? error.formErrors[0]
+          : error.message || 'Failed to create brand';
+      toast.error(message);
     },
   });
 }
@@ -85,7 +89,11 @@ export function useUpdateBrand() {
       toast.success('Brand updated');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to update brand');
+      const message =
+        error instanceof ApiError && error.formErrors.length
+          ? error.formErrors[0]
+          : error.message || 'Failed to update brand';
+      toast.error(message);
     },
   });
 }
@@ -100,7 +108,11 @@ export function useDeleteBrand() {
       toast.success('Brand deleted');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to delete brand');
+      const message =
+        error instanceof ApiError && error.formErrors.length
+          ? error.formErrors[0]
+          : error.message || 'Failed to delete brand';
+      toast.error(message);
     },
   });
 }
