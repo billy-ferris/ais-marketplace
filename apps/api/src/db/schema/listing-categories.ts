@@ -11,10 +11,10 @@ export const listingCategories = pgTable(
   {
     listingId: integer('listing_id')
       .notNull()
-      .references(() => brandListings.id),
+      .references(() => brandListings.id, { onDelete: 'cascade' }),
     categoryId: integer('category_id')
       .notNull()
-      .references(() => categories.id),
+      .references(() => categories.id, { onDelete: 'restrict' }),
   },
   (table) => [
     primaryKey({ columns: [table.listingId, table.categoryId] }),

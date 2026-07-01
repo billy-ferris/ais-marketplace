@@ -11,7 +11,7 @@ export const inventorySkus = pgTable('inventory_skus', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   listingId: integer('listing_id')
     .notNull()
-    .references(() => brandListings.id),
+    .references(() => brandListings.id, { onDelete: 'cascade' }),
   name: varchar({ length: 255 }).notNull(),
   sku: varchar({ length: 100 }),
   upc: varchar({ length: 20 }),
