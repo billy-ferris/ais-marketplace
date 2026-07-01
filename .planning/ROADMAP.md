@@ -75,7 +75,7 @@ Plans:
 **Goal:** Remediate the Critical and high-severity findings surfaced by the retroactive code reviews of phases 01, 02, and 02.1 (see each phase's `NN-REVIEW.md`) so the app is safe to deploy. Scope: fix broken access control / IDOR on `GET /users/:id` and the `GET /companies` endpoints (marginPercentage/PII exposure), block cross-tenant `brandId` reassignment on `PATCH /listings/:id`, escape user-controlled input in the email HTML/subject sinks, add an environment guard to the destructive seed script, resolve the soft-delete vs `unique()` slug conflict for brands/categories, and wire the currently-dead `RoleGuard` into the client router. Address the related authorization/data-integrity Warnings (one-primary-image invariant, slug-race, upload content-type/size validation) as part of the same pass.
 **Requirements**: SEC-AUTHZ, SEC-INJECTION, SEC-OPS-SEED, SEC-DATA-INTEGRITY
 **Depends on:** Phase 2, Phase 02.1
-**Plans:** 5/8 plans executed (07-08 gap closure for UAT 3 upload failures)
+**Plans:** 7/8 plans executed
 
 Plans:
 - [x] 02.4-01-PLAN.md — Read-authorization scoping: GET /users/:id self-or-admin deny-by-404 + GET /companies field redaction (D-01/02/03)
@@ -84,8 +84,8 @@ Plans:
 - [x] 02.4-04-PLAN.md — DB data-integrity: partial unique indexes (slug, one-primary) + FK onDelete + dedup + [BLOCKING] db:push (D-09/10/13)
 - [x] 02.4-05-PLAN.md — Client hardening: wire RoleGuard into router + useUpload PUT→POST switch (D-04/05, D-07 client)
 - [ ] 02.4-06-PLAN.md — Final manual UAT checkpoints: DB constraints, role gating, end-to-end upload
-- [ ] 02.4-07-PLAN.md — [gap] Revert upload presign POST→PUT (R2 has no presigned POST); keep D-06 allowlist + D-07 5MB exact-ContentLength cap; update API tests + client hook
-- [ ] 02.4-08-PLAN.md — [gap] Surface upload errors in the UI: ImageUploader error prop + BrandDialog/ListingForm/SkuInlineEditor catch-and-render (D-06 feedback)
+- [x] 02.4-07-PLAN.md — [gap] Revert upload presign POST→PUT (R2 has no presigned POST); keep D-06 allowlist + D-07 5MB exact-ContentLength cap; update API tests + client hook
+- [x] 02.4-08-PLAN.md — [gap] Surface upload errors in the UI: ImageUploader error prop + BrandDialog/ListingForm/SkuInlineEditor catch-and-render (D-06 feedback)
 
 ### Phase 02.3: Form Input Validation (INSERTED)
 
