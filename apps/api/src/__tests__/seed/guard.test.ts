@@ -12,8 +12,10 @@ import { assertNotProduction } from '../../db/seed';
 
 describe('assertNotProduction (seed production guard, D-08)', () => {
   const ORIGINAL_NODE_ENV = process.env.NODE_ENV;
-  let exitSpy: ReturnType<typeof vi.spyOn>;
-  let errorSpy: ReturnType<typeof vi.spyOn>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let exitSpy: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let errorSpy: any;
 
   beforeEach(() => {
     exitSpy = vi
