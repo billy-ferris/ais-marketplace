@@ -35,12 +35,15 @@ describe('Catalog Zod Schemas', () => {
       expect(result.success).toBe(false);
     });
 
-    it('should require companyId as positive integer', () => {
+    it('should reject a non-positive companyId when provided', () => {
       const negative = createBrandSchema.safeParse({ name: 'Brand', companyId: -1 });
       expect(negative.success).toBe(false);
 
-      const missing = createBrandSchema.safeParse({ name: 'Brand' });
-      expect(missing.success).toBe(false);
+      // companyId is optional at the schema level: manufacturers auto-populate it
+      // from their own company (never sent in the body), while admins must supply
+      // it — the required-for-admins rule is enforced in the route, not the schema.
+      const omitted = createBrandSchema.safeParse({ name: 'Brand' });
+      expect(omitted.success).toBe(true);
     });
   });
 
