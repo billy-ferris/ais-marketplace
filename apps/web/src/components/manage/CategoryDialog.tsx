@@ -138,7 +138,12 @@ export function CategoryDialog({
               id="category-order"
               type="number"
               placeholder="0"
-              {...register('displayOrder', { valueAsNumber: true })}
+              {...register('displayOrder', {
+                // Coerce a cleared input to `undefined` (which the optional
+                // schema accepts) instead of NaN (which `z.number()` rejects,
+                // blocking submit of an otherwise-valid form).
+                setValueAs: (v) => (v === '' ? undefined : Number(v)),
+              })}
               aria-invalid={!!errors.displayOrder}
             />
             <FieldError message={errors.displayOrder?.message} />
