@@ -6,21 +6,55 @@ import {
   createCompanySchema,
   updateCompanySchema,
 } from '@ais/shared/schemas';
-import { requireAuth, requireRole } from '../middleware/auth.js';
+import {
+  requireAuth,
+  requireRole,
+  getCurrentUser,
+  getCompanyUser,
+} from '../middleware/auth.js';
 
 const router: RouterType = Router();
 
-// GET / - List all companies (any authenticated user)
-router.get('/', requireAuth(), async (_req, res, next) => {
+type CompanyRow = typeof companies.$inferSelect;
+type Viewer = { role: string | null; companyId: number | null };
+
+/**
+ * Response-shaping guard. Admins and the owning company see the full row;
+ * every other authenticated viewer receives a redacted row with commercial
+ * data (marginPercentage) and contact/precise-location PII stripped, while
+ * name/type/city/state are retained so companies stay browsable (D-03).
+ */
+function redactCompany(company: CompanyRow, viewer: Viewer) {
+  const isPrivileged =
+    viewer.role === 'admin' || viewer.companyId === company.id;
+  if (isPrivileged) return company;
+
+  const {
+    marginPercentage: _marginPercentage,
+    contactName: _contactName,
+    phone: _phone,
+    street: _street,
+    zip: _zip,
+    ...safe
+  } = company;
+  return safe;
+}
+
+// GET / - List all companies (any authenticated user; sensitive fields redacted)
+router.get('/', requireAuth(), async (req, res, next) => {
   try {
+    const { role } = getCurrentUser(req);
+    const companyUser = await getCompanyUser(req);
+    const viewer: Viewer = { role, companyId: companyUser?.companyId ?? null };
+
     const result = await db.select().from(companies);
-    res.json(result);
+    res.json(result.map((c) => redactCompany(c, viewer)));
   } catch (err) {
     next(err);
   }
 });
 
-// GET /:id - Get company by ID (any authenticated user)
+// GET /:id - Get company by ID (any authenticated user; sensitive fields redacted)
 router.get('/:id', requireAuth(), async (req, res, next) => {
   try {
     const id = Number(req.params.id);
@@ -39,7 +73,11 @@ router.get('/:id', requireAuth(), async (req, res, next) => {
       return;
     }
 
-    res.json(company);
+    const { role } = getCurrentUser(req);
+    const companyUser = await getCompanyUser(req);
+    const viewer: Viewer = { role, companyId: companyUser?.companyId ?? null };
+
+    res.json(redactCompany(company, viewer));
   } catch (err) {
     next(err);
   }
