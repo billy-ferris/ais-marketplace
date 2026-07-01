@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { apiFetch, ApiError } from '@/lib/api';
+import { apiFetch, getApiErrorMessage } from '@/lib/api';
 import { API_ROUTES } from '@ais/shared';
 
 export interface ListingCategory {
@@ -134,11 +134,7 @@ export function useCreateListing() {
       toast.success('Listing created');
     },
     onError: (error: Error) => {
-      const message =
-        error instanceof ApiError && error.formErrors.length
-          ? error.formErrors[0]
-          : error.message || 'Failed to create listing';
-      toast.error(message);
+      toast.error(getApiErrorMessage(error, 'Failed to create listing'));
     },
   });
 }
@@ -156,11 +152,7 @@ export function useUpdateListing() {
       toast.success('Listing updated');
     },
     onError: (error: Error) => {
-      const message =
-        error instanceof ApiError && error.formErrors.length
-          ? error.formErrors[0]
-          : error.message || 'Failed to update listing';
-      toast.error(message);
+      toast.error(getApiErrorMessage(error, 'Failed to update listing'));
     },
   });
 }
@@ -175,11 +167,7 @@ export function useDeleteListing() {
       toast.success('Listing deleted');
     },
     onError: (error: Error) => {
-      const message =
-        error instanceof ApiError && error.formErrors.length
-          ? error.formErrors[0]
-          : error.message || 'Failed to delete listing';
-      toast.error(message);
+      toast.error(getApiErrorMessage(error, 'Failed to delete listing'));
     },
   });
 }
@@ -194,11 +182,9 @@ export function useSubmitForReview() {
       toast.success('Listing submitted for review');
     },
     onError: (error: Error) => {
-      const message =
-        error instanceof ApiError && error.formErrors.length
-          ? error.formErrors[0]
-          : error.message || 'Failed to submit listing for review';
-      toast.error(message);
+      toast.error(
+        getApiErrorMessage(error, 'Failed to submit listing for review'),
+      );
     },
   });
 }
@@ -213,11 +199,7 @@ export function useApproveListing() {
       toast.success('Listing approved');
     },
     onError: (error: Error) => {
-      const message =
-        error instanceof ApiError && error.formErrors.length
-          ? error.formErrors[0]
-          : error.message || 'Failed to approve listing';
-      toast.error(message);
+      toast.error(getApiErrorMessage(error, 'Failed to approve listing'));
     },
   });
 }
@@ -235,11 +217,7 @@ export function useRejectListing() {
       toast.success('Listing rejected');
     },
     onError: (error: Error) => {
-      const message =
-        error instanceof ApiError && error.formErrors.length
-          ? error.formErrors[0]
-          : error.message || 'Failed to reject listing';
-      toast.error(message);
+      toast.error(getApiErrorMessage(error, 'Failed to reject listing'));
     },
   });
 }
@@ -254,11 +232,9 @@ export function useRevertToDraft() {
       toast.success('Listing reverted to draft');
     },
     onError: (error: Error) => {
-      const message =
-        error instanceof ApiError && error.formErrors.length
-          ? error.formErrors[0]
-          : error.message || 'Failed to revert listing to draft';
-      toast.error(message);
+      toast.error(
+        getApiErrorMessage(error, 'Failed to revert listing to draft'),
+      );
     },
   });
 }
@@ -273,11 +249,7 @@ export function useArchiveListing() {
       toast.success('Listing archived');
     },
     onError: (error: Error) => {
-      const message =
-        error instanceof ApiError && error.formErrors.length
-          ? error.formErrors[0]
-          : error.message || 'Failed to archive listing';
-      toast.error(message);
+      toast.error(getApiErrorMessage(error, 'Failed to archive listing'));
     },
   });
 }

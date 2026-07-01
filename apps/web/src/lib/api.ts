@@ -25,6 +25,27 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Resolve the most specific human-readable message from a mutation error.
+ *
+ * The server always sends a generic `error: 'Validation failed'` for ZodErrors,
+ * with the specifics in `fieldErrors`/`formErrors`. `formErrors` is only
+ * populated by whole-object `.refine()` failures, so for the common
+ * single-field case (e.g. a blank required field) the real message lives in
+ * `fieldErrors`. Prefer, in order: first form error, first field error, then
+ * the error message, then the fallback.
+ */
+export function getApiErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof ApiError) {
+    const firstFieldError = Object.values(error.fieldErrors)[0]?.[0];
+    return (
+      error.formErrors[0] ?? firstFieldError ?? error.message ?? fallback
+    );
+  }
+  if (error instanceof Error && error.message) return error.message;
+  return fallback;
+}
+
 let tokenGetter: (() => Promise<string | null>) | null = null;
 
 export function setTokenGetter(fn: () => Promise<string | null>) {
