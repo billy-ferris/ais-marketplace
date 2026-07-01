@@ -374,10 +374,36 @@ async function cleanClerkUsers(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// Production safety guard
+// ---------------------------------------------------------------------------
+
+/**
+ * Refuse to run against a production environment (D-08).
+ *
+ * This script performs mass destructive deletes (companies, users, catalog
+ * tables) and deletes seed users from Clerk. Running it against a production
+ * DATABASE_URL would be catastrophic, so we hard-refuse when
+ * NODE_ENV === 'production'. There is intentionally NO override/escape-hatch
+ * env var — the only way to run against production is to change NODE_ENV,
+ * which forces a deliberate, auditable action.
+ */
+export function assertNotProduction(): void {
+  if (process.env.NODE_ENV === 'production') {
+    console.error(
+      '[seed] Refusing to run: NODE_ENV=production. This script performs ' +
+        'destructive database deletes and Clerk user deletions. Aborting.',
+    );
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Main seed function
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
+  assertNotProduction();
+
   console.log('--- AIS Marketplace Seed Script ---\n');
 
   // 1. Clean existing data
