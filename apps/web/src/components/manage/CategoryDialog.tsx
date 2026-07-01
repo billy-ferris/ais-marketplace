@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { RequiredLabel, FieldError } from '@/components/manage/FormFieldHelpers';
 import {
   useCreateCategory,
   useUpdateCategory,
@@ -41,6 +42,8 @@ export function CategoryDialog({
     formState: { errors },
   } = useForm<CreateCategoryInput>({
     resolver: zodResolver(createCategorySchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     defaultValues: {
       name: '',
       icon: '',
@@ -103,18 +106,16 @@ export function CategoryDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="category-name">Name</Label>
+            <RequiredLabel htmlFor="category-name" required>
+              Name
+            </RequiredLabel>
             <Input
               id="category-name"
               placeholder="Category name"
               {...register('name')}
               aria-invalid={!!errors.name}
             />
-            {errors.name && (
-              <p className="text-xs text-destructive">
-                {errors.name.message}
-              </p>
-            )}
+            <FieldError message={errors.name?.message} />
           </div>
 
           <div className="space-y-2">
@@ -128,11 +129,7 @@ export function CategoryDialog({
             <p className="text-xs text-muted-foreground">
               Enter a Lucide icon name, e.g., scissors, sparkles
             </p>
-            {errors.icon && (
-              <p className="text-xs text-destructive">
-                {errors.icon.message}
-              </p>
-            )}
+            <FieldError message={errors.icon?.message} />
           </div>
 
           <div className="space-y-2">
@@ -144,11 +141,7 @@ export function CategoryDialog({
               {...register('displayOrder', { valueAsNumber: true })}
               aria-invalid={!!errors.displayOrder}
             />
-            {errors.displayOrder && (
-              <p className="text-xs text-destructive">
-                {errors.displayOrder.message}
-              </p>
-            )}
+            <FieldError message={errors.displayOrder?.message} />
           </div>
 
           <DialogFooter>

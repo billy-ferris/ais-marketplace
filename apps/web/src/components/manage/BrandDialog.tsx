@@ -24,6 +24,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import {
+  RequiredLabel,
+  FieldError,
+  CharCounter,
+} from '@/components/manage/FormFieldHelpers';
 import { ImageUploader } from '@/components/shared/ImageUploader';
 import { useCreateBrand, useUpdateBrand, type BrandRow } from '@/hooks/useBrands';
 import { useUpload } from '@/hooks/useUpload';
@@ -55,9 +60,12 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
     reset,
     setValue,
     watch,
+    trigger,
     formState: { errors },
   } = useForm<CreateBrandInput>({
     resolver: zodResolver(createBrandSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     defaultValues: {
       name: '',
       description: '',
@@ -151,16 +159,16 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="brand-name">Name</Label>
+            <RequiredLabel htmlFor="brand-name" required>
+              Name
+            </RequiredLabel>
             <Input
               id="brand-name"
               placeholder="Brand name"
               {...register('name')}
               aria-invalid={!!errors.name}
             />
-            {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
-            )}
+            <FieldError message={errors.name?.message} />
           </div>
 
           <div className="space-y-2">
@@ -171,18 +179,20 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
               {...register('description')}
               aria-invalid={!!errors.description}
             />
-            {errors.description && (
-              <p className="text-xs text-destructive">
-                {errors.description.message}
-              </p>
-            )}
+            <CharCounter value={watch('description') ?? ''} max={2000} />
+            <FieldError message={errors.description?.message} />
           </div>
 
           {!isManufacturer && (
             <div className="space-y-2">
-              <Label>Manufacturer</Label>
+              <RequiredLabel required>Manufacturer</RequiredLabel>
               <Select
                 value={companies.find((c) => c.id === selectedCompanyId)?.name ?? null}
+                onOpenChange={(open) => {
+                  if (!open) {
+                    void trigger('companyId');
+                  }
+                }}
                 onValueChange={(name) => {
                   const company = companies.find((c) => c.name === name);
                   if (company) {
@@ -201,11 +211,7 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
                   ))}
                 </SelectContent>
               </Select>
-              {errors.companyId && (
-                <p className="text-xs text-destructive">
-                  {errors.companyId.message}
-                </p>
-              )}
+              <FieldError message={errors.companyId?.message} />
             </div>
           )}
 
