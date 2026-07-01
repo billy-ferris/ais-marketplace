@@ -124,7 +124,16 @@ function buildSkuCandidate(row: SkuFormData): Record<string, unknown> {
     casesPerPallet: row.casesPerPallet ? Number(row.casesPerPallet) : undefined,
     price: row.price,
     msrp: row.msrp,
-    quantity: Number(row.quantity) || 0,
+    // Distinguish empty from invalid: an empty string becomes `undefined` and a
+    // non-numeric string is passed through unchanged so the schema reports a
+    // genuine "invalid quantity" error, rather than `Number('abc') || 0`
+    // silently collapsing garbage input to a valid `0`.
+    quantity:
+      row.quantity === ''
+        ? undefined
+        : Number.isNaN(Number(row.quantity))
+          ? row.quantity
+          : Number(row.quantity),
     imageUrl: row.imageUrl || undefined,
   };
 }
