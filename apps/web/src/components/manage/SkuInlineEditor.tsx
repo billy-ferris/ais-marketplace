@@ -170,8 +170,22 @@ export const SkuInlineEditor = forwardRef<
         updated[index] = { ...sku, _deleted: true };
         onChange(updated);
       } else {
-        // New SKU: remove from array
+        // New SKU: remove from array. Splicing shifts every subsequent row's
+        // index down by one, so reconcile the `${index}:${field}`-keyed error
+        // map to match — otherwise errors would be misattributed to the wrong
+        // rows after deletion.
         onChange(skus.filter((_, i) => i !== index));
+        setSkuErrors((prev) => {
+          const next: Record<string, string> = {};
+          for (const [key, msg] of Object.entries(prev)) {
+            const sep = key.indexOf(':');
+            const idx = Number(key.slice(0, sep));
+            const field = key.slice(sep + 1);
+            if (idx === index) continue;
+            next[`${idx > index ? idx - 1 : idx}:${field}`] = msg;
+          }
+          return next;
+        });
       }
     },
     [skus, onChange],
