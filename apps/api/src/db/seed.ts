@@ -1,4 +1,6 @@
 import 'dotenv/config';
+import { realpathSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { createClerkClient } from '@clerk/express';
 import { eq } from 'drizzle-orm';
@@ -559,11 +561,29 @@ async function main(): Promise<void> {
   console.log(`\nSeed users can log in at the web app with their email and the shared demo password.`);
 }
 
-main()
-  .then(() => {
-    process.exit(0);
-  })
-  .catch((err) => {
-    console.error('\nSeed failed:', err);
-    process.exit(1);
-  });
+/**
+ * True only when this file is the process entry point (e.g. `tsx src/db/seed.ts`).
+ * Prevents main() from auto-running when the module is imported (e.g. by unit
+ * tests importing assertNotProduction), which would otherwise trigger the
+ * destructive deletes and a process.exit that kills the test runner.
+ */
+function isDirectRun(): boolean {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  try {
+    return realpathSync(entry) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+}
+
+if (isDirectRun()) {
+  main()
+    .then(() => {
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error('\nSeed failed:', err);
+      process.exit(1);
+    });
+}
