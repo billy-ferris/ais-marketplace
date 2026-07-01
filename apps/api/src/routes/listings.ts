@@ -402,6 +402,11 @@ router.patch('/:id', requireAuth(), requireRole('admin', 'manufacturer'), async 
       return;
     }
 
+    // Hoisted to handler scope so the incoming-brandId ownership check (D-12)
+    // below the parse site can see it (was previously block-scoped inside the
+    // manufacturer branch and out of scope at the parse site).
+    const user = await getCompanyUser(req);
+
     // Check listing exists and is not deleted
     const [existing] = await db
       .select({
@@ -419,7 +424,6 @@ router.patch('/:id', requireAuth(), requireRole('admin', 'manufacturer'), async 
 
     // Manufacturer-specific checks
     if (role === 'manufacturer') {
-      const user = await getCompanyUser(req);
       if (!user?.companyId) {
         res.status(403).json({ error: 'No company associated with your account' });
         return;
@@ -452,6 +456,22 @@ router.patch('/:id', requireAuth(), requireRole('admin', 'manufacturer'), async 
     // Update listing fields if provided
     if (listingData && Object.keys(listingData).length > 0) {
       const parsed = updateListingSchema.parse(listingData);
+
+      // D-12: a manufacturer may not reassign the listing to a brand owned by
+      // another company. updateListingSchema = createListingSchema.partial()
+      // includes brandId, so the *incoming* brand must be re-validated here
+      // (mirrors the POST ownership check).
+      if (role === 'manufacturer' && parsed.brandId !== undefined) {
+        const [targetBrand] = await db
+          .select({ companyId: brands.companyId })
+          .from(brands)
+          .where(and(eq(brands.id, parsed.brandId), isNull(brands.deletedAt)));
+
+        if (!targetBrand || targetBrand.companyId !== user?.companyId) {
+          res.status(400).json({ error: 'Brand does not belong to your company' });
+          return;
+        }
+      }
 
       // Manufacturer cannot change status via PATCH
       const updateValues = role === 'manufacturer'
