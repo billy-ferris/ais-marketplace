@@ -75,10 +75,15 @@ Plans:
 **Goal:** Remediate the Critical and high-severity findings surfaced by the retroactive code reviews of phases 01, 02, and 02.1 (see each phase's `NN-REVIEW.md`) so the app is safe to deploy. Scope: fix broken access control / IDOR on `GET /users/:id` and the `GET /companies` endpoints (marginPercentage/PII exposure), block cross-tenant `brandId` reassignment on `PATCH /listings/:id`, escape user-controlled input in the email HTML/subject sinks, add an environment guard to the destructive seed script, resolve the soft-delete vs `unique()` slug conflict for brands/categories, and wire the currently-dead `RoleGuard` into the client router. Address the related authorization/data-integrity Warnings (one-primary-image invariant, slug-race, upload content-type/size validation) as part of the same pass.
 **Requirements**: SEC-AUTHZ, SEC-INJECTION, SEC-OPS-SEED, SEC-DATA-INTEGRITY
 **Depends on:** Phase 2, Phase 02.1
-**Plans:** 0 plans
+**Plans:** 6 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 02.4 to break down)
+- [ ] 02.4-01-PLAN.md — Read-authorization scoping: GET /users/:id self-or-admin deny-by-404 + GET /companies field redaction (D-01/02/03)
+- [ ] 02.4-02-PLAN.md — Cross-tenant PATCH /listings/:id brandId guard + email HTML/CRLF injection escaping (D-12, D-11)
+- [ ] 02.4-03-PLAN.md — Destructive-seed production guard + upload content-type allowlist & 5MB presigned-POST size cap (D-08, D-06, D-07)
+- [ ] 02.4-04-PLAN.md — DB data-integrity: partial unique indexes (slug, one-primary) + FK onDelete + dedup + [BLOCKING] db:push (D-09/10/13)
+- [ ] 02.4-05-PLAN.md — Client hardening: wire RoleGuard into router + useUpload PUT→POST switch (D-04/05, D-07 client)
+- [ ] 02.4-06-PLAN.md — Final manual UAT checkpoints: DB constraints, role gating, end-to-end upload
 
 ### Phase 02.3: Form Input Validation (INSERTED)
 
