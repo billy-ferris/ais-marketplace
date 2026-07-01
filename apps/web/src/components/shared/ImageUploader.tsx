@@ -3,6 +3,10 @@ import { Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+// Mirrors the D-06 server allowlist for fast, UX-only client feedback.
+// The server presign (Plan 07) remains authoritative — this is not a security boundary.
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
 interface ImageUploaderProps {
   value: string | null;
   onChange: (file: File) => void;
@@ -12,6 +16,8 @@ interface ImageUploaderProps {
   disabled?: boolean;
   isUploading?: boolean;
   className?: string;
+  /** External error (e.g. a server upload rejection) rendered in the destructive slot. */
+  error?: string;
 }
 
 export function ImageUploader({
@@ -23,17 +29,26 @@ export function ImageUploader({
   disabled = false,
   isUploading = false,
   className,
+  error,
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [internalError, setInternalError] = useState<string | null>(null);
+
+  // External error (server rejection) takes precedence over the internal pre-check.
+  const displayError = error ?? internalError;
 
   function handleFile(file: File) {
-    setError(null);
+    setInternalError(null);
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setInternalError('Only JPEG, PNG, or WebP images are allowed');
+      return;
+    }
 
     const maxBytes = maxSizeMB * 1024 * 1024;
     if (file.size > maxBytes) {
-      setError(`File size must be less than ${maxSizeMB}MB`);
+      setInternalError(`File size must be less than ${maxSizeMB}MB`);
       return;
     }
 
@@ -145,8 +160,8 @@ export function ImageUploader({
         onChange={handleInputChange}
         disabled={disabled || isUploading}
       />
-      {error && (
-        <p className="mt-1 text-xs text-destructive">{error}</p>
+      {displayError && (
+        <p className="mt-1 text-xs text-destructive">{displayError}</p>
       )}
     </div>
   );
