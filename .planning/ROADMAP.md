@@ -60,7 +60,7 @@ Plans:
 - [x] 02-05-PLAN.md — Inventory listing CRUD (API routes, data table, create/edit pages, inline SKU editor)
 - [x] 02-06-PLAN.md — Seed data and end-to-end admin verification checkpoint
 
-### Phase 02.3: Form Input Validation (INSERTED)
+### Phase 02.4: Deployment - CI/CD pipeline and production deployment setup (INSERTED)
 
 **Goal:** [Urgent work - to be planned]
 **Requirements**: TBD
@@ -68,7 +68,20 @@ Plans:
 **Plans:** 0 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 02.3 to break down)
+- [ ] TBD (run /gsd-plan-phase 02.4 to break down)
+
+### Phase 02.3: Form Input Validation (INSERTED)
+
+**Goal:** All four manage forms (ListingForm, BrandDialog, CategoryDialog, SkuInlineEditor) provide consistent client-side validation UX — validate on blur, clear on valid change, catch-all with focus on submit, required-field asterisks, textarea character counters, and SKU per-cell validation — backed by a restructured Zod flatten()-shaped API error contract and a typed ApiError on the client
+**Requirements**: VLDN-TIMING, VLDN-APIERR, VLDN-SKU, VLDN-INDICATORS
+**Depends on:** Phase 2
+**Plans:** 4 plans
+
+Plans:
+- [ ] 02.3-01-PLAN.md — API error contract restructure (error.ts flatten + API test) and typed ApiError in apiFetch + mutation hooks
+- [ ] 02.3-02-PLAN.md — RHF form validation timing + required indicators + reusable helpers (ListingForm, BrandDialog, CategoryDialog)
+- [ ] 02.3-03-PLAN.md — SkuInlineEditor per-cell blur validation with red border + Base UI Tooltip
+- [ ] 02.3-04-PLAN.md — Automated gates + manual UAT verification checkpoint (web tests deferred)
 
 ### Phase 02.2: Populate Phase 2 test stubs with real implementations (INSERTED)
 
