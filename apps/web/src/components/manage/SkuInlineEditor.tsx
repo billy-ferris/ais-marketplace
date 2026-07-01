@@ -1,8 +1,22 @@
-import { useState, useCallback, useRef } from 'react';
+import {
+  useState,
+  useCallback,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+  type ReactElement,
+} from 'react';
 import { Plus, Trash2, Upload, X, Loader2 } from 'lucide-react';
+import { createSkuSchema } from '@ais/shared';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from '@/components/ui/tooltip';
 import { useUpload } from '@/hooks/useUpload';
 
 export interface SkuFormData {
@@ -48,6 +62,12 @@ interface SkuInlineEditorProps {
   disabled?: boolean;
 }
 
+/** Imperative handle exposed to parents to run submit-time SKU validation. */
+export interface SkuInlineEditorHandle {
+  /** Validate all non-deleted rows; returns true only when every row passes. */
+  validateAll: () => boolean;
+}
+
 const EMPTY_SKU: SkuFormData = {
   name: '',
   sku: '',
@@ -61,14 +81,62 @@ const EMPTY_SKU: SkuFormData = {
   imageUrl: null,
 };
 
-export function SkuInlineEditor({
-  skus,
-  onChange,
-  disabled = false,
-}: SkuInlineEditorProps) {
+/** Fields that carry required-field validation + red border + tooltip. */
+type RequiredSkuField = 'name' | 'price' | 'msrp' | 'quantity';
+const REQUIRED_SKU_FIELDS: RequiredSkuField[] = [
+  'name',
+  'price',
+  'msrp',
+  'quantity',
+];
+
+/**
+ * Build a candidate object matching createSkuSchema's expected input types from a
+ * row's string values. Optional numeric/string fields collapse empty strings to
+ * `undefined` so the schema's `.optional()` rules apply.
+ */
+function buildSkuCandidate(row: SkuFormData): Record<string, unknown> {
+  return {
+    name: row.name,
+    sku: row.sku || undefined,
+    upc: row.upc || undefined,
+    size: row.size || undefined,
+    casePack: row.casePack ? Number(row.casePack) : undefined,
+    casesPerPallet: row.casesPerPallet ? Number(row.casesPerPallet) : undefined,
+    price: row.price,
+    msrp: row.msrp,
+    quantity: Number(row.quantity) || 0,
+    imageUrl: row.imageUrl || undefined,
+  };
+}
+
+export const SkuInlineEditor = forwardRef<
+  SkuInlineEditorHandle,
+  SkuInlineEditorProps
+>(function SkuInlineEditor({ skus, onChange, disabled = false }, ref) {
   const { uploadFile, isUploading } = useUpload();
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const fileInputRefs = useRef<Map<number, HTMLInputElement>>(new Map());
+
+  // Per-cell validation errors keyed by `${index}:${field}`. '' = valid.
+  const [skuErrors, setSkuErrors] = useState<Record<string, string>>({});
+
+  /**
+   * Validate a single required cell against the shared schema and record the
+   * first issue whose path targets this field (or clear it when valid).
+   */
+  const validateSkuField = useCallback(
+    (index: number, field: RequiredSkuField, row: SkuFormData) => {
+      const result = createSkuSchema.safeParse(buildSkuCandidate(row));
+      let message = '';
+      if (!result.success) {
+        const issue = result.error.issues.find((i) => i.path[0] === field);
+        if (issue) message = issue.message;
+      }
+      setSkuErrors((prev) => ({ ...prev, [`${index}:${field}`]: message }));
+    },
+    [],
+  );
 
   const handleAdd = useCallback(() => {
     onChange([...skus, { ...EMPTY_SKU }]);
@@ -108,6 +176,33 @@ export function SkuInlineEditor({
     [skus, onChange],
   );
 
+  /**
+   * Submit-time catch-all: validate every non-deleted row against the shared
+   * schema, writing errors for the four required fields, and return true only
+   * when every non-deleted row fully passes.
+   */
+  const validateAllRows = useCallback((): boolean => {
+    let allValid = true;
+    const updates: Record<string, string> = {};
+    skus.forEach((row, index) => {
+      if (row._deleted) return;
+      const result = createSkuSchema.safeParse(buildSkuCandidate(row));
+      if (!result.success) allValid = false;
+      for (const field of REQUIRED_SKU_FIELDS) {
+        const issue = result.success
+          ? undefined
+          : result.error.issues.find((i) => i.path[0] === field);
+        updates[`${index}:${field}`] = issue ? issue.message : '';
+      }
+    });
+    setSkuErrors((prev) => ({ ...prev, ...updates }));
+    return allValid;
+  }, [skus]);
+
+  useImperativeHandle(ref, () => ({ validateAll: validateAllRows }), [
+    validateAllRows,
+  ]);
+
   const handleImageUpload = useCallback(
     async (index: number, file: File) => {
       setUploadingIndex(index);
@@ -126,8 +221,24 @@ export function SkuInlineEditor({
   const visibleSkus = skus.filter((s) => !s._deleted);
   const deletedSkus = skus.filter((s) => s._deleted);
 
+  /**
+   * Wrap a required-cell Input in a Base UI Tooltip carrying the cell's
+   * validation message when one exists; otherwise render the Input as-is.
+   */
+  const renderRequiredCell = (errorKey: string, input: ReactElement) => {
+    const message = skuErrors[errorKey];
+    if (!message) return input;
+    return (
+      <Tooltip>
+        <TooltipTrigger render={input} />
+        <TooltipContent>{message}</TooltipContent>
+      </Tooltip>
+    );
+  };
+
   return (
-    <div className="space-y-4">
+    <TooltipProvider>
+      <div className="space-y-4">
       {visibleSkus.length === 0 && deletedSkus.length === 0 && (
         <p className="text-sm text-muted-foreground">
           No SKUs added yet. Click "Add SKU" to get started.
@@ -181,14 +292,23 @@ export function SkuInlineEditor({
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-1">
                 <Label className="text-xs">Name *</Label>
-                <Input
-                  placeholder="SKU name"
-                  value={sku.name}
-                  onChange={(e) =>
-                    handleFieldChange(index, 'name', e.target.value)
-                  }
-                  disabled={disabled}
-                />
+                {renderRequiredCell(
+                  `${index}:name`,
+                  <Input
+                    placeholder="SKU name"
+                    value={sku.name}
+                    aria-invalid={!!skuErrors[`${index}:name`]}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleFieldChange(index, 'name', value);
+                      if (skuErrors[`${index}:name`]) {
+                        validateSkuField(index, 'name', { ...sku, name: value });
+                      }
+                    }}
+                    onBlur={() => validateSkuField(index, 'name', sku)}
+                    disabled={disabled}
+                  />,
+                )}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">SKU</Label>
@@ -249,37 +369,70 @@ export function SkuInlineEditor({
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Unit Price *</Label>
-                <Input
-                  placeholder="12.99"
-                  value={sku.price}
-                  onChange={(e) =>
-                    handleFieldChange(index, 'price', e.target.value)
-                  }
-                  disabled={disabled}
-                />
+                {renderRequiredCell(
+                  `${index}:price`,
+                  <Input
+                    placeholder="12.99"
+                    value={sku.price}
+                    aria-invalid={!!skuErrors[`${index}:price`]}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleFieldChange(index, 'price', value);
+                      if (skuErrors[`${index}:price`]) {
+                        validateSkuField(index, 'price', {
+                          ...sku,
+                          price: value,
+                        });
+                      }
+                    }}
+                    onBlur={() => validateSkuField(index, 'price', sku)}
+                    disabled={disabled}
+                  />,
+                )}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">MSRP *</Label>
-                <Input
-                  placeholder="24.99"
-                  value={sku.msrp}
-                  onChange={(e) =>
-                    handleFieldChange(index, 'msrp', e.target.value)
-                  }
-                  disabled={disabled}
-                />
+                {renderRequiredCell(
+                  `${index}:msrp`,
+                  <Input
+                    placeholder="24.99"
+                    value={sku.msrp}
+                    aria-invalid={!!skuErrors[`${index}:msrp`]}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleFieldChange(index, 'msrp', value);
+                      if (skuErrors[`${index}:msrp`]) {
+                        validateSkuField(index, 'msrp', { ...sku, msrp: value });
+                      }
+                    }}
+                    onBlur={() => validateSkuField(index, 'msrp', sku)}
+                    disabled={disabled}
+                  />,
+                )}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Quantity *</Label>
-                <Input
-                  type="number"
-                  placeholder="0"
-                  value={sku.quantity}
-                  onChange={(e) =>
-                    handleFieldChange(index, 'quantity', e.target.value)
-                  }
-                  disabled={disabled}
-                />
+                {renderRequiredCell(
+                  `${index}:quantity`,
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={sku.quantity}
+                    aria-invalid={!!skuErrors[`${index}:quantity`]}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleFieldChange(index, 'quantity', value);
+                      if (skuErrors[`${index}:quantity`]) {
+                        validateSkuField(index, 'quantity', {
+                          ...sku,
+                          quantity: value,
+                        });
+                      }
+                    }}
+                    onBlur={() => validateSkuField(index, 'quantity', sku)}
+                    disabled={disabled}
+                  />,
+                )}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Image</Label>
@@ -342,9 +495,10 @@ export function SkuInlineEditor({
         <Plus className="size-4" />
         Add SKU
       </Button>
-    </div>
+      </div>
+    </TooltipProvider>
   );
-}
+});
 
 /**
  * Convert the SkuFormData array into the structured API payload.
