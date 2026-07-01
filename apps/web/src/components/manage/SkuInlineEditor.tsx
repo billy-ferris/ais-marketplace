@@ -1,4 +1,11 @@
-import { useState, useCallback, useRef, type ReactElement } from 'react';
+import {
+  useState,
+  useCallback,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+  type ReactElement,
+} from 'react';
 import { Plus, Trash2, Upload, X, Loader2 } from 'lucide-react';
 import { createSkuSchema } from '@ais/shared';
 import { Input } from '@/components/ui/input';
@@ -55,6 +62,12 @@ interface SkuInlineEditorProps {
   disabled?: boolean;
 }
 
+/** Imperative handle exposed to parents to run submit-time SKU validation. */
+export interface SkuInlineEditorHandle {
+  /** Validate all non-deleted rows; returns true only when every row passes. */
+  validateAll: () => boolean;
+}
+
 const EMPTY_SKU: SkuFormData = {
   name: '',
   sku: '',
@@ -97,11 +110,10 @@ function buildSkuCandidate(row: SkuFormData): Record<string, unknown> {
   };
 }
 
-export function SkuInlineEditor({
-  skus,
-  onChange,
-  disabled = false,
-}: SkuInlineEditorProps) {
+export const SkuInlineEditor = forwardRef<
+  SkuInlineEditorHandle,
+  SkuInlineEditorProps
+>(function SkuInlineEditor({ skus, onChange, disabled = false }, ref) {
   const { uploadFile, isUploading } = useUpload();
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const fileInputRefs = useRef<Map<number, HTMLInputElement>>(new Map());
@@ -186,6 +198,10 @@ export function SkuInlineEditor({
     setSkuErrors((prev) => ({ ...prev, ...updates }));
     return allValid;
   }, [skus]);
+
+  useImperativeHandle(ref, () => ({ validateAll: validateAllRows }), [
+    validateAllRows,
+  ]);
 
   const handleImageUpload = useCallback(
     async (index: number, file: File) => {
@@ -482,7 +498,7 @@ export function SkuInlineEditor({
       </div>
     </TooltipProvider>
   );
-}
+});
 
 /**
  * Convert the SkuFormData array into the structured API payload.

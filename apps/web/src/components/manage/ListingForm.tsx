@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Star, X, ArrowUp, ArrowDown } from 'lucide-react';
@@ -37,6 +37,7 @@ import {
   SkuInlineEditor,
   buildSkuPayload,
   type SkuFormData,
+  type SkuInlineEditorHandle,
 } from './SkuInlineEditor';
 import type { ListingDetail, ListingImage } from '@/hooks/useListings';
 
@@ -152,6 +153,7 @@ export function ListingForm({
 
   // SKU state
   const [skus, setSkus] = useState<SkuFormData[]>([]);
+  const skuEditorRef = useRef<SkuInlineEditorHandle>(null);
 
   // Reset form when listing changes (edit mode)
   useEffect(() => {
@@ -257,6 +259,11 @@ export function ListingForm({
 
   // Form submit -- zodResolver applies defaults, so data has all required fields
   function onFormSubmit(data: ListingFormInput) {
+    // Submit-time SKU catch-all: block save and surface per-cell errors when any
+    // non-deleted SKU row is invalid (including untouched empty rows).
+    const skusValid = skuEditorRef.current?.validateAll() ?? true;
+    if (!skusValid) return;
+
     const skuPayload = buildSkuPayload(skus);
 
     // Determine new images (no id) and build images payload
@@ -512,6 +519,7 @@ export function ListingForm({
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">SKUs</h2>
         <SkuInlineEditor
+          ref={skuEditorRef}
           skus={skus}
           onChange={setSkus}
           disabled={isSubmitting}
