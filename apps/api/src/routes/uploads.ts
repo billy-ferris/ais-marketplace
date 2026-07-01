@@ -1,9 +1,18 @@
 import { Router, type Router as RouterType } from 'express';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { S3Client } from '@aws-sdk/client-s3';
+import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 import { requireAuth, requireRole } from '../middleware/auth';
 
 const router: RouterType = Router();
+
+/**
+ * Server-authoritative allowlist of accepted image MIME types (D-06).
+ * Deliberately excludes image/svg+xml (stored-XSS vector) and image/gif.
+ */
+const ALLOWED_CONTENT_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+/** Maximum upload size enforced by the presigned POST policy (D-07). */
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
 
 const s3Client = new S3Client({
   region: 'auto',
@@ -25,7 +34,7 @@ function sanitizeFileName(fileName: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-// POST /presigned-url - Generate a presigned URL for direct browser upload to R2
+// POST /presigned-url - Generate a presigned POST for direct browser upload to R2
 router.post(
   '/presigned-url',
   requireAuth(),
@@ -41,22 +50,32 @@ router.post(
         return;
       }
 
+      // D-06: reject anything outside the image allowlist before signing.
+      if (!ALLOWED_CONTENT_TYPES.includes(contentType)) {
+        res.status(400).json({ error: 'Unsupported content type' });
+        return;
+      }
+
       const sanitized = sanitizeFileName(fileName);
       const key = `images/${Date.now()}-${sanitized}`;
 
-      const command = new PutObjectCommand({
-        Bucket: process.env.R2_BUCKET_NAME,
+      // D-07: presigned POST lets the policy cap the upload size (a presigned
+      // PUT cannot). content-length-range enforces 1..5 MB at R2 ingest, and
+      // eq $Content-Type pins the MIME the client may send.
+      const { url, fields } = await createPresignedPost(s3Client, {
+        Bucket: process.env.R2_BUCKET_NAME!,
         Key: key,
-        ContentType: contentType,
-      });
-
-      const uploadUrl = await getSignedUrl(s3Client, command, {
-        expiresIn: 600, // 10 minutes
+        Conditions: [
+          ['content-length-range', 1, MAX_UPLOAD_BYTES],
+          ['eq', '$Content-Type', contentType],
+        ],
+        Fields: { 'Content-Type': contentType },
+        Expires: 600, // 10 minutes
       });
 
       const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
 
-      res.json({ uploadUrl, publicUrl, key });
+      res.json({ url, fields, publicUrl, key });
     } catch (err) {
       next(err);
     }

@@ -25,21 +25,19 @@ vi.mock('../../middleware/auth', () => ({
 
 vi.mock('@aws-sdk/client-s3', () => ({
   S3Client: vi.fn().mockImplementation(() => ({})),
-  PutObjectCommand: vi.fn().mockImplementation((params) => params),
 }));
 
-vi.mock('@aws-sdk/s3-request-presigner', () => ({
-  getSignedUrl: vi
-    .fn()
-    .mockResolvedValue('https://mock-presigned-url.com/upload'),
+vi.mock('@aws-sdk/s3-presigned-post', () => ({
+  createPresignedPost: vi.fn().mockResolvedValue({
+    url: 'https://mock-post-url.com/bucket',
+    fields: { key: 'images/mock-key', 'Content-Type': 'image/jpeg' },
+  }),
 }));
 
 // ---------- Imports (after mocks) ----------
 
 import { uploadRouter } from '../../routes/uploads';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { requireRole } from '../../middleware/auth';
+import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 
 // ---------- Helpers ----------
 
@@ -71,21 +69,23 @@ function createMockReqRes(overrides?: {
   return { req, res, next };
 }
 
+const FIVE_MB = 5 * 1024 * 1024; // 5242880
+
 // ---------- Suites ----------
 
 describe('Upload Routes', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Re-set the default resolved value after clearAllMocks
-    vi.mocked(getSignedUrl).mockResolvedValue(
-      'https://mock-presigned-url.com/upload',
-    );
+    vi.mocked(createPresignedPost).mockResolvedValue({
+      url: 'https://mock-post-url.com/bucket',
+      fields: { key: 'images/mock-key', 'Content-Type': 'image/jpeg' },
+    } as any);
   });
 
   describe('POST /api/uploads/presigned-url', () => {
     const handler = getHandler(uploadRouter, 'post', '/presigned-url');
 
-    it('should return uploadUrl, publicUrl, and key', async () => {
+    it('should return url, fields, publicUrl, and key (no uploadUrl)', async () => {
       const { req, res, next } = createMockReqRes({
         body: { fileName: 'test.jpg', contentType: 'image/jpeg' },
       });
@@ -94,13 +94,12 @@ describe('Upload Routes', () => {
 
       expect(res.json).toHaveBeenCalledOnce();
       const payload = (res.json as any).mock.calls[0][0];
-      expect(payload).toHaveProperty('uploadUrl');
+      expect(payload).toHaveProperty('url');
+      expect(payload).toHaveProperty('fields');
       expect(payload).toHaveProperty('publicUrl');
       expect(payload).toHaveProperty('key');
-      expect(typeof payload.uploadUrl).toBe('string');
-      expect(payload.uploadUrl).toBe(
-        'https://mock-presigned-url.com/upload',
-      );
+      expect(payload).not.toHaveProperty('uploadUrl');
+      expect(payload.url).toBe('https://mock-post-url.com/bucket');
     });
 
     it('should generate unique key with timestamp prefix', async () => {
@@ -111,31 +110,66 @@ describe('Upload Routes', () => {
       await handler(req, res, next);
 
       const payload = (res.json as any).mock.calls[0][0];
-      // Key should be "images/{timestamp}-{sanitized-filename}"
       expect(payload.key).toMatch(/^images\/\d+-/);
       expect(payload.key).toContain('photo.png');
     });
 
-    it('should use correct contentType in PutObjectCommand', async () => {
+    it('should sign a createPresignedPost with a 5 MB content-length-range condition', async () => {
       const { req, res, next } = createMockReqRes({
         body: { fileName: 'img.webp', contentType: 'image/webp' },
       });
 
       await handler(req, res, next);
 
-      expect(PutObjectCommand).toHaveBeenCalledWith(
-        expect.objectContaining({ ContentType: 'image/webp' }),
+      expect(createPresignedPost).toHaveBeenCalledOnce();
+      const [, params] = (createPresignedPost as any).mock.calls[0];
+      expect(params.Conditions).toEqual(
+        expect.arrayContaining([['content-length-range', 1, FIVE_MB]]),
+      );
+      // Content-Type is pinned server-side
+      expect(params.Conditions).toEqual(
+        expect.arrayContaining([['eq', '$Content-Type', 'image/webp']]),
+      );
+      expect(params.Fields).toEqual(
+        expect.objectContaining({ 'Content-Type': 'image/webp' }),
       );
     });
 
+    it.each(['image/svg+xml', 'image/gif', 'text/html'])(
+      'should reject unsupported content type %s with 400 and not sign',
+      async (contentType) => {
+        const { req, res, next } = createMockReqRes({
+          body: { fileName: 'evil.svg', contentType },
+        });
+
+        await handler(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({
+          error: 'Unsupported content type',
+        });
+        expect(createPresignedPost).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each(['image/jpeg', 'image/png', 'image/webp'])(
+      'should accept allowlisted content type %s',
+      async (contentType) => {
+        const { req, res, next } = createMockReqRes({
+          body: { fileName: 'ok.img', contentType },
+        });
+
+        await handler(req, res, next);
+
+        expect(createPresignedPost).toHaveBeenCalledOnce();
+        expect(res.status).not.toHaveBeenCalledWith(400);
+      },
+    );
+
     it('should require admin role', () => {
-      // The route registers requireRole('admin') as middleware during module load.
-      // Verify the route's middleware stack includes requireRole.
       const layer = (uploadRouter as any).stack.find(
         (l: any) => l.route?.path === '/presigned-url' && l.route?.methods.post,
       );
-      // The route stack has multiple middleware: requireAuth, requireRole, handler.
-      // requireRole returns a pass-through mock, so check it's in the chain.
       expect(layer).toBeDefined();
       expect(layer.route.stack.length).toBeGreaterThanOrEqual(3); // auth + role + handler
     });
@@ -168,6 +202,8 @@ describe('Upload Routes', () => {
         await handler(req, res, next);
         expect(res.status).toHaveBeenCalledWith(400);
       }
+
+      expect(createPresignedPost).not.toHaveBeenCalled();
     });
   });
 });

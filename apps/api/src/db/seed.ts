@@ -1,4 +1,6 @@
 import 'dotenv/config';
+import { realpathSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { createClerkClient } from '@clerk/express';
 import { eq } from 'drizzle-orm';
@@ -372,10 +374,36 @@ async function cleanClerkUsers(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// Production safety guard
+// ---------------------------------------------------------------------------
+
+/**
+ * Refuse to run against a production environment (D-08).
+ *
+ * This script performs mass destructive deletes (companies, users, catalog
+ * tables) and deletes seed users from Clerk. Running it against a production
+ * DATABASE_URL would be catastrophic, so we hard-refuse when
+ * NODE_ENV === 'production'. There is intentionally NO override/escape-hatch
+ * env var — the only way to run against production is to change NODE_ENV,
+ * which forces a deliberate, auditable action.
+ */
+export function assertNotProduction(): void {
+  if (process.env.NODE_ENV === 'production') {
+    console.error(
+      '[seed] Refusing to run: NODE_ENV=production. This script performs ' +
+        'destructive database deletes and Clerk user deletions. Aborting.',
+    );
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Main seed function
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
+  assertNotProduction();
+
   console.log('--- AIS Marketplace Seed Script ---\n');
 
   // 1. Clean existing data
@@ -559,11 +587,29 @@ async function main(): Promise<void> {
   console.log(`\nSeed users can log in at the web app with their email and the shared demo password.`);
 }
 
-main()
-  .then(() => {
-    process.exit(0);
-  })
-  .catch((err) => {
-    console.error('\nSeed failed:', err);
-    process.exit(1);
-  });
+/**
+ * True only when this file is the process entry point (e.g. `tsx src/db/seed.ts`).
+ * Prevents main() from auto-running when the module is imported (e.g. by unit
+ * tests importing assertNotProduction), which would otherwise trigger the
+ * destructive deletes and a process.exit that kills the test runner.
+ */
+function isDirectRun(): boolean {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  try {
+    return realpathSync(entry) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+}
+
+if (isDirectRun()) {
+  main()
+    .then(() => {
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error('\nSeed failed:', err);
+      process.exit(1);
+    });
+}
