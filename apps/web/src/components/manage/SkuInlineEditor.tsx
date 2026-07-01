@@ -1,9 +1,15 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, type ReactElement } from 'react';
 import { Plus, Trash2, Upload, X, Loader2 } from 'lucide-react';
 import { createSkuSchema } from '@ais/shared';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from '@/components/ui/tooltip';
 import { useUpload } from '@/hooks/useUpload';
 
 export interface SkuFormData {
@@ -199,8 +205,24 @@ export function SkuInlineEditor({
   const visibleSkus = skus.filter((s) => !s._deleted);
   const deletedSkus = skus.filter((s) => s._deleted);
 
+  /**
+   * Wrap a required-cell Input in a Base UI Tooltip carrying the cell's
+   * validation message when one exists; otherwise render the Input as-is.
+   */
+  const renderRequiredCell = (errorKey: string, input: ReactElement) => {
+    const message = skuErrors[errorKey];
+    if (!message) return input;
+    return (
+      <Tooltip>
+        <TooltipTrigger render={input} />
+        <TooltipContent>{message}</TooltipContent>
+      </Tooltip>
+    );
+  };
+
   return (
-    <div className="space-y-4">
+    <TooltipProvider>
+      <div className="space-y-4">
       {visibleSkus.length === 0 && deletedSkus.length === 0 && (
         <p className="text-sm text-muted-foreground">
           No SKUs added yet. Click "Add SKU" to get started.
@@ -254,19 +276,23 @@ export function SkuInlineEditor({
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-1">
                 <Label className="text-xs">Name *</Label>
-                <Input
-                  placeholder="SKU name"
-                  value={sku.name}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    handleFieldChange(index, 'name', value);
-                    if (skuErrors[`${index}:name`]) {
-                      validateSkuField(index, 'name', { ...sku, name: value });
-                    }
-                  }}
-                  onBlur={() => validateSkuField(index, 'name', sku)}
-                  disabled={disabled}
-                />
+                {renderRequiredCell(
+                  `${index}:name`,
+                  <Input
+                    placeholder="SKU name"
+                    value={sku.name}
+                    aria-invalid={!!skuErrors[`${index}:name`]}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleFieldChange(index, 'name', value);
+                      if (skuErrors[`${index}:name`]) {
+                        validateSkuField(index, 'name', { ...sku, name: value });
+                      }
+                    }}
+                    onBlur={() => validateSkuField(index, 'name', sku)}
+                    disabled={disabled}
+                  />,
+                )}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">SKU</Label>
@@ -327,55 +353,70 @@ export function SkuInlineEditor({
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Unit Price *</Label>
-                <Input
-                  placeholder="12.99"
-                  value={sku.price}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    handleFieldChange(index, 'price', value);
-                    if (skuErrors[`${index}:price`]) {
-                      validateSkuField(index, 'price', { ...sku, price: value });
-                    }
-                  }}
-                  onBlur={() => validateSkuField(index, 'price', sku)}
-                  disabled={disabled}
-                />
+                {renderRequiredCell(
+                  `${index}:price`,
+                  <Input
+                    placeholder="12.99"
+                    value={sku.price}
+                    aria-invalid={!!skuErrors[`${index}:price`]}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleFieldChange(index, 'price', value);
+                      if (skuErrors[`${index}:price`]) {
+                        validateSkuField(index, 'price', {
+                          ...sku,
+                          price: value,
+                        });
+                      }
+                    }}
+                    onBlur={() => validateSkuField(index, 'price', sku)}
+                    disabled={disabled}
+                  />,
+                )}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">MSRP *</Label>
-                <Input
-                  placeholder="24.99"
-                  value={sku.msrp}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    handleFieldChange(index, 'msrp', value);
-                    if (skuErrors[`${index}:msrp`]) {
-                      validateSkuField(index, 'msrp', { ...sku, msrp: value });
-                    }
-                  }}
-                  onBlur={() => validateSkuField(index, 'msrp', sku)}
-                  disabled={disabled}
-                />
+                {renderRequiredCell(
+                  `${index}:msrp`,
+                  <Input
+                    placeholder="24.99"
+                    value={sku.msrp}
+                    aria-invalid={!!skuErrors[`${index}:msrp`]}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleFieldChange(index, 'msrp', value);
+                      if (skuErrors[`${index}:msrp`]) {
+                        validateSkuField(index, 'msrp', { ...sku, msrp: value });
+                      }
+                    }}
+                    onBlur={() => validateSkuField(index, 'msrp', sku)}
+                    disabled={disabled}
+                  />,
+                )}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Quantity *</Label>
-                <Input
-                  type="number"
-                  placeholder="0"
-                  value={sku.quantity}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    handleFieldChange(index, 'quantity', value);
-                    if (skuErrors[`${index}:quantity`]) {
-                      validateSkuField(index, 'quantity', {
-                        ...sku,
-                        quantity: value,
-                      });
-                    }
-                  }}
-                  onBlur={() => validateSkuField(index, 'quantity', sku)}
-                  disabled={disabled}
-                />
+                {renderRequiredCell(
+                  `${index}:quantity`,
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={sku.quantity}
+                    aria-invalid={!!skuErrors[`${index}:quantity`]}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleFieldChange(index, 'quantity', value);
+                      if (skuErrors[`${index}:quantity`]) {
+                        validateSkuField(index, 'quantity', {
+                          ...sku,
+                          quantity: value,
+                        });
+                      }
+                    }}
+                    onBlur={() => validateSkuField(index, 'quantity', sku)}
+                    disabled={disabled}
+                  />,
+                )}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Image</Label>
@@ -438,7 +479,8 @@ export function SkuInlineEditor({
         <Plus className="size-4" />
         Add SKU
       </Button>
-    </div>
+      </div>
+    </TooltipProvider>
   );
 }
 
