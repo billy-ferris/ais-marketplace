@@ -5,10 +5,8 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   console.error('[API Error]', err);
 
   if (err instanceof ZodError) {
-    const messages = err.errors.map(
-      (e) => `${e.path.join('.')}: ${e.message}`
-    );
-    res.status(400).json({ error: 'Validation failed', details: messages });
+    const { fieldErrors, formErrors } = err.flatten();
+    res.status(400).json({ error: 'Validation failed', fieldErrors, formErrors });
     return;
   }
 

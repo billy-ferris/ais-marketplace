@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, ApiError } from '@/lib/api';
 import { API_ROUTES } from '@ais/shared';
 import type { CreateCategoryInput, UpdateCategoryInput } from '@ais/shared';
 
@@ -65,7 +65,11 @@ export function useCreateCategory() {
       toast.success('Category created');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to create category');
+      const message =
+        error instanceof ApiError && error.formErrors.length
+          ? error.formErrors[0]
+          : error.message || 'Failed to create category';
+      toast.error(message);
     },
   });
 }
@@ -83,7 +87,11 @@ export function useUpdateCategory() {
       toast.success('Category updated');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to update category');
+      const message =
+        error instanceof ApiError && error.formErrors.length
+          ? error.formErrors[0]
+          : error.message || 'Failed to update category';
+      toast.error(message);
     },
   });
 }
@@ -98,7 +106,11 @@ export function useDeleteCategory() {
       toast.success('Category deleted');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to delete category');
+      const message =
+        error instanceof ApiError && error.formErrors.length
+          ? error.formErrors[0]
+          : error.message || 'Failed to delete category';
+      toast.error(message);
     },
   });
 }
