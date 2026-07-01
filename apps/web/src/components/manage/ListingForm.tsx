@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { Loader2, Star, X, ArrowUp, ArrowDown } from 'lucide-react';
 import { createListingSchema } from '@ais/shared';
 import { LISTING_STATUS_LABELS, ListingStatus } from '@ais/shared';
@@ -262,7 +263,15 @@ export function ListingForm({
     // Submit-time SKU catch-all: block save and surface per-cell errors when any
     // non-deleted SKU row is invalid (including untouched empty rows).
     const skusValid = skuEditorRef.current?.validateAll() ?? true;
-    if (!skusValid) return;
+    if (!skusValid) {
+      // validateAll() already flagged the offending cell(s) with a red border +
+      // tooltip; the toast ensures the user still gets a signal even if the bad
+      // cell is scrolled out of view.
+      toast.error(
+        'One or more SKU rows have invalid values. Please review the SKUs section.',
+      );
+      return;
+    }
 
     const skuPayload = buildSkuPayload(skus);
 

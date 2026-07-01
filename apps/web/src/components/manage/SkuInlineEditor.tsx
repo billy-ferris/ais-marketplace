@@ -81,10 +81,29 @@ const EMPTY_SKU: SkuFormData = {
   imageUrl: null,
 };
 
-/** Fields that carry required-field validation + red border + tooltip. */
-type RequiredSkuField = 'name' | 'price' | 'msrp' | 'quantity';
-const REQUIRED_SKU_FIELDS: RequiredSkuField[] = [
+/**
+ * Every schema-validated cell that can carry a red border + tooltip. This
+ * covers ALL fields the shared schema can reject (not just the required four)
+ * so the submit-time catch-all can surface a visible error for any field that
+ * blocks the save.
+ */
+type SkuValidatedField =
+  | 'name'
+  | 'sku'
+  | 'upc'
+  | 'size'
+  | 'casePack'
+  | 'casesPerPallet'
+  | 'price'
+  | 'msrp'
+  | 'quantity';
+const SKU_VALIDATED_FIELDS: SkuValidatedField[] = [
   'name',
+  'sku',
+  'upc',
+  'size',
+  'casePack',
+  'casesPerPallet',
   'price',
   'msrp',
   'quantity',
@@ -126,7 +145,7 @@ export const SkuInlineEditor = forwardRef<
    * first issue whose path targets this field (or clear it when valid).
    */
   const validateSkuField = useCallback(
-    (index: number, field: RequiredSkuField, row: SkuFormData) => {
+    (index: number, field: SkuValidatedField, row: SkuFormData) => {
       const result = createSkuSchema.safeParse(buildSkuCandidate(row));
       let message = '';
       if (!result.success) {
@@ -178,21 +197,31 @@ export const SkuInlineEditor = forwardRef<
 
   /**
    * Submit-time catch-all: validate every non-deleted row against the shared
-   * schema, writing errors for the four required fields, and return true only
-   * when every non-deleted row fully passes.
+   * schema, writing an error message for EVERY field that fails (not just the
+   * four required ones), and return true only when every non-deleted row fully
+   * passes. Because each failing field gets a message keyed by
+   * `${index}:${field}`, the corresponding cell renders a red border + tooltip,
+   * so the user always sees why the save was blocked.
    */
   const validateAllRows = useCallback((): boolean => {
     let allValid = true;
     const updates: Record<string, string> = {};
     skus.forEach((row, index) => {
       if (row._deleted) return;
+      // Clear prior errors for every validated cell in this row first.
+      for (const field of SKU_VALIDATED_FIELDS) {
+        updates[`${index}:${field}`] = '';
+      }
       const result = createSkuSchema.safeParse(buildSkuCandidate(row));
-      if (!result.success) allValid = false;
-      for (const field of REQUIRED_SKU_FIELDS) {
-        const issue = result.success
-          ? undefined
-          : result.error.issues.find((i) => i.path[0] === field);
-        updates[`${index}:${field}`] = issue ? issue.message : '';
+      if (!result.success) {
+        allValid = false;
+        for (const issue of result.error.issues) {
+          const field = issue.path[0];
+          // First issue per field wins; only overwrite if not already set.
+          if (typeof field === 'string' && !updates[`${index}:${field}`]) {
+            updates[`${index}:${field}`] = issue.message;
+          }
+        }
       }
     });
     setSkuErrors((prev) => ({ ...prev, ...updates }));
@@ -312,60 +341,113 @@ export const SkuInlineEditor = forwardRef<
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">SKU</Label>
-                <Input
-                  placeholder="SKU code"
-                  value={sku.sku}
-                  onChange={(e) =>
-                    handleFieldChange(index, 'sku', e.target.value)
-                  }
-                  disabled={disabled}
-                />
+                {renderRequiredCell(
+                  `${index}:sku`,
+                  <Input
+                    placeholder="SKU code"
+                    value={sku.sku}
+                    aria-invalid={!!skuErrors[`${index}:sku`]}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleFieldChange(index, 'sku', value);
+                      if (skuErrors[`${index}:sku`]) {
+                        validateSkuField(index, 'sku', { ...sku, sku: value });
+                      }
+                    }}
+                    onBlur={() => validateSkuField(index, 'sku', sku)}
+                    disabled={disabled}
+                  />,
+                )}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">UPC</Label>
-                <Input
-                  placeholder="UPC code"
-                  value={sku.upc}
-                  onChange={(e) =>
-                    handleFieldChange(index, 'upc', e.target.value)
-                  }
-                  disabled={disabled}
-                />
+                {renderRequiredCell(
+                  `${index}:upc`,
+                  <Input
+                    placeholder="UPC code"
+                    value={sku.upc}
+                    aria-invalid={!!skuErrors[`${index}:upc`]}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleFieldChange(index, 'upc', value);
+                      if (skuErrors[`${index}:upc`]) {
+                        validateSkuField(index, 'upc', { ...sku, upc: value });
+                      }
+                    }}
+                    onBlur={() => validateSkuField(index, 'upc', sku)}
+                    disabled={disabled}
+                  />,
+                )}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Size</Label>
-                <Input
-                  placeholder="e.g., 8 oz"
-                  value={sku.size}
-                  onChange={(e) =>
-                    handleFieldChange(index, 'size', e.target.value)
-                  }
-                  disabled={disabled}
-                />
+                {renderRequiredCell(
+                  `${index}:size`,
+                  <Input
+                    placeholder="e.g., 8 oz"
+                    value={sku.size}
+                    aria-invalid={!!skuErrors[`${index}:size`]}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleFieldChange(index, 'size', value);
+                      if (skuErrors[`${index}:size`]) {
+                        validateSkuField(index, 'size', { ...sku, size: value });
+                      }
+                    }}
+                    onBlur={() => validateSkuField(index, 'size', sku)}
+                    disabled={disabled}
+                  />,
+                )}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Case Pack</Label>
-                <Input
-                  type="number"
-                  placeholder="Units per case"
-                  value={sku.casePack}
-                  onChange={(e) =>
-                    handleFieldChange(index, 'casePack', e.target.value)
-                  }
-                  disabled={disabled}
-                />
+                {renderRequiredCell(
+                  `${index}:casePack`,
+                  <Input
+                    type="number"
+                    placeholder="Units per case"
+                    value={sku.casePack}
+                    aria-invalid={!!skuErrors[`${index}:casePack`]}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleFieldChange(index, 'casePack', value);
+                      if (skuErrors[`${index}:casePack`]) {
+                        validateSkuField(index, 'casePack', {
+                          ...sku,
+                          casePack: value,
+                        });
+                      }
+                    }}
+                    onBlur={() => validateSkuField(index, 'casePack', sku)}
+                    disabled={disabled}
+                  />,
+                )}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Cases Per Pallet</Label>
-                <Input
-                  type="number"
-                  placeholder="Cases per pallet"
-                  value={sku.casesPerPallet}
-                  onChange={(e) =>
-                    handleFieldChange(index, 'casesPerPallet', e.target.value)
-                  }
-                  disabled={disabled}
-                />
+                {renderRequiredCell(
+                  `${index}:casesPerPallet`,
+                  <Input
+                    type="number"
+                    placeholder="Cases per pallet"
+                    value={sku.casesPerPallet}
+                    aria-invalid={!!skuErrors[`${index}:casesPerPallet`]}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleFieldChange(index, 'casesPerPallet', value);
+                      if (skuErrors[`${index}:casesPerPallet`]) {
+                        validateSkuField(index, 'casesPerPallet', {
+                          ...sku,
+                          casesPerPallet: value,
+                        });
+                      }
+                    }}
+                    onBlur={() =>
+                      validateSkuField(index, 'casesPerPallet', sku)
+                    }
+                    disabled={disabled}
+                  />,
+                )}
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Unit Price *</Label>
