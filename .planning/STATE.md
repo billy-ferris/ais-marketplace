@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 02.4 context gathered
-last_updated: "2026-07-01T15:02:19.852Z"
-last_activity: 2026-07-01 -- Phase 02.4 execution started
+stopped_at: Completed 02.4-04-PLAN.md
+last_updated: "2026-07-01T15:24:45Z"
+last_activity: 2026-07-01 -- Completed 02.4-04 (DB data-integrity constraints pushed to live dev DB)
 progress:
   total_phases: 11
   completed_phases: 5
   total_plans: 28
-  completed_plans: 22
+  completed_plans: 23
   percent: 45
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 ## Current Position
 
 Phase: 02.4 (security-hardening) — EXECUTING
-Plan: 1 of 6
+Plan: 5 of 6
 Status: Executing Phase 02.4
-Last activity: 2026-07-01 -- Phase 02.4 execution started
+Last activity: 2026-07-01 -- Completed 02.4-04 (DB data-integrity constraints pushed to live dev DB)
 
 Progress: [█████████░] 94%
 
@@ -126,6 +126,8 @@ Recent decisions affecting current work:
 - [Phase 02.1]: Admin listing_submitted notifications route to /manage/approvals/:id instead of listing edit page
 - [Phase 02.1]: Categories API GET endpoints opened to manufacturer and retailer roles for listing creation
 - [Phase 02.1]: Email service lazy-initialized to avoid crash when RESEND_API_KEY not set
+- [Phase 02.4-04]: FK onDelete policy (D-13): cascade for listing-owned children (inventorySkus.listingId, brandListingImages.listingId, listingCategories.listingId), restrict for cross-entity refs (brands.companyId, listingCategories.categoryId) — never set null (all five columns NOT NULL)
+- [Phase 02.4-04]: Slug uniqueness (D-09) and one-primary-image (D-10) enforced via Postgres partial unique indexes (WHERE deleted_at IS NULL / WHERE is_primary = true), replacing unenforceable app-level checks; pushed via db:push (no drizzle/ migrations dir)
 
 ### Pending Todos
 
@@ -147,6 +149,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-01T14:14:31.346Z
-Stopped at: Phase 02.4 context gathered
-Resume file: .planning/phases/02.4-security-hardening/02.4-CONTEXT.md
+Last session: 2026-07-01T15:24:45Z
+Stopped at: Completed 02.4-04-PLAN.md (DB data-integrity constraints)
+Resume file: None
