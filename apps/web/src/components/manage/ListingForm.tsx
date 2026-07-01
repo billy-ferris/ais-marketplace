@@ -34,6 +34,7 @@ import { ImageUploader } from '@/components/shared/ImageUploader';
 import { useBrands } from '@/hooks/useBrands';
 import { useCategories, type CategoryRow } from '@/hooks/useCategories';
 import { useUpload } from '@/hooks/useUpload';
+import { getApiErrorMessage } from '@/lib/api';
 import {
   SkuInlineEditor,
   buildSkuPayload,
@@ -150,6 +151,7 @@ export function ListingForm({
 
   // Image state
   const [formImages, setFormImages] = useState<ImageFormData[]>([]);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
 
   // SKU state
@@ -198,6 +200,7 @@ export function ListingForm({
   // Image handling
   const handleImageUpload = useCallback(
     async (file: File) => {
+      setUploadError(null);
       try {
         const url = await uploadFile(file);
         setFormImages((prev) => {
@@ -208,8 +211,8 @@ export function ListingForm({
           };
           return [...prev, newImage];
         });
-      } catch {
-        // Upload error handled by useUpload
+      } catch (err) {
+        setUploadError(getApiErrorMessage(err, 'Upload failed'));
       }
     },
     [uploadFile],
@@ -521,6 +524,7 @@ export function ListingForm({
               onChange={handleImageUpload}
               isUploading={isUploading}
               disabled={isSubmitting}
+              error={uploadError ?? undefined}
             />
           )}
         </div>

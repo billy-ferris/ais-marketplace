@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { createBrandSchema, type CreateBrandInput } from '@ais/shared';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, getApiErrorMessage } from '@/lib/api';
 import { API_ROUTES } from '@ais/shared';
 import {
   Dialog,
@@ -49,6 +49,7 @@ interface BrandDialogProps {
 export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const { uploadFile, isUploading } = useUpload();
   const createBrand = useCreateBrand();
   const updateBrand = useUpdateBrand();
@@ -112,12 +113,13 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
   }, [open, brand, reset]);
 
   async function handleImageUpload(file: File) {
+    setUploadError(null);
     try {
       const url = await uploadFile(file);
       setLogoUrl(url);
       setValue('logoUrl', url);
-    } catch {
-      // Upload error is already handled by useUpload
+    } catch (err) {
+      setUploadError(getApiErrorMessage(err, 'Upload failed'));
     }
   }
 
@@ -245,6 +247,7 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
               onRemove={handleImageRemove}
               isUploading={isUploading}
               disabled={isPending}
+              error={uploadError ?? undefined}
             />
           </div>
 

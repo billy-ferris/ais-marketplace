@@ -18,6 +18,7 @@ import {
   TooltipProvider,
 } from '@/components/ui/tooltip';
 import { useUpload } from '@/hooks/useUpload';
+import { getApiErrorMessage } from '@/lib/api';
 
 export interface SkuFormData {
   /** Present only for existing SKUs (edit mode) */
@@ -258,11 +259,19 @@ export const SkuInlineEditor = forwardRef<
   const handleImageUpload = useCallback(
     async (index: number, file: File) => {
       setUploadingIndex(index);
+      // Clear any prior upload error for this row's image cell.
+      setSkuErrors((prev) => ({ ...prev, [`${index}:imageUrl`]: '' }));
       try {
         const url = await uploadFile(file);
         handleFieldChange(index, 'imageUrl', url);
-      } catch {
-        // Upload error handled by useUpload
+      } catch (err) {
+        // Surface the rejection into the existing per-cell error map. The image
+        // cell is a raw button (not covered by renderRequiredCell), so this key
+        // is rendered inline below the cell in the text-destructive style.
+        setSkuErrors((prev) => ({
+          ...prev,
+          [`${index}:imageUrl`]: getApiErrorMessage(err, 'Upload failed'),
+        }));
       } finally {
         setUploadingIndex(null);
       }
@@ -584,6 +593,11 @@ export const SkuInlineEditor = forwardRef<
                     )}
                     <span>{isUploading && uploadingIndex === index ? 'Uploading...' : 'Choose file'}</span>
                   </button>
+                )}
+                {skuErrors[`${index}:imageUrl`] && (
+                  <p className="text-xs text-destructive">
+                    {skuErrors[`${index}:imageUrl`]}
+                  </p>
                 )}
               </div>
             </div>
