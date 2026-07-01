@@ -1,4 +1,6 @@
 import { createBrowserRouter } from 'react-router';
+import { UserRole } from '@ais/shared';
+import { RoleGuard } from '@/components/shared/RoleGuard';
 import { AppShell } from '@/components/layout/AppShell';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { NotFoundPage } from '@/pages/NotFoundPage';
@@ -21,14 +23,70 @@ export const router = createBrowserRouter([
       {
         path: 'manage',
         children: [
-          { path: 'brands', element: <BrandsPage /> },
-          { path: 'categories', element: <CategoriesPage /> },
-          { path: 'listings', element: <ListingsPage /> },
-          { path: 'listings/new', element: <ListingCreatePage /> },
-          { path: 'listings/:id', element: <ListingViewPage /> },
-          { path: 'listings/:id/edit', element: <ListingEditPage /> },
-          { path: 'approvals', element: <ApprovalsPage /> },
-          { path: 'approvals/:id', element: <ApprovalReviewPage /> },
+          {
+            path: 'brands',
+            element: (
+              <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.MANUFACTURER]}>
+                <BrandsPage />
+              </RoleGuard>
+            ),
+          },
+          {
+            path: 'categories',
+            element: (
+              <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+                <CategoriesPage />
+              </RoleGuard>
+            ),
+          },
+          {
+            path: 'listings',
+            element: (
+              <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.MANUFACTURER]}>
+                <ListingsPage />
+              </RoleGuard>
+            ),
+          },
+          {
+            path: 'listings/new',
+            element: (
+              <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.MANUFACTURER]}>
+                <ListingCreatePage />
+              </RoleGuard>
+            ),
+          },
+          {
+            path: 'listings/:id',
+            element: (
+              <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.MANUFACTURER]}>
+                <ListingViewPage />
+              </RoleGuard>
+            ),
+          },
+          {
+            path: 'listings/:id/edit',
+            element: (
+              <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.MANUFACTURER]}>
+                <ListingEditPage />
+              </RoleGuard>
+            ),
+          },
+          {
+            path: 'approvals',
+            element: (
+              <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+                <ApprovalsPage />
+              </RoleGuard>
+            ),
+          },
+          {
+            path: 'approvals/:id',
+            element: (
+              <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+                <ApprovalReviewPage />
+              </RoleGuard>
+            ),
+          },
         ],
       },
       { path: 'notifications', element: <NotificationsPage /> },
