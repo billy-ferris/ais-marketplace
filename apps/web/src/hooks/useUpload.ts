@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { apiFetch } from '@/lib/api';
 import { API_ROUTES } from '@ais/shared';
 
-interface PresignedPostResponse {
-  url: string;
-  fields: Record<string, string>;
+interface PutPresignResponse {
+  uploadUrl: string;
   publicUrl: string;
   key: string;
 }
@@ -15,30 +14,24 @@ export function useUpload() {
   async function uploadFile(file: File): Promise<string> {
     setIsUploading(true);
     try {
-      const { url, fields, publicUrl } =
-        await apiFetch<PresignedPostResponse>(
-          `${API_ROUTES.UPLOADS}/presigned-url`,
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              fileName: file.name,
-              contentType: file.type,
-            }),
-          },
-        );
+      const { uploadUrl, publicUrl } = await apiFetch<PutPresignResponse>(
+        `${API_ROUTES.UPLOADS}/presigned-url`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            fileName: file.name,
+            contentType: file.type,
+            fileSize: file.size,
+          }),
+        },
+      );
 
-      // Build multipart form: every signed field FIRST, then the file LAST
-      // (R2/S3 POST policy requires the file to be the final part). Do NOT set
-      // a Content-Type header — the browser must set the multipart boundary.
-      const formData = new FormData();
-      for (const [name, value] of Object.entries(fields)) {
-        formData.append(name, value);
-      }
-      formData.append('file', file);
-
-      const uploadRes = await fetch(url, {
-        method: 'POST',
-        body: formData,
+      // Upload the raw file body via presigned PUT. The signed ContentType must
+      // match file.type, so set the header explicitly (no multipart boundary).
+      const uploadRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': file.type },
       });
 
       // WR-02: never return a publicUrl for a failed upload.

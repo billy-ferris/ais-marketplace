@@ -1,6 +1,6 @@
 import { Router, type Router as RouterType } from 'express';
-import { S3Client } from '@aws-sdk/client-s3';
-import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { requireAuth, requireRole } from '../middleware/auth';
 
 const router: RouterType = Router();
@@ -11,7 +11,11 @@ const router: RouterType = Router();
  */
 const ALLOWED_CONTENT_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-/** Maximum upload size enforced by the presigned POST policy (D-07). */
+/**
+ * Maximum upload size (D-07). Enforced via a signed exact ContentLength on the
+ * PutObjectCommand (not a POST policy) — R2 has no presigned POST support, so
+ * the signed length pins the exact byte count R2 will accept at ingest.
+ */
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
 
 const s3Client = new S3Client({
@@ -34,19 +38,25 @@ function sanitizeFileName(fileName: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-// POST /presigned-url - Generate a presigned POST for direct browser upload to R2
+// POST /presigned-url - Generate a presigned PUT URL for direct browser upload to R2
 router.post(
   '/presigned-url',
   requireAuth(),
   requireRole('admin'),
   async (req, res, next) => {
     try {
-      const { fileName, contentType } = req.body;
+      const { fileName, contentType, fileSize } = req.body;
 
-      if (!fileName || !contentType) {
-        res
-          .status(400)
-          .json({ error: 'fileName and contentType are required' });
+      if (
+        !fileName ||
+        !contentType ||
+        typeof fileSize !== 'number' ||
+        !Number.isFinite(fileSize) ||
+        fileSize <= 0
+      ) {
+        res.status(400).json({
+          error: 'fileName, contentType, and fileSize are required',
+        });
         return;
       }
 
@@ -56,26 +66,31 @@ router.post(
         return;
       }
 
+      // D-07: reject an oversized client-declared size before signing. The
+      // signed exact ContentLength (below) forces R2 to reject at ingest if the
+      // real body differs from the declared size.
+      if (fileSize > MAX_UPLOAD_BYTES) {
+        res.status(400).json({ error: 'File exceeds the 5 MB limit' });
+        return;
+      }
+
       const sanitized = sanitizeFileName(fileName);
       const key = `images/${Date.now()}-${sanitized}`;
 
-      // D-07: presigned POST lets the policy cap the upload size (a presigned
-      // PUT cannot). content-length-range enforces 1..5 MB at R2 ingest, and
-      // eq $Content-Type pins the MIME the client may send.
-      const { url, fields } = await createPresignedPost(s3Client, {
-        Bucket: process.env.R2_BUCKET_NAME!,
+      const command = new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME,
         Key: key,
-        Conditions: [
-          ['content-length-range', 1, MAX_UPLOAD_BYTES],
-          ['eq', '$Content-Type', contentType],
-        ],
-        Fields: { 'Content-Type': contentType },
-        Expires: 600, // 10 minutes
+        ContentType: contentType,
+        ContentLength: fileSize,
+      });
+
+      const uploadUrl = await getSignedUrl(s3Client, command, {
+        expiresIn: 600, // 10 minutes
       });
 
       const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
 
-      res.json({ url, fields, publicUrl, key });
+      res.json({ uploadUrl, publicUrl, key });
     } catch (err) {
       next(err);
     }

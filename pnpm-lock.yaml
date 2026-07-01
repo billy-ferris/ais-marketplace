@@ -20,7 +20,7 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.1077.0
         version: 3.1077.0
-      '@aws-sdk/s3-presigned-post':
+      '@aws-sdk/s3-request-presigner':
         specifier: ^3.1077.0
         version: 3.1077.0
       '@clerk/express':
@@ -229,8 +229,8 @@ packages:
     resolution: {integrity: sha512-VpRQ3wR6l+fwRHV5veJL2ehtyQFrGyH/2CJG9DVtb8H3xyqqnZWSTSrq/CJJ7DvDlDgrPRiW2SkYA8pN6VWCFQ==}
     engines: {node: '>=20.0.0'}
 
-  '@aws-sdk/s3-presigned-post@3.1077.0':
-    resolution: {integrity: sha512-PkxUeqaXCclIWLKykblV1UnyVMa51QuvDj/ahqk8+fqimOINM6KdQsu5FaHK7sldlowjtzZjwnemL/RGW3ebyw==}
+  '@aws-sdk/s3-request-presigner@3.1077.0':
+    resolution: {integrity: sha512-gmj0nvnnuLDvXHekQNCTljcp/0XrQ1Mi6EpFYv6TF/u9oa4PugIhO5BpIDoKf4qvaQuOX+71E8KMkn9GS75dPw==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/signature-v4-multi-region@3.996.37':
@@ -3408,13 +3408,12 @@ snapshots:
       '@smithy/types': 4.15.0
       tslib: 2.8.1
 
-  '@aws-sdk/s3-presigned-post@3.1077.0':
+  '@aws-sdk/s3-request-presigner@3.1077.0':
     dependencies:
-      '@aws-sdk/client-s3': 3.1077.0
       '@aws-sdk/core': 3.974.25
+      '@aws-sdk/signature-v4-multi-region': 3.996.37
       '@aws-sdk/types': 3.973.14
       '@smithy/core': 3.28.0
-      '@smithy/signature-v4': 5.6.0
       '@smithy/types': 4.15.0
       tslib: 2.8.1
 
