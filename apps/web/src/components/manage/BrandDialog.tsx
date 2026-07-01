@@ -201,7 +201,9 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
             <div className="space-y-2">
               <RequiredLabel required>Manufacturer</RequiredLabel>
               <Select
-                value={companies.find((c) => c.id === selectedCompanyId)?.name ?? null}
+                value={
+                  selectedCompanyId != null ? String(selectedCompanyId) : undefined
+                }
                 onOpenChange={(open) => {
                   // The schema can't reject a missing companyId, so validate the
                   // admin requirement manually on close (blur-equivalent).
@@ -212,12 +214,12 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
                     });
                   }
                 }}
-                onValueChange={(name) => {
-                  const company = companies.find((c) => c.name === name);
-                  if (company) {
-                    setValue('companyId', company.id, { shouldValidate: true });
-                    clearErrors('companyId');
-                  }
+                onValueChange={(value) => {
+                  // Use the stable id as the value so companies that share a
+                  // display name can't collide (a name-based lookup would always
+                  // resolve to the first match).
+                  setValue('companyId', Number(value), { shouldValidate: true });
+                  clearErrors('companyId');
                 }}
               >
                 <SelectTrigger className="w-full">
@@ -225,7 +227,7 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
                 </SelectTrigger>
                 <SelectContent>
                   {companies.map((company) => (
-                    <SelectItem key={company.id} value={company.name}>
+                    <SelectItem key={company.id} value={String(company.id)}>
                       {company.name}
                     </SelectItem>
                   ))}

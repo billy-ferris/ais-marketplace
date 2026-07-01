@@ -363,19 +363,21 @@ export function ListingForm({
           <div className="space-y-2">
             <RequiredLabel required>Brand</RequiredLabel>
             <Select
-              value={brandOptions.find((b) => b.id === selectedBrandId)?.name ?? null}
+              value={
+                selectedBrandId != null ? String(selectedBrandId) : undefined
+              }
               onOpenChange={(open) => {
                 if (!open) {
                   void trigger('brandId');
                 }
               }}
-              onValueChange={(name) => {
-                const brand = brandOptions.find((b) => b.name === name);
-                if (brand) {
-                  setValue('brandId', brand.id, {
-                    shouldValidate: true,
-                  });
-                }
+              onValueChange={(value) => {
+                // Use the stable id as the value so brands that share a display
+                // name can't collide (a name-based lookup would always resolve
+                // to the first match).
+                setValue('brandId', Number(value), {
+                  shouldValidate: true,
+                });
               }}
             >
               <SelectTrigger className="w-full">
@@ -383,7 +385,7 @@ export function ListingForm({
               </SelectTrigger>
               <SelectContent>
                 {brandOptions.map((brand) => (
-                  <SelectItem key={brand.id} value={brand.name}>
+                  <SelectItem key={brand.id} value={String(brand.id)}>
                     {brand.name}
                   </SelectItem>
                 ))}
