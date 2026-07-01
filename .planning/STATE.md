@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_to_plan
-stopped_at: Phase 02.3 complete (4/4) — ready to discuss Phase 02.4
-last_updated: 2026-07-01T02:40:44.428Z
-last_activity: 2026-07-01 -- Phase 02.3 execution started
+status: planning
+stopped_at: Session resumed, proceeding to plan Phase 02.3
+last_updated: "2026-07-01T03:08:18.022Z"
+last_activity: 2026-07-01
 progress:
-  total_phases: 10
-  completed_phases: 4
+  total_phases: 11
+  completed_phases: 5
   total_plans: 22
   completed_plans: 22
-  percent: 40
+  percent: 45
 ---
 
 # Project State
@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-08)
 
 **Core value:** Retailers can discover and purchase discounted CPG inventory from verified manufacturers through a transparent, friction-free marketplace -- with every transaction brokered by AIS.
-**Current focus:** Phase 02.4 — deployment ci cd pipeline and production deployment setup
+**Current focus:** Phase 02.4 — security hardening
 
 ## Current Position
 
@@ -137,6 +137,8 @@ None yet.
 - Phase 2.2 inserted after Phase 2: Populate Phase 2 test stubs with real implementations (URGENT)
 - Phase 2.3 inserted after Phase 2: Form Input Validation (URGENT)
 - Phase 02.4 inserted after Phase 2: Deployment - CI/CD pipeline and production deployment setup (URGENT)
+- Phase 02.4 inserted after Phase 02.3: Security Hardening — remediate retro code-review criticals before deployment (URGENT)
+- Phase 02.5 moved: Deployment renumbered 02.4 -> 02.5 to sequence after the new 02.4 security hardening phase
 
 ### Blockers/Concerns
 
