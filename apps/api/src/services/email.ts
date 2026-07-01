@@ -11,6 +11,22 @@ const FROM_EMAIL =
   process.env.FROM_EMAIL || 'AIS Marketplace <onboarding@resend.dev>';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
+// D-11: user-controlled values (listing names, rejection reasons, recipient
+// names) flow into an HTML body and a mail subject header. Escape/sanitize at
+// the interpolation sink (not at the data source, so stored data stays clean).
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function sanitizeHeaderValue(s: string): string {
+  return s.replace(/[\r\n]/g, ' ');
+}
+
 type ApprovalEmailType =
   | 'listing_submitted'
   | 'listing_approved'
@@ -42,11 +58,11 @@ const BODY_TEXT_MAP: Record<
   (name: string, reason?: string) => string
 > = {
   listing_submitted: (name) =>
-    `A new listing "<strong>${name}</strong>" has been submitted and is awaiting your review.`,
+    `A new listing "<strong>${escapeHtml(name)}</strong>" has been submitted and is awaiting your review.`,
   listing_approved: (name) =>
-    `Great news! Your listing "<strong>${name}</strong>" has been approved and is now active on the marketplace.`,
+    `Great news! Your listing "<strong>${escapeHtml(name)}</strong>" has been approved and is now active on the marketplace.`,
   listing_rejected: (name, reason) =>
-    `Your listing "<strong>${name}</strong>" needs some changes before it can be approved.<br><br><strong>Reason:</strong> ${reason || 'No reason provided.'}`,
+    `Your listing "<strong>${escapeHtml(name)}</strong>" needs some changes before it can be approved.<br><br><strong>Reason:</strong> ${reason ? escapeHtml(reason) : 'No reason provided.'}`,
 };
 
 function buildEmailHtml(params: SendApprovalEmailParams): string {
@@ -78,7 +94,7 @@ function buildEmailHtml(params: SendApprovalEmailParams): string {
           <tr>
             <td style="padding:32px;">
               <p style="margin:0 0 16px;font-size:16px;color:#374151;">
-                Hi ${recipientName},
+                Hi ${escapeHtml(recipientName)},
               </p>
               <p style="margin:0 0 24px;font-size:16px;color:#374151;line-height:1.5;">
                 ${bodyText}
@@ -122,7 +138,9 @@ export async function sendApprovalEmail(
   }
 
   try {
-    const subject = SUBJECT_MAP[params.type](params.listingName);
+    const subject = SUBJECT_MAP[params.type](
+      sanitizeHeaderValue(params.listingName),
+    );
     const html = buildEmailHtml(params);
 
     await resend.emails.send({

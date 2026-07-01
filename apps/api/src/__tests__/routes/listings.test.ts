@@ -79,6 +79,7 @@ vi.mock('../../db/index', () => {
 // ---------- Imports (after mocks) ----------
 
 import { listingRouter } from '../../routes/listings';
+import { getCurrentUser, getCompanyUser } from '../../middleware/auth';
 
 // ---------- Helpers ----------
 
@@ -671,6 +672,187 @@ describe('Listing Routes', () => {
       expect(res.json).toHaveBeenCalledOnce();
       expect(mockDb.insert).toHaveBeenCalled();
       expect(mockDb.delete).toHaveBeenCalled();
+    });
+
+    // ---- D-12: incoming brandId ownership on PATCH ----
+
+    /**
+     * Manufacturer PATCH DB await sequence when a brandId is supplied:
+     *   1) existence check          -> [existing]
+     *   2) existing-brand ownership -> [brand]
+     *   3) target-brand ownership   -> [targetBrand]  (the D-12 fix)
+     */
+    function setupManufacturerBrandCheck(opts: {
+      existingBrandCompanyId?: number;
+      targetBrandCompanyId?: number | null;
+    }) {
+      const {
+        existingBrandCompanyId = 1,
+        targetBrandCompanyId = 1,
+      } = opts;
+      let callCount = 0;
+      mockDb.then = vi.fn((resolve: any) => {
+        callCount++;
+        if (callCount === 1) {
+          return resolve([{ id: 1, status: 'draft', brandId: 10 }]);
+        }
+        if (callCount === 2) {
+          return resolve([{ companyId: existingBrandCompanyId }]);
+        }
+        if (callCount === 3) {
+          return resolve(
+            targetBrandCompanyId === null
+              ? []
+              : [{ companyId: targetBrandCompanyId }],
+          );
+        }
+        return resolve([]);
+      });
+    }
+
+    it('rejects manufacturer PATCH that reassigns brandId to a foreign brand (400)', async () => {
+      vi.mocked(getCurrentUser).mockReturnValueOnce({
+        userId: 'mfr-user',
+        role: 'manufacturer',
+        sessionClaims: { metadata: { role: 'manufacturer' } },
+      } as any);
+      vi.mocked(getCompanyUser).mockResolvedValueOnce({
+        id: 2,
+        companyId: 1,
+        role: 'manufacturer',
+        email: 'mfr@test.com',
+        firstName: 'Mfr',
+      } as any);
+
+      // existing brand owned by company 1 (passes), target brand owned by company 2 (fails)
+      setupManufacturerBrandCheck({
+        existingBrandCompanyId: 1,
+        targetBrandCompanyId: 2,
+      });
+
+      const { req, res, next } = createMockReqRes({
+        params: { id: '1' },
+        body: { listing: { name: 'Hijack', brandId: 99 } },
+      });
+
+      await handler(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Brand does not belong to your company',
+      });
+      expect(mockDb.update).not.toHaveBeenCalled();
+    });
+
+    it('allows manufacturer PATCH that sets brandId to an owned brand', async () => {
+      vi.mocked(getCurrentUser).mockReturnValueOnce({
+        userId: 'mfr-user',
+        role: 'manufacturer',
+        sessionClaims: { metadata: { role: 'manufacturer' } },
+      } as any);
+      vi.mocked(getCompanyUser).mockResolvedValueOnce({
+        id: 2,
+        companyId: 1,
+        role: 'manufacturer',
+        email: 'mfr@test.com',
+        firstName: 'Mfr',
+      } as any);
+
+      // both existing and target brand owned by company 1
+      setupManufacturerBrandCheck({
+        existingBrandCompanyId: 1,
+        targetBrandCompanyId: 1,
+      });
+      mockDb.query.brandListings.findFirst.mockResolvedValue({
+        id: 1,
+        name: 'Updated',
+        brand: { id: 20, name: 'B', company: { id: 1, name: 'C' } },
+        inventorySkus: [],
+        brandListingImages: [],
+        listingCategories: [],
+      });
+
+      const { req, res, next } = createMockReqRes({
+        params: { id: '1' },
+        body: { listing: { name: 'Updated', brandId: 20 } },
+      });
+
+      await handler(req, res, next);
+
+      expect(res.json).toHaveBeenCalledOnce();
+      expect(mockDb.update).toHaveBeenCalled();
+      expect(mockDb.set).toHaveBeenCalled();
+    });
+
+    it('runs no target-brand check when manufacturer PATCH omits brandId', async () => {
+      vi.mocked(getCurrentUser).mockReturnValueOnce({
+        userId: 'mfr-user',
+        role: 'manufacturer',
+        sessionClaims: { metadata: { role: 'manufacturer' } },
+      } as any);
+      vi.mocked(getCompanyUser).mockResolvedValueOnce({
+        id: 2,
+        companyId: 1,
+        role: 'manufacturer',
+        email: 'mfr@test.com',
+        firstName: 'Mfr',
+      } as any);
+
+      // Sequence: existence(1), existing-brand ownership(2), then update — no target check
+      let callCount = 0;
+      mockDb.then = vi.fn((resolve: any) => {
+        callCount++;
+        if (callCount === 1) {
+          return resolve([{ id: 1, status: 'draft', brandId: 10 }]);
+        }
+        if (callCount === 2) {
+          return resolve([{ companyId: 1 }]);
+        }
+        return resolve([]);
+      });
+      mockDb.query.brandListings.findFirst.mockResolvedValue({
+        id: 1,
+        name: 'NameOnly',
+        brand: { id: 10, name: 'B', company: { id: 1, name: 'C' } },
+        inventorySkus: [],
+        brandListingImages: [],
+        listingCategories: [],
+      });
+
+      const { req, res, next } = createMockReqRes({
+        params: { id: '1' },
+        body: { listing: { name: 'NameOnly' } },
+      });
+
+      await handler(req, res, next);
+
+      expect(res.json).toHaveBeenCalledOnce();
+      expect(res.status).not.toHaveBeenCalledWith(400);
+      expect(mockDb.update).toHaveBeenCalled();
+    });
+
+    it('does not restrict admin PATCH with any brandId', async () => {
+      // getCurrentUser defaults to admin; no manufacturer brand checks run.
+      setupExistenceCheck(true);
+      mockDb.query.brandListings.findFirst.mockResolvedValue({
+        id: 1,
+        name: 'AdminUpdate',
+        brand: { id: 77, name: 'B', company: { id: 5, name: 'C' } },
+        inventorySkus: [],
+        brandListingImages: [],
+        listingCategories: [],
+      });
+
+      const { req, res, next } = createMockReqRes({
+        params: { id: '1' },
+        body: { listing: { name: 'AdminUpdate', brandId: 77 } },
+      });
+
+      await handler(req, res, next);
+
+      expect(res.json).toHaveBeenCalledOnce();
+      expect(res.status).not.toHaveBeenCalledWith(400);
+      expect(mockDb.update).toHaveBeenCalled();
     });
   });
 

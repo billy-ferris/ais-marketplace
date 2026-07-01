@@ -80,5 +80,56 @@ describe('Email Service', () => {
       const html = mockSend.mock.calls[0][0].html as string;
       expect(html).toContain('/manage/listings/42/edit');
     });
+
+    // ---- D-11: HTML-escape body + CRLF-strip subject ----
+
+    it('HTML-escapes listingName in the body (no raw tag injection)', async () => {
+      await sendApprovalEmail({
+        ...baseParams,
+        listingName: '<img src=x onerror=alert(1)>',
+        type: 'listing_submitted',
+      });
+
+      const html = mockSend.mock.calls[0][0].html as string;
+      expect(html).toContain('&lt;img');
+      expect(html).not.toContain('<img src=x onerror=alert(1)>');
+    });
+
+    it('HTML-escapes rejectionReason in the body', async () => {
+      await sendApprovalEmail({
+        ...baseParams,
+        type: 'listing_rejected',
+        rejectionReason: '<script>steal()</script>',
+      });
+
+      const html = mockSend.mock.calls[0][0].html as string;
+      expect(html).toContain('&lt;script&gt;');
+      expect(html).not.toContain('<script>steal()</script>');
+    });
+
+    it('HTML-escapes recipientName in the greeting', async () => {
+      await sendApprovalEmail({
+        ...baseParams,
+        recipientName: '<b>Jane</b>',
+        type: 'listing_approved',
+      });
+
+      const html = mockSend.mock.calls[0][0].html as string;
+      expect(html).toContain('Hi &lt;b&gt;Jane&lt;/b&gt;,');
+      expect(html).not.toContain('Hi <b>Jane</b>,');
+    });
+
+    it('strips CRLF from the subject to prevent header injection (subject not HTML-escaped)', async () => {
+      await sendApprovalEmail({
+        ...baseParams,
+        listingName: 'Widget\r\nBcc: attacker@evil.com',
+        type: 'listing_submitted',
+      });
+
+      const subject = mockSend.mock.calls[0][0].subject as string;
+      expect(subject).not.toContain('\r');
+      expect(subject).not.toContain('\n');
+      expect(subject).toContain('Bcc: attacker@evil.com');
+    });
   });
 });
