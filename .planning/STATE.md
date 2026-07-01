@@ -4,12 +4,12 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 02.4-04-PLAN.md (DB data-integrity constraints)
-last_updated: "2026-07-01T15:30:59.266Z"
-last_activity: 2026-07-01
+last_updated: "2026-07-01T16:34:56.002Z"
+last_activity: 2026-07-01 -- Phase 02.4 planning complete
 progress:
   total_phases: 11
   completed_phases: 5
-  total_plans: 28
+  total_plans: 30
   completed_plans: 27
   percent: 45
 ---
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 Phase: 02.4 (security-hardening) — EXECUTING
 Plan: 6 of 6
 Status: Ready to execute
-Last activity: 2026-07-01
+Last activity: 2026-07-01 -- Phase 02.4 planning complete
 
 Progress: [██████████] 96%
 
