@@ -24,6 +24,11 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  RequiredLabel,
+  FieldError,
+  CharCounter,
+} from '@/components/manage/FormFieldHelpers';
 import { ImageUploader } from '@/components/shared/ImageUploader';
 import { useBrands } from '@/hooks/useBrands';
 import { useCategories, type CategoryRow } from '@/hooks/useCategories';
@@ -121,9 +126,12 @@ export function ListingForm({
     reset,
     setValue,
     watch,
+    trigger,
     formState: { errors },
   } = useForm<ListingFormInput>({
     resolver: zodResolver(createListingSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     defaultValues: {
       name: '',
       description: '',
@@ -310,16 +318,16 @@ export function ListingForm({
         <h2 className="text-lg font-semibold">Basic Information</h2>
 
         <div className="space-y-2">
-          <Label htmlFor="listing-name">Name *</Label>
+          <RequiredLabel htmlFor="listing-name" required>
+            Name
+          </RequiredLabel>
           <Input
             id="listing-name"
             placeholder="Listing name"
             {...register('name')}
             aria-invalid={!!errors.name}
           />
-          {errors.name && (
-            <p className="text-xs text-destructive">{errors.name.message}</p>
-          )}
+          <FieldError message={errors.name?.message} />
         </div>
 
         <div className="space-y-2">
@@ -331,18 +339,20 @@ export function ListingForm({
             {...register('description')}
             aria-invalid={!!errors.description}
           />
-          {errors.description && (
-            <p className="text-xs text-destructive">
-              {errors.description.message}
-            </p>
-          )}
+          <CharCounter value={watch('description') ?? ''} max={5000} />
+          <FieldError message={errors.description?.message} />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>Brand *</Label>
+            <RequiredLabel required>Brand</RequiredLabel>
             <Select
               value={brandOptions.find((b) => b.id === selectedBrandId)?.name ?? null}
+              onOpenChange={(open) => {
+                if (!open) {
+                  void trigger('brandId');
+                }
+              }}
               onValueChange={(name) => {
                 const brand = brandOptions.find((b) => b.name === name);
                 if (brand) {
@@ -363,11 +373,7 @@ export function ListingForm({
                 ))}
               </SelectContent>
             </Select>
-            {errors.brandId && (
-              <p className="text-xs text-destructive">
-                {errors.brandId.message}
-              </p>
-            )}
+            <FieldError message={errors.brandId?.message} />
           </div>
 
           {!hideStatus && (
