@@ -80,7 +80,7 @@ Plans:
 Plans:
 - [ ] 02.3-01-PLAN.md — API error contract restructure (error.ts flatten + API test) and typed ApiError in apiFetch + mutation hooks
 - [ ] 02.3-02-PLAN.md — RHF form validation timing + required indicators + reusable helpers (ListingForm, BrandDialog, CategoryDialog)
-- [ ] 02.3-03-PLAN.md — SkuInlineEditor per-cell blur validation with red border + Base UI Tooltip
+- [ ] 02.3-03-PLAN.md — SkuInlineEditor per-cell blur validation (red border + Base UI Tooltip) plus submit-time catch-all wired into ListingForm
 - [ ] 02.3-04-PLAN.md — Automated gates + manual UAT verification checkpoint (web tests deferred)
 
 ### Phase 02.2: Populate Phase 2 test stubs with real implementations (INSERTED)
