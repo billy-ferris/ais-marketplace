@@ -60,7 +60,8 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
     reset,
     setValue,
     watch,
-    trigger,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<CreateBrandInput>({
     resolver: zodResolver(createBrandSchema),
@@ -126,6 +127,19 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
   }
 
   function onSubmit(data: CreateBrandInput) {
+    // Admin-only client gate: the shared schema keeps `companyId` optional
+    // (manufacturers auto-populate it from their own company and never send it),
+    // so the "Manufacturer required" rule is enforced here for the admin path
+    // that actually surfaces the Select. Without this, the required asterisk /
+    // inline error in the UI would be purely cosmetic.
+    if (!isManufacturer && !data.companyId) {
+      setError('companyId', {
+        type: 'manual',
+        message: 'Manufacturer is required',
+      });
+      return;
+    }
+
     if (brand) {
       updateBrand.mutate(
         { id: brand.id, ...data },
@@ -189,14 +203,20 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
               <Select
                 value={companies.find((c) => c.id === selectedCompanyId)?.name ?? null}
                 onOpenChange={(open) => {
-                  if (!open) {
-                    void trigger('companyId');
+                  // The schema can't reject a missing companyId, so validate the
+                  // admin requirement manually on close (blur-equivalent).
+                  if (!open && !selectedCompanyId) {
+                    setError('companyId', {
+                      type: 'manual',
+                      message: 'Manufacturer is required',
+                    });
                   }
                 }}
                 onValueChange={(name) => {
                   const company = companies.find((c) => c.name === name);
                   if (company) {
                     setValue('companyId', company.id, { shouldValidate: true });
+                    clearErrors('companyId');
                   }
                 }}
               >
