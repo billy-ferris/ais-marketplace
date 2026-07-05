@@ -113,12 +113,12 @@ export function ImageUploader({
   }
 
   return (
-    <div className={cn('h-32 w-32', className)}>
+    <div className={cn('w-32', className)}>
       <div
         role="button"
         tabIndex={disabled || isUploading ? -1 : 0}
         className={cn(
-          'flex size-full cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed transition-colors',
+          'flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed transition-colors',
           dragOver
             ? 'border-primary bg-primary/5'
             : 'border-muted-foreground/25 hover:border-muted-foreground/50',
@@ -161,7 +161,9 @@ export function ImageUploader({
         disabled={disabled || isUploading}
       />
       {displayError && (
-        <p className="mt-1 text-xs text-destructive">{displayError}</p>
+        <p role="alert" className="mt-1 text-xs text-destructive">
+          {displayError}
+        </p>
       )}
     </div>
   );

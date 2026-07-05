@@ -248,6 +248,7 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
               isUploading={isUploading}
               disabled={isPending}
               error={uploadError ?? undefined}
+              className="w-full"
             />
           </div>
 
