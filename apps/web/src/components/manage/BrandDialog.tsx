@@ -203,8 +203,22 @@ export function BrandDialog({ open, onOpenChange, brand }: BrandDialogProps) {
             <div className="space-y-2">
               <RequiredLabel required>Manufacturer</RequiredLabel>
               <Select
+                // Base UI renders SelectValue from the raw value unless `items`
+                // maps value -> label. Seed with the edited brand's own company
+                // so the name prefills before the companies list loads.
+                items={{
+                  ...(brand?.companyId != null && brand.companyName
+                    ? { [String(brand.companyId)]: brand.companyName }
+                    : {}),
+                  ...Object.fromEntries(
+                    companies.map((c) => [String(c.id), c.name]),
+                  ),
+                }}
+                // `null` (not `undefined`) keeps the Select controlled from the
+                // first render so brand.companyId prefills in edit mode. Base UI
+                // locks controlled-ness when value !== undefined initially.
                 value={
-                  selectedCompanyId != null ? String(selectedCompanyId) : undefined
+                  selectedCompanyId != null ? String(selectedCompanyId) : null
                 }
                 onOpenChange={(open) => {
                   // The schema can't reject a missing companyId, so validate the

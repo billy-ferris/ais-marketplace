@@ -366,8 +366,24 @@ export function ListingForm({
           <div className="space-y-2">
             <RequiredLabel required>Brand</RequiredLabel>
             <Select
+              // Base UI renders SelectValue from the raw value unless `items`
+              // maps value -> label. Seed with the edited listing's own brand so
+              // the name prefills before the brand list loads (and survives a
+              // brand outside the first page of results).
+              items={{
+                ...(listing?.brand
+                  ? { [String(listing.brand.id)]: listing.brand.name }
+                  : {}),
+                ...Object.fromEntries(
+                  brandOptions.map((b) => [String(b.id), b.name]),
+                ),
+              }}
+              // `null` (not `undefined`) keeps the Select controlled from the
+              // first render so the brandId that arrives via reset() in edit
+              // mode prefills. Base UI locks controlled-ness when value !==
+              // undefined on the initial render.
               value={
-                selectedBrandId != null ? String(selectedBrandId) : undefined
+                selectedBrandId != null ? String(selectedBrandId) : null
               }
               onOpenChange={(open) => {
                 if (!open) {
