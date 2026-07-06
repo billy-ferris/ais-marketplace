@@ -65,15 +65,15 @@ Plans:
 **Goal:** Stand up automated CI and a production deployment path for the monorepo (Express API + Vite SPA + Postgres). Deliver a GitHub Actions pipeline (lint + typecheck + API tests) that gates `main`, a hosted topology with the API + Postgres on Railway and the web SPA on Vercel, a safe production migration flow (generated drizzle SQL migrations applied on a Railway release step, retiring `db:push` for prod), and per-environment secret/config management including cross-origin CORS/Clerk allow-listing for the split frontend/backend hosts. See `02.5-CONTEXT.md` for locked decisions.
 **Requirements**: Infra phase — no product REQ-* IDs map here. Acceptance = locked decisions D-01..D-11 (see `02.5-CONTEXT.md`).
 **Depends on:** Phase 2, Phase 02.4 (security hardening must ship first)
-**Plans:** 3/7 plans executed
+**Plans:** 6/7 plans executed
 
 Plans:
 - [x] 02.5-01-PLAN.md — Wave 0: lint/typecheck gate + production start fix (D-03, D-10)
 - [x] 02.5-02-PLAN.md — Wave 0: baseline drizzle migration flow, retire db:push for prod (D-05, D-06)
-- [ ] 02.5-03-PLAN.md — Wave 1: GitHub Actions CI workflow + branch protection on main (D-03, D-04)
+- [x] 02.5-03-PLAN.md — Wave 1: GitHub Actions CI workflow + branch protection on main (D-03, D-04)
 - [x] 02.5-04-PLAN.md — Wave 1: env-driven CORS allowlist + Clerk authorizedParties + env contract (D-02, D-08, D-09)
-- [ ] 02.5-05-PLAN.md — Wave 2: Railway API + Postgres deploy (railway.toml, pre-deploy migrate, tsx start) (D-01, D-06, D-07, D-08, D-10)
-- [ ] 02.5-06-PLAN.md — Wave 2: Vercel SPA deploy (vercel.json rewrite, build-time VITE_*, previews) (D-01, D-07, D-08, D-11)
+- [x] 02.5-05-PLAN.md — Wave 2: Railway API + Postgres deploy (railway.toml, pre-deploy migrate, tsx start) (D-01, D-06, D-07, D-08, D-10)
+- [x] 02.5-06-PLAN.md — Wave 2: Vercel SPA deploy (vercel.json rewrite, build-time VITE_*, previews) (D-01, D-07, D-08, D-11)
 - [ ] 02.5-07-PLAN.md — Wave 3: production cross-origin cutover (Clerk prod instance + URL wiring + smoke) (D-02, D-08, D-09)
 
 ### Phase 02.4: Security Hardening (INSERTED)
