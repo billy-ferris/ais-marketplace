@@ -3,7 +3,6 @@ import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { createClerkClient } from '@clerk/express';
-import { eq } from 'drizzle-orm';
 import { companies } from './schema/companies';
 import { users } from './schema/users';
 import { brands } from './schema/brands';
