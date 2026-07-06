@@ -65,7 +65,7 @@ Plans:
 **Goal:** Stand up automated CI and a production deployment path for the monorepo (Express API + Vite SPA + Postgres). Deliver a GitHub Actions pipeline (lint + typecheck + API tests) that gates `main`, a hosted topology with the API + Postgres on Railway and the web SPA on Vercel, a safe production migration flow (generated drizzle SQL migrations applied on a Railway release step, retiring `db:push` for prod), and per-environment secret/config management including cross-origin CORS/Clerk allow-listing for the split frontend/backend hosts. See `02.5-CONTEXT.md` for locked decisions.
 **Requirements**: Infra phase — no product REQ-* IDs map here. Acceptance = locked decisions D-01..D-11 (see `02.5-CONTEXT.md`).
 **Depends on:** Phase 2, Phase 02.4 (security hardening must ship first)
-**Plans:** 6/7 plans executed
+**Plans:** 6/7 plans complete
 
 Plans:
 - [x] 02.5-01-PLAN.md — Wave 0: lint/typecheck gate + production start fix (D-03, D-10)
