@@ -1,0 +1,33 @@
+# Railway config-as-code for the AIS Marketplace API (@ais/api).
+# Docs: https://docs.railway.com/reference/config-as-code
+#       https://docs.railway.com/guides/pre-deploy-command
+#
+# Deploy context (set in the Railway service UI, NOT here — see SUMMARY
+# "Deferred Human Provisioning Steps"):
+#   - Root Directory = repo root, so the pnpm workspace and @ais/shared resolve.
+#   - Node major is pinned to 22 via root package.json engines.node="22.x"
+#     (Nixpacks respects it) and the NIXPACKS_NODE_VERSION=22 service env var,
+#     matching CI (Plan 03) and local dev.
+#   - Real secrets and DATABASE_URL live in the Railway env store / Postgres
+#     plugin, never in this file (D-07).
+
+[build]
+# Explicit builder per D-10 (Railway's newer default is Railpack; pin Nixpacks).
+builder = "NIXPACKS"
+
+[deploy]
+# Pre-deploy runs in a SEPARATE container with the app image + env (incl. the
+# Postgres plugin's DATABASE_URL) BEFORE the API serves. A non-zero exit aborts
+# the deploy and does not roll forward — the D-06 "migrate before serve" gate.
+# Migrate ONLY: never db:seed/db:push (the Phase 02.4 assertNotProduction()
+# guard forbids seeding under NODE_ENV=production — D-05/D-08).
+preDeployCommand = "pnpm --filter @ais/api exec drizzle-kit migrate"
+
+# Run-from-source start (D-10). tsx is a promoted dependency (Plan 01) so a prod
+# prune keeps it; this is the verified-working path — NOT `node dist/index.js`.
+startCommand = "pnpm --filter @ais/api exec tsx src/index.ts"
+
+# GET /api/health returns { status: "ok" } (API_ROUTES.HEALTH).
+healthcheckPath = "/api/health"
+
+restartPolicyType = "ON_FAILURE"
