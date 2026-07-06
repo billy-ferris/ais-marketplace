@@ -3,6 +3,7 @@ import express, { type Express } from 'express';
 import cors from 'cors';
 import { clerkMiddleware } from '@clerk/express';
 import { API_ROUTES } from '@ais/shared/constants';
+import { buildCorsOptions, staticAllowedOrigins } from './lib/cors';
 import { webhookRouter } from './routes/webhooks';
 import { companyRouter } from './routes/companies';
 import { userRouter } from './routes/users';
@@ -19,15 +20,12 @@ const port = process.env.PORT || 3001;
 // Webhook routes FIRST (need raw body — Svix signature verification requires Buffer, not parsed JSON)
 app.use('/api/webhooks', webhookRouter);
 
-// Then JSON parser, CORS, and Clerk middleware for all other routes
+// Then JSON parser, CORS, and Clerk middleware for all other routes.
+// CORS runs before Clerk; both are driven by the same env allowlist so tokens
+// are only accepted from authorized frontends (authorizedParties, D-08).
 app.use(express.json());
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true,
-  })
-);
-app.use(clerkMiddleware());
+app.use(cors(buildCorsOptions()));
+app.use(clerkMiddleware({ authorizedParties: staticAllowedOrigins() }));
 
 // API routes
 app.use(API_ROUTES.COMPANIES, companyRouter);
