@@ -270,7 +270,7 @@ router.post('/', requireAuth(), requireRole('admin', 'manufacturer'), async (req
     const parsedListing = createListingSchema.parse(listingData);
 
     let listingStatus = parsedListing.status;
-    let listingBrandId = parsedListing.brandId;
+    const listingBrandId = parsedListing.brandId;
 
     if (role === 'manufacturer') {
       // Force draft status for manufacturer-created listings
