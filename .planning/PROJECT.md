@@ -101,6 +101,8 @@ Retailers can discover and purchase discounted CPG inventory from verified manuf
 
 | Sanity CMS (Phase 2) | Free tier allows commercial use, $0 through Phase 2. Public datasets only on free (fine for editorial content). $15/seat/month Growth plan if private datasets needed. | — Pending |
 | Per-company margin | Margin % negotiated per company during onboarding, stored on company entity, default 10%. More realistic B2B model than flat platform fee. | — Pending |
+| Security hardening pass (Phase 02.4) | Closed retro-review criticals before deployment: IDOR (self-or-admin 404 gate), PII/margin redaction, cross-tenant brandId re-validation, HTML/CRLF email escaping, production seed guard, DB-level data-integrity constraints (partial unique indexes + FK onDelete), and upload content-type/size controls. | ✓ Validated — 22/22 threats closed, 171/171 API tests, UAT pass (Phase 02.4) |
+| R2 uses presigned PUT, not POST | Cloudflare R2's S3 API does not implement POST Object; presigned POST surfaces as a misleading CORS error. Use presigned PUT with a signed exact ContentLength + pinned ContentType to preserve the D-06 allowlist and D-07 5 MB cap. | ✓ Validated (Phase 02.4) |
 
 ---
-*Last updated: 2026-03-09 — added manufacturer self-service with approval workflow (Phase 2.1)*
+*Last updated: 2026-07-06 — completed security hardening pass (Phase 02.4)*
