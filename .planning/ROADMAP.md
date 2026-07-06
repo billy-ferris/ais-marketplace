@@ -62,8 +62,8 @@ Plans:
 
 ### Phase 02.5: Deployment - CI/CD pipeline and production deployment setup (INSERTED)
 
-**Goal:** [Urgent work - to be planned]
-**Requirements**: TBD
+**Goal:** Stand up automated CI and a production deployment path for the monorepo (Express API + Vite SPA + Postgres). Deliver a GitHub Actions pipeline (lint + typecheck + API tests) that gates `main`, a hosted topology with the API + Postgres on Railway and the web SPA on Vercel, a safe production migration flow (generated drizzle SQL migrations applied on a Railway release step, retiring `db:push` for prod), and per-environment secret/config management including cross-origin CORS/Clerk allow-listing for the split frontend/backend hosts. See `02.5-CONTEXT.md` for locked decisions.
+**Requirements**: TBD (to be derived during planning)
 **Depends on:** Phase 2, Phase 02.4 (security hardening must ship first)
 **Plans:** 0 plans
 
