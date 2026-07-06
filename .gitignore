@@ -32,3 +32,8 @@ Thumbs.db
 *.log
 npm-debug.log*
 pnpm-debug.log*
+.vercel
+.env*
+# ...but keep the committed env contract files (D-07 source of truth)
+!.env.example
+!**/.env.example
