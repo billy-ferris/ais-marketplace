@@ -14,6 +14,14 @@
 [build]
 # Explicit builder per D-10 (Railway's newer default is Railpack; pin Nixpacks).
 builder = "NIXPACKS"
+# No compile step: the API runs from source via `tsx` (D-10) and @ais/shared is
+# consumed as source (its exports point at ./src/*.ts, no dist). Nixpacks' default
+# `turbo run build` would `tsc`-compile every workspace package and fail under
+# NODE_ENV=production (typescript is a devDependency, pruned from the prod install).
+# Override the build phase to a no-op; the Nixpacks install phase still runs, so
+# the promoted `tsx`/`drizzle-kit` dependencies and the @ais/shared workspace link
+# are present at runtime.
+buildCommand = "echo 'AIS API runs from source via tsx — no build step (see startCommand)'"
 
 [deploy]
 # Pre-deploy runs in a SEPARATE container with the app image + env (incl. the
