@@ -403,6 +403,14 @@ export function assertNotProduction(): void {
 async function main(): Promise<void> {
   assertNotProduction();
 
+  // When set, preserve the existing Clerk instance's users instead of
+  // deleting + recreating them. Used to seed a DB (e.g. a prod test DB) that
+  // SHARES a Clerk instance with another environment — recreating users would
+  // reassign their Clerk IDs and invalidate the other environment's clerkId
+  // references. In this mode each user's Clerk ID is resolved by lookup-or-create
+  // so the local DB row is always written against a valid, existing Clerk user.
+  const PRESERVE_CLERK = process.env.SEED_PRESERVE_CLERK === '1';
+
   console.log('--- AIS Marketplace Seed Script ---\n');
 
   // 1. Clean existing data
@@ -422,9 +430,13 @@ async function main(): Promise<void> {
   await db.delete(companies);
   console.log('  Cleared local users and companies tables');
 
-  // Delete seed users from Clerk
-  await cleanClerkUsers();
-  console.log('  Cleaned Clerk users\n');
+  // Delete seed users from Clerk (skipped when preserving a shared Clerk instance)
+  if (PRESERVE_CLERK) {
+    console.log('  Preserving existing Clerk users (SEED_PRESERVE_CLERK=1)\n');
+  } else {
+    await cleanClerkUsers();
+    console.log('  Cleaned Clerk users\n');
+  }
 
   // 2. Insert companies
   console.log('Seeding companies...');
@@ -440,19 +452,37 @@ async function main(): Promise<void> {
 
   for (const seedUser of seedUsers) {
     try {
-      // Create user in Clerk
-      const clerkUser = await clerk.users.createUser({
+      // Resolve the Clerk user id: reuse an existing user (shared/prod instance)
+      // or create a new one. Resolving first — rather than create-then-catch —
+      // guarantees the local DB row is written even when the Clerk user already
+      // exists (previously that path warned and skipped the DB insert).
+      let clerkId: string;
+      const existing = await clerk.users.getUserList({
         emailAddress: [seedUser.email],
-        password: DEMO_PASSWORD,
-        firstName: seedUser.firstName,
-        lastName: seedUser.lastName,
-        publicMetadata: { role: seedUser.role },
-        skipPasswordChecks: true,
       });
+
+      if (existing.data.length > 0) {
+        clerkId = existing.data[0].id;
+        // Keep the role in publicMetadata in sync with the seed definition.
+        await clerk.users.updateUser(clerkId, {
+          publicMetadata: { role: seedUser.role },
+        });
+        console.log(`  Reusing Clerk user: ${seedUser.email}`);
+      } else {
+        const clerkUser = await clerk.users.createUser({
+          emailAddress: [seedUser.email],
+          password: DEMO_PASSWORD,
+          firstName: seedUser.firstName,
+          lastName: seedUser.lastName,
+          publicMetadata: { role: seedUser.role },
+          skipPasswordChecks: true,
+        });
+        clerkId = clerkUser.id;
+      }
 
       // Mirror user in local database
       await db.insert(users).values({
-        clerkId: clerkUser.id,
+        clerkId,
         email: seedUser.email,
         firstName: seedUser.firstName,
         lastName: seedUser.lastName,
@@ -462,18 +492,12 @@ async function main(): Promise<void> {
 
       usersCreated++;
       console.log(
-        `  Created: ${seedUser.email} (${seedUser.role}) -> ${insertedCompanies[seedUser.companyIndex].name}`
+        `  Seeded DB user: ${seedUser.email} (${seedUser.role}) -> ${insertedCompanies[seedUser.companyIndex].name}`
       );
     } catch (err: unknown) {
       const error = err as { status?: number; message?: string };
-      if (error.status === 409 || error.status === 422) {
-        console.warn(
-          `  Warning: ${seedUser.email} already exists in Clerk, skipping`
-        );
-      } else {
-        console.error(`  Error creating ${seedUser.email}:`, error.message);
-        throw err;
-      }
+      console.error(`  Error seeding ${seedUser.email}:`, error.message);
+      throw err;
     }
   }
 
