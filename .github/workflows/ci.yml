@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      # pnpm/action-setup MUST precede setup-node so `cache: 'pnpm'` can
+      # resolve the pnpm store. It reads the pnpm@9.15.0 pin from the root
+      # package.json `packageManager` field (no hardcoded version here).
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      # Full D-03 quality gate. Tests are fully mocked (178 API tests pass
+      # with an invalid DATABASE_URL) so no Postgres service container is
+      # needed. No TURBO_TOKEN/TURBO_TEAM: local-cache-only CI, no secrets.
+      - run: pnpm turbo run typecheck lint test
